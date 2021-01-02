@@ -1,0 +1,12 @@
+{
+  "title": "Wsky TTT Lootboxes and Inventory System",
+  "type": "ServerContent",
+  "tags": [
+    "fun"
+  ],
+  "ignore": [
+    ".git/*",
+    ".gitattributes",
+    "*.md"
+  ]
+}
