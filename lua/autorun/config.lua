@@ -12,13 +12,25 @@ primaryWeapons = {
   "weapon_zm_sledge",
   "weapon_zm_shotgun",
   "weapon_ttt_tmp",
-  "weapon_zm_mac10"
+  "weapon_zm_mac10",
+  "weapon_ttt_mp5",
+  "weapon_ttt_famas",
+  "weapon_ttt_m3s90"
 }
 
 secondaryWeapons = {
   "weapon_zm_revolver",
   "weapon_ttt_glock",
   "weapon_zm_pistol"
+}
+
+playerModels = {
+  "models/player/genshin_impact_xiangling.mdl",
+  "models/freeman/player/left_shark.mdl",
+  "models/player/MasterChiefH3.mdl",
+  "models/player/genshin_impact_diluc.mdl",
+  "models/player/genshin_impact_razor.mdl",
+  "models/player/genshin_impact_zhongli.mdl"
 }
 
 allWeapons = {}
