@@ -1,60 +1,42 @@
 if CLIENT then
-  local consoleFont = "Segoe UI"
-  local DefaultFont = "Unispace"
+  local fontName = "Segoe UI"
 
   local headerSize, defaultSize, regularSize, smallSize, miniSize, extraSmallSize = 182, 72, 58, 32, 22, 12
 
-  surface.CreateFont( "WskyVendingMachineConsoleHeader", {
-    font = consoleFont,
-    size = headerSize
+  surface.CreateFont( "WskyFontHeader", {
+    font = fontName,
+    size = defaultSize,
+    weight = 500
   } )
 
-  surface.CreateFont( "WskyVendingMachineConsoleDefault", {
-    font = consoleFont,
+  surface.CreateFont( "WskyFontDefault", {
+    font = fontName,
     size = smallSize,
     weight = 500
   } )
 
-  surface.CreateFont( "WskyVendingMachineConsoleMini", {
-    font = consoleFont,
-    size = miniSize,
-    weight = 100
-  } )
-
-  surface.CreateFont( "WskyVendingMachineHeader", {
-    font = DefaultFont,
-    size = defaultSize,
-    weight = 1000
-  } )
-
-  surface.CreateFont( "WskyVendingMachineDefault", {
-    font = DefaultFont,
-    size = smallSize,
-    weight = 1000
-  } )
-
-  surface.CreateFont( "WskyVendingMachineRegular", {
-    font = DefaultFont,
+  surface.CreateFont( "WskyFontRegular", {
+    font = fontName,
     size = regularSize,
-    weight = 1000
+    weight = 500
   } )
 
-  surface.CreateFont( "WskyVendingMachineSmall", {
-    font = DefaultFont,
+  surface.CreateFont( "WskyFontSmall", {
+    font = fontName,
     size = smallSize,
-    weight = 1000
+    weight = 500
   } )
 
-  surface.CreateFont( "WskyVendingMachineSmaller", {
-    font = DefaultFont,
+  surface.CreateFont( "WskyFontSmaller", {
+    font = fontName,
     size = miniSize,
-    weight = 1000
+    weight = 500
   } )
 
-  surface.CreateFont( "WskyVendingMachineMini", {
-    font = DefaultFont,
+  surface.CreateFont( "WskyFontMini", {
+    font = fontName,
     size = extraSmallSize,
-    weight = 1000
+    weight = 500
   } )
 
   function createBasicFrame (width, height, title, draggable)
@@ -67,23 +49,21 @@ if CLIENT then
     Frame:Center()
     Frame.Paint = function(self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(65, 65, 65, 225))
-      draw.RoundedBox(0, 0, 0, w, 32, Color(0, 0, 0, 225))
-      draw.SimpleText(title, "DermaLarge", 4, 0)
+      draw.RoundedBox(0, 0, 0, w, 38, Color(0, 202, 255, 225))
+      draw.SimpleText(title, "WskyFontSmall", 6, 0)
     end
     Frame:MakePopup()
-
     Frame.OnKeyCodePressed = function (_, key)
-      print(key)
-      if (key == KEY_ESCAPE or key == KEY_FIRST or key == KEY_BACKSPACE or key == KEY_C or key == KEY_Q) then Frame:Close() end
+      if (key == KEY_ESCAPE or key == KEY_FIRST or key == KEY_BACKSPACE or key == KEY_TAB) then Frame:Close() end
     end
 
     local CloseBtn = vgui.Create("DButton", Frame)
     CloseBtn:SetText( "X" )
     CloseBtn:SetTextColor( Color(255, 255, 255) )
-    CloseBtn:SetPos(width - 32, 0)
-    CloseBtn:SetSize(32, 32)
+    CloseBtn:SetPos(width - 38, 0)
+    CloseBtn:SetSize(38, 38)
     CloseBtn.Paint = function(self, w, h)
-      draw.RoundedBox(0, 0, 0, w, h, Color(0,0,0,255))
+      draw.RoundedBox(0, 0, 0, w, h, Color(0,0,0,125))
     end
     CloseBtn.DoClick = function()
       Frame:Close()

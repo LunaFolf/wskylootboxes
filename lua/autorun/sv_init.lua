@@ -3,11 +3,12 @@ if CLIENT then return end
 include('config.lua')
 include('shared.lua')
 
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestData")
+util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
+
 math.randomseed(os.time())
 
 local inventories = {}
-
-util.AddNetworkString("WskyTTTLootbox_Winnings")
 
 function wskyLootboxesUnboxWeapon()
   -- Randomly Select the weapon.
@@ -40,6 +41,22 @@ local crateTypes = {
   "weapon",
   "playerModel"
 }
+
+net.Receive("WskyTTTLootboxes_ClientRequestData", function (len, ply)
+  local steam64 = ply:SteamID64()
+  if (!inventories[steam64]) then inventories[steam64] = {
+    [1] = {
+      ["type"] = "crate_weapon"
+    },
+    [2] = {
+      ["type"] = "crate_playerModel"
+    }
+  } end
+
+  net.Start("WskyTTTLootboxes_ClientReceiveData")
+    net.WriteTable(inventories[steam64])
+  net.Send(ply)
+end)
 
 concommand.Add("wsky_start_lootbox", function (ply, cmd, args)
   local steam64 = ply:SteamID64()
