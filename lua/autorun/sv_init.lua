@@ -6,9 +6,56 @@ include('shared.lua')
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestData")
 util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
 
+local dir = "wsky/Lootboxes"
+
+local starterPlayerData = {
+  ["inventory"] = {
+    [1] = {
+    ["type"] = "crate_weapon"
+    },
+    [2] = {
+      ["type"] = "crate_playerModel"
+    }
+  }
+}
+
+function checkAndCreateDir(dirs)
+  local path = ""
+  for k, dir in pairs(string.Explode("/", dirs)) do
+    if not file.Exists(dir, path) then
+      file.CreateDir(path .. dir)
+    end
+    path = path .. dir .. "/"
+  end
+end
+
 math.randomseed(os.time())
 
-local inventories = {}
+function getPlayerInventory(steam64)
+  local playerInventoryData = {}
+  if (!steam64) then return end
+
+  local fileName = dir .. "/playerdata/" .. steam64 .. ".json"
+  checkAndCreateDir(dir .. "/playerdata")
+  local fileOutput = file.Read(fileName)
+  if not fileOutput or string.len(fileOutput) <= 0 then
+    file.Write(fileName, util.TableToJSON(starterPlayerData))
+    playerInventoryData = starterPlayerData
+  else
+    playerInventoryData = util.JSONToTable(fileOutput)
+  end
+
+  return playerInventoryData
+end
+
+function savePlayerInventory(steam64, inventory)
+  if (!steam64 or !inventory) then return end
+
+  local fileName = dir .. "/playerdata/" .. steam64 .. ".json"
+  checkAndCreateDir(dir .. "/playerdata")
+  
+  file.Write(fileName, util.TableToJSON(inventory))
+end
 
 function wskyLootboxesUnboxWeapon()
   -- Randomly Select the weapon.
@@ -44,22 +91,16 @@ local crateTypes = {
 
 net.Receive("WskyTTTLootboxes_ClientRequestData", function (len, ply)
   local steam64 = ply:SteamID64()
-  if (!inventories[steam64]) then inventories[steam64] = {
-    [1] = {
-      ["type"] = "crate_weapon"
-    },
-    [2] = {
-      ["type"] = "crate_playerModel"
-    }
-  } end
+  local playerInventory = getPlayerInventory(steam64)
 
   net.Start("WskyTTTLootboxes_ClientReceiveData")
-    net.WriteTable(inventories[steam64])
+    net.WriteTable(playerInventory)
   net.Send(ply)
 end)
 
 concommand.Add("wsky_start_lootbox", function (ply, cmd, args)
   local steam64 = ply:SteamID64()
+  local playerInventory = getPlayerInventory(steam64)
   local crateType = args[1] or "any"
 
   -- Calculate whether you win a free crate.
@@ -96,17 +137,21 @@ concommand.Add("wsky_start_lootbox", function (ply, cmd, args)
     newItem.modelName = winningItem
   end
 
-  -- If player inventory doesn't exist, create it!
-  if (!inventories[steam64]) then inventories[steam64] = {} end
   -- Store new item!
-  table.Add(inventories[steam64], {newItem})
+  table.Add(playerInventory["inventory"], {newItem})
+
+  if (winAFreeCrate) then
+    local freeCrate = {}
+    local numOfCrateTypes = table.Count(crateTypes)
+    freeCrate.type = "crate_" .. crateTypes[math.Round(math.Rand(1, numOfCrateTypes))]
+    
+    table.Add(playerInventory["inventory"], {freeCrate})
+  end
+
+  savePlayerInventory(steam64, playerInventory)
 
   -- Let player know of their winnings, and play a little tune.
   local winningItemText = "You won a " .. (weaponTier and (weaponTier .. " ") or "") .. winningItem
   messagePlayer(ply, winningItemText .. (winAFreeCrate and ", and a free crate!" or "!"))
   ply:EmitSound("wsky_lootboxes/lootbox_win.wav")
-end)
-
-concommand.Add("wsky_current_inventories", function ()
-  PrintTable(inventories)
 end)
