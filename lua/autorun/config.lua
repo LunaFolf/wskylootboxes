@@ -26,11 +26,14 @@ secondaryWeapons = {
 
 playerModels = {
   "models/player/genshin_impact_xiangling.mdl",
-  "models/freeman/player/left_shark.mdl",
   "models/player/MasterChiefH3.mdl",
   "models/player/genshin_impact_diluc.mdl",
+  "models/player/putin.mdl",
   "models/player/genshin_impact_razor.mdl",
-  "models/player/genshin_impact_zhongli.mdl"
+  "models/player/puggamaximus.mdl",
+  "models/player/genshin_impact_zhongli.mdl",
+  "models/gonzo/regimentalclones2/cody/cody.mdl",
+  "models/player/genshin_impact_amber.mdl"
 }
 
 allWeapons = {}

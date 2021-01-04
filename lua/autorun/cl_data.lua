@@ -1,12 +1,14 @@
-local inventoryData = nil
+if SERVER then return end
 
-function requestNewData()
+playerData = nil
+
+function requestNewData(openPlayerMenu)
   net.Start("WskyTTTLootboxes_ClientRequestData")
+    net.WriteBool(openPlayerMenu)
   net.SendToServer()
 end
 
 net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
   local inventory = net.ReadTable()
-  inventoryData = inventory
-  PrintTable(inventory)
+  playerData = inventory
 end)

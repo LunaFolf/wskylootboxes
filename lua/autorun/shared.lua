@@ -1,6 +1,6 @@
 if CLIENT then
   local fontName = "Segoe UI"
-
+  local topHatBlue = Color(0, 202, 255, 225)
   local headerSize, defaultSize, regularSize, smallSize, miniSize, extraSmallSize = 182, 72, 58, 32, 22, 12
 
   surface.CreateFont( "WskyFontHeader", {
@@ -49,7 +49,7 @@ if CLIENT then
     Frame:Center()
     Frame.Paint = function(self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(65, 65, 65, 225))
-      draw.RoundedBox(0, 0, 0, w, 38, Color(0, 202, 255, 225))
+      draw.RoundedBox(0, 0, 0, w, 38, topHatBlue)
       draw.SimpleText(title, "WskyFontSmall", 6, 0)
     end
     Frame:MakePopup()
@@ -72,6 +72,15 @@ if CLIENT then
     return Frame
   end
 
+end
+
+local random = math.random
+function uuid()
+    local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    return string.gsub(template, '[xy]', function (c)
+        local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
+        return string.format('%x', v)
+    end)
 end
 
 function messagePlayer(ply, message)

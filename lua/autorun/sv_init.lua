@@ -5,19 +5,28 @@ include('shared.lua')
 
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestData")
 util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
+util.AddNetworkString("WskyTTTLootboxes_OpenPlayerInventory")
+util.AddNetworkString("WskyTTTLootboxes_RequestCrateOpening")
 
 local dir = "wsky/Lootboxes"
 
-local starterPlayerData = {
-  ["inventory"] = {
-    [1] = {
-    ["type"] = "crate_weapon"
-    },
-    [2] = {
-      ["type"] = "crate_playerModel"
+function getStarterPlayerData()
+  return {
+    ["playerModel"] = "",
+    ["meleeWeapon"] = "",
+    ["primaryWeapon"] = "",
+    ["secondaryWeapon"] = "",
+    ["scrap"] = 4000,
+    ["inventory"] = {
+      [uuid()] = {
+      ["type"] = "crate_weapon"
+      },
+      [uuid()] = {
+        ["type"] = "crate_playerModel"
+      }
     }
   }
-}
+end
 
 function checkAndCreateDir(dirs)
   local path = ""
@@ -31,7 +40,7 @@ end
 
 math.randomseed(os.time())
 
-function getPlayerInventory(steam64)
+function getPlayerData(steam64)
   local playerInventoryData = {}
   if (!steam64) then return end
 
@@ -39,6 +48,7 @@ function getPlayerInventory(steam64)
   checkAndCreateDir(dir .. "/playerdata")
   local fileOutput = file.Read(fileName)
   if not fileOutput or string.len(fileOutput) <= 0 then
+    local starterPlayerData = getStarterPlayerData()
     file.Write(fileName, util.TableToJSON(starterPlayerData))
     playerInventoryData = starterPlayerData
   else
@@ -48,7 +58,7 @@ function getPlayerInventory(steam64)
   return playerInventoryData
 end
 
-function savePlayerInventory(steam64, inventory)
+function savePlayerData(steam64, inventory)
   if (!steam64 or !inventory) then return end
 
   local fileName = dir .. "/playerdata/" .. steam64 .. ".json"
@@ -62,8 +72,6 @@ function wskyLootboxesUnboxWeapon()
   local weaponCount = table.Count(allWeapons)
   local weaponNum = math.Round(math.Rand(1, weaponCount))
   local winningWeapon = allWeapons[weaponNum]
-
-  print(weaponCount, weaponNum, winningWeapon)
 
   -- Randomly Select the weapon Tier.
   local tierCount = table.Count(weaponTiers)
@@ -79,8 +87,6 @@ function wskyLootboxesUnboxPlayerModel()
   local modelNum = math.Round(math.Rand(1, modelCount))
   local winningModel = playerModels[modelNum]
 
-  print(modelCount, modelNum, winningModel)
-
   return winningModel
 end
 
@@ -91,17 +97,41 @@ local crateTypes = {
 
 net.Receive("WskyTTTLootboxes_ClientRequestData", function (len, ply)
   local steam64 = ply:SteamID64()
-  local playerInventory = getPlayerInventory(steam64)
+  local playerData = getPlayerData(steam64)
+  local openPlayerMenu = net.ReadBool()
 
   net.Start("WskyTTTLootboxes_ClientReceiveData")
-    net.WriteTable(playerInventory)
+    net.WriteTable(playerData)
   net.Send(ply)
+
+  if (openPlayerMenu) then
+    net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.Send(ply)
+  end
 end)
 
-concommand.Add("wsky_start_lootbox", function (ply, cmd, args)
+net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
+  if (!len or !ply) then return end
   local steam64 = ply:SteamID64()
-  local playerInventory = getPlayerInventory(steam64)
-  local crateType = args[1] or "any"
+  local playerData = getPlayerData(steam64)
+  local itemID = net.ReadString()
+
+  if (!itemID) then
+    messagePlayer(ply, "There was an error opening this crate! Please contact staff.")
+    return
+  end
+
+  local crate = playerData.inventory[itemID]
+
+  if (!crate) then
+    messagePlayer(ply, "There was an error opening this crate! Please contact staff.")
+    return
+  end
+
+  local crateTag = "crate_"
+  if (!string.StartWith(crate.type, crateTag)) then return end
+
+  local crateType = string.sub(crate.type, string.len(crateTag) + 1)
 
   -- Calculate whether you win a free crate.
   local percentToWinFreeCrate = 40
@@ -137,21 +167,61 @@ concommand.Add("wsky_start_lootbox", function (ply, cmd, args)
     newItem.modelName = winningItem
   end
 
+  playerData.inventory[itemID] = nil
+
   -- Store new item!
-  table.Add(playerInventory["inventory"], {newItem})
+  table.Merge(playerData.inventory, {
+    [uuid()] = newItem
+  })
 
   if (winAFreeCrate) then
     local freeCrate = {}
     local numOfCrateTypes = table.Count(crateTypes)
     freeCrate.type = "crate_" .. crateTypes[math.Round(math.Rand(1, numOfCrateTypes))]
     
-    table.Add(playerInventory["inventory"], {freeCrate})
+    table.Merge(playerData.inventory, {
+      [uuid()] = freeCrate
+    })
   end
 
-  savePlayerInventory(steam64, playerInventory)
+  savePlayerData(steam64, playerData)
 
   -- Let player know of their winnings, and play a little tune.
   local winningItemText = "You won a " .. (weaponTier and (weaponTier .. " ") or "") .. winningItem
   messagePlayer(ply, winningItemText .. (winAFreeCrate and ", and a free crate!" or "!"))
-  ply:EmitSound("wsky_lootboxes/lootbox_win.wav")
+  ply:EmitSound("garrysmod/save_load1.wav")
+end)
+
+function SetPlayerModel (ply, model)
+  if (!ply or !model) then return end
+  ply:SetModel(model)
+end
+
+function GetPlayersAndSetModels()
+  for _, ply in pairs(player.GetAll()) do
+    local steam64 = ply:SteamID64()
+    local playerData = getPlayerData(steam64)
+
+    local playerModel = playerData.playerModel
+    local hasCustomModel = string.len(playerModel) > 0
+
+    local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
+    local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
+    
+    if (needToUpdateModel) then
+      SetPlayerModel(ply, playerModel)
+    end
+  end
+end
+
+hook.Add("TTTPrepareRound", "WskyTTTLootboxes_SetPrepareRoundModels", function ()
+  GetPlayersAndSetModels()
+  timer.Create("WskyTTTLootboxes_CheckPlayerModelChange", 2, 0, function ()
+    GetPlayersAndSetModels()
+  end)
+end)
+hook.Add("TTTBeginRound", "WskyTTTLootboxes_SetBeginRoundModels", GetPlayersAndSetModels())
+hook.Add("TTTEndRound", "WskyTTTLootboxes_SetEndRoundModels", function ()
+  timer.Destroy("WskyTTTLootboxes_CheckPlayerModelChange")
+  GetPlayersAndSetModels()
 end)
