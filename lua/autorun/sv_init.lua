@@ -190,6 +190,13 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   local winningItemText = "You won a " .. (weaponTier and (weaponTier .. " ") or "") .. winningItem
   messagePlayer(ply, winningItemText .. (winAFreeCrate and ", and a free crate!" or "!"))
   ply:EmitSound("garrysmod/save_load1.wav")
+
+  net.Start("WskyTTTLootboxes_ClientReceiveData")
+    net.WriteTable(playerData)
+  net.Send(ply)
+
+  net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+  net.Send(ply)
 end)
 
 function SetPlayerModel (ply, model)

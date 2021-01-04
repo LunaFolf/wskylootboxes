@@ -3,6 +3,7 @@ if SERVER then return end
 local TryTranslation = LANG and LANG.TryTranslation or nil
 
 local menuOpen = false
+local menuRef = nil
 local width, height = ScrW() / 2, ScrH() / 2
 local margin = 8
 local padding = 8
@@ -115,14 +116,21 @@ function rightClickItem(btn, item, itemID, itemName, itemPreviewData)
   end
 end
 
-
-net.Receive("WskyTTTLootboxes_OpenPlayerInventory", function ()
-
+function renderMenu()
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
 
+  print("rendering menu!")
+
+  if (menuRef) then
+    print("existing menu open, closing the old one")
+    menuRef:Close()
+  end
+
   local inventoryMenuPanel = createBasicFrame(width, height, "Inventory", true)
+  menuRef = inventoryMenuPanel
   inventoryMenuPanel.OnClose = function ()
     menuOpen = false
+    menuRef = nil
   end
 
   local leftPanel = vgui.Create("DPanel", inventoryMenuPanel)
@@ -229,4 +237,6 @@ net.Receive("WskyTTTLootboxes_OpenPlayerInventory", function ()
     itemButtonClickable.DoRightClick = function () rightClickItem(itemPanel, item, itemID, itemName, itemPreviewData) end
 
   end
-end)
+end
+
+net.Receive("WskyTTTLootboxes_OpenPlayerInventory", renderMenu)
