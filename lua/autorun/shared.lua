@@ -1,6 +1,6 @@
 if CLIENT then
   local fontName = "Segoe UI"
-  local topHatBlue = Color(0, 202, 255, 225)
+  topHatBlue = Color(0, 202, 255, 225)
   local headerSize, defaultSize, regularSize, smallSize, miniSize, extraSmallSize = 182, 72, 58, 32, 22, 12
 
   surface.CreateFont( "WskyFontHeader", {
@@ -51,6 +51,14 @@ if CLIENT then
       draw.RoundedBox(0, 0, 0, w, h, Color(65, 65, 65, 225))
       draw.RoundedBox(0, 0, 0, w, 38, topHatBlue)
       draw.SimpleText(title, "WskyFontSmall", 6, 0)
+
+      local scrap = playerData and playerData.scrap or nil
+
+      if scrap then
+        surface.SetFont("WskyFontSmaller")
+        local scrapWidth, scrapHeight = surface.GetTextSize("Scrap: " .. scrap)
+        draw.SimpleText("Scrap: " .. scrap, "WskyFontSmaller", (w - 38) - scrapWidth - 6, (36 - scrapHeight) / 2)
+      end
     end
     Frame:MakePopup()
     Frame.OnKeyCodePressed = function (_, key)
