@@ -2,6 +2,7 @@ if SERVER then return end
 
 playerData = nil
 storeItems = nil
+marketData = nil
 
 function requestNewData(openPlayerMenu)
   net.Start("WskyTTTLootboxes_ClientRequestData")
@@ -11,8 +12,10 @@ end
 
 net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
   print(len)
-  local inventory = net.ReadTable()
+  local freshPlayerData = net.ReadTable()
   local availableStoreItems = net.ReadTable()
-  playerData = inventory
+  local freshMarketData = net.ReadTable()
+  playerData = freshPlayerData
   storeItems = availableStoreItems
+  marketData = freshMarketData
 end)

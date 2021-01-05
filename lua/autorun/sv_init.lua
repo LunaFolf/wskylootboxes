@@ -14,14 +14,22 @@ util.AddNetworkString("WskyTTTLootboxes_EquipItem")
 util.AddNetworkString("WskyTTTLootboxes_UnequipItem")
 
 util.AddNetworkString("WskyTTTLootboxes_BuyFromStore")
+util.AddNetworkString("WskyTTTLootboxes_BuyFromMarket")
 
 util.AddNetworkString("WskyTTTLootboxes_SellItem")
+util.AddNetworkString("WskyTTTLootboxes_ScrapItem")
 
 util.AddNetworkString("WskyTTTLootboxes_ClientsideWinChime")
 
 local dir = "wsky/Lootboxes"
 
 local percentageChanceToWinCrate = 30
+
+function getStarterMarketData()
+  return {
+    ["items"] = {}
+  }
+end
 
 function getStarterPlayerData()
   return {
@@ -66,6 +74,31 @@ function checkAndCreateDir(dirs)
 end
 
 math.randomseed(os.time())
+
+function getMarketData()
+  local marketData = {}
+
+  local fileName = dir .. "/market.json"
+  checkAndCreateDir(dir)
+  local fileOutput = file.Read(fileName)
+  if not fileOutput or string.len(fileOutput) <= 0 then
+    local starterMarketData = getStarterMarketData()
+    file.Write(fileName, util.TableToJSON(starterMarketData))
+    marketData = starterMarketData
+  else
+    marketData = util.JSONToTable(fileOutput)
+  end
+
+  return marketData
+end
+
+function saveMarketData(marketData)
+  if (!marketData) then return end
+  local fileName = dir .. "/market.json"
+  checkAndCreateDir(dir)
+  
+  file.Write(fileName, util.TableToJSON(marketData))
+end
 
 function getPlayerData(steam64)
   local playerInventoryData = {}
@@ -194,10 +227,42 @@ function sendClientFreshData(ply, playerData)
   net.Start("WskyTTTLootboxes_ClientReceiveData")
     net.WriteTable(playerData or getPlayerData(ply:SteamID64()))
     net.WriteTable(storeItems)
+    net.WriteTable(getMarketData())
   net.Send(ply)
 end
 
 net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
+  local steam64 = ply:SteamID64()
+  local playerData = getPlayerData(steam64)
+  local marketData = getMarketData()
+  local itemID = net.ReadString()
+  local valueToSell = net.ReadFloat()
+
+  if (!itemID) then
+    givePlayerError(ply)
+    return
+  end
+
+  unEquipItem(playerData, itemID)
+
+  local item = table.Copy(playerData.inventory[itemID])
+  if (!item) then return end
+  item.value = valueToSell
+  item.owner = steam64
+
+  table.Add(marketData.items, {item})
+  playerData.inventory[itemID] = nil
+
+  saveMarketData(marketData)
+  savePlayerData(steam64, playerData)
+
+  sendClientFreshData(ply, playerData)
+
+  net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+  net.Send(ply)
+end)
+
+net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)
   local itemID = net.ReadString()
@@ -210,7 +275,7 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
   unEquipItem(playerData, itemID)
 
   playerData.scrap = playerData.scrap + playerData.inventory[itemID].value
-  playerData.inventory[itemID] = nill
+  playerData.inventory[itemID] = nil
 
   savePlayerData(steam64, playerData)
 
@@ -323,7 +388,6 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
 
   if (playerData.scrap < item.value) then return end
 
-  PrintTable(itemTable)
   table.Merge(playerData.inventory, itemTable)
 
   playerData.scrap = playerData.scrap - item.value
@@ -331,6 +395,52 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
   savePlayerData(steam64, playerData)
 
   sendClientFreshData(ply, playerData)
+
+  net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+  net.Send(ply)
+end)
+
+net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
+  local steam64 = ply:SteamID64()
+  local playerData = getPlayerData(steam64)
+  local marketData = getMarketData()
+  local marketItemID = net.ReadFloat()
+
+  if (!marketItemID) then
+    givePlayerError(ply)
+    return
+  end
+
+  local item = table.Copy(marketData.items[marketItemID])
+  local marketItemCost = item.value
+
+  if (!item or (playerData.scrap < item.value)) then return end
+
+  local itemID = uuid()
+  local itemTable = {
+    [itemID] = item
+  }
+
+  if (string.StartWith(item.type, "crate_")) then
+    itemTable[itemID].value = 10
+  elseif (item.type == "weapon") then
+    local baseItem = allWeapons[item.className]
+    itemTable[itemID].value = math.floor(baseItem.value * 0.75)
+  end
+
+  table.Merge(playerData.inventory, itemTable)
+  playerData.scrap = playerData.scrap - marketItemCost
+  marketData.items[marketItemID] = nil
+  savePlayerData(steam64, playerData)
+  saveMarketData(marketData)
+
+  local owner = player.GetBySteamID64(item.owner)
+  local ownerPlayerData = getPlayerData(item.owner)
+  ownerPlayerData.scrap = ownerPlayerData.scrap + marketItemCost
+  savePlayerData(item.owner, ownerPlayerData)
+
+  sendClientFreshData(ply, playerData)
+  if (owner) then sendClientFreshData(owner, ownerPlayerData) end
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
   net.Send(ply)
@@ -506,10 +616,22 @@ hook.Add("PlayerSpawn", "WskyTTTLootboxes_GiveActiveWeapons", function (ply)
   if (meleeWeapon and meleeWeapon.className) then
     ply:Give(meleeWeapon.className)
   end
+
+  timer.Simple(0.2, function ()
+    local playerModel = playerData.activePlayerModel.modelName
+    local hasCustomModel = string.len(playerModel) > 0
+
+    local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
+    local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
+    
+    if (needToUpdateModel) then
+      SetPlayerModel(ply, playerModel)
+    end
+  end)
 end)
 
 hook.Add("TTTPrepareRound", "WskyTTTLootboxes_SetPrepareRoundModels", function ()
-  timer.Simple(2, function ()
+  timer.Simple(0.2, function ()
     GetPlayersAndSetModels()
   end)
   -- timer.Create("WskyTTTLootboxes_CheckPlayerModelChange", 2, 0, function ()

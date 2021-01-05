@@ -134,14 +134,57 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData)
     Menu:AddSpacer()
   end
 
-  -- Give option to sell/delete, if allowed.
+  -- Give option to scrap/delete, if allowed.
   local scrapText = "Scrap Item (" .. item.value .. ")"
   if (item.value < 1) then scrapText = "Delete item" end
   if (item.value > -1) then
     Menu:AddOption(scrapText, function ()
-      net.Start("WskyTTTLootboxes_SellItem")
+      net.Start("WskyTTTLootboxes_ScrapItem")
           net.WriteString(itemID)
         net.SendToServer()
+    end)
+    Menu:AddSpacer()
+  end
+
+  -- Give option to put on market, if allowed.
+  local marketText = "Put item on market"
+  if (item.value > -1) then
+    local value = 0
+
+    Menu:AddOption(marketText, function ()
+      local questionPanel = vgui.Create("DFrame")
+      questionPanel:MakePopup()
+      questionPanel:SetSize( 400, 200 )
+      questionPanel:Center()
+
+      function sellItem()
+        if (value and value > -1) then
+          net.Start("WskyTTTLootboxes_SellItem")
+            net.WriteString(itemID)
+            net.WriteFloat(value)
+          net.SendToServer()
+        end
+      end
+
+      local valueEntry = vgui.Create( "DTextEntry", questionPanel )
+      valueEntry:Dock(TOP)
+      valueEntry:SetPlaceholderText("Enter value you want to sell your item for")
+      valueEntry.OnEnter = function( self )
+        value = tonumber(self:GetValue())
+        questionPanel:Close()
+
+        sellItem()
+      end
+
+      local continueBtn = vgui.Create("DButton", questionPanel)
+      continueBtn:Dock(BOTTOM)
+      continueBtn:SetText("Continue")
+      continueBtn.DoClick = function ()
+        value = tonumber(valueEntry:GetValue())
+        questionPanel:Close()
+
+        sellItem()
+      end
     end)
   end
 end
@@ -189,6 +232,17 @@ function renderMenu()
   storePanel:Dock(FILL)
   storePanel.Paint = function () end
   sheet:AddSheet("Store", storePanel)
+
+  -- local tradingPanel = vgui.Create("DPanel", sheet)
+  -- tradingPanel:Dock(FILL)
+  -- tradingPanel.Paint = function () end
+  -- sheet:AddSheet("Trading", tradingPanel)
+
+  local marketPanel = vgui.Create("DPanel", sheet)
+  marketPanel:Dock(FILL)
+  marketPanel.Paint = function () end
+  sheet:AddSheet("Market", marketPanel)
+
 
   local itemNum = 0
   for itemID, item in pairs(playerData.inventory) do
@@ -418,6 +472,132 @@ function renderMenu()
     end
     itemButtonClickable.DoClick = function () 
       net.Start("WskyTTTLootboxes_BuyFromStore")
+        net.WriteFloat(itemID)
+      net.SendToServer()
+    end
+
+  end
+
+  local itemNum = 0
+  for itemID, item in pairs(marketData.items) do
+    itemNum = itemNum + 1
+    local itemName = getItemName(item)
+    local itemPreviewData = getItemPreview(item)
+
+    local offset = (itemNum - 1)
+    local itemHeight = 75
+    local itemPanel = vgui.Create("DButton", marketPanel)
+    local y = (itemHeight * offset) + (padding * offset) + padding
+
+    itemPanel:Dock(TOP)
+    itemPanel:DockMargin(margin, margin, margin, margin)
+    itemPanel:SetHeight(itemHeight)
+    itemPanel:SetText("")
+    itemPanel:SetMouseInputEnabled(true)
+
+    itemPanel.Paint = function (self, w, h)
+      local color = Color(0, 0, 0, 80)
+      draw.RoundedBox(0, 0, 0, w, h, color)
+    end
+
+    local itemPreviewContainer = vgui.Create("DPanel", itemPanel)
+    itemPreviewContainer:SetMouseInputEnabled(true)
+    itemPreviewContainer:Dock(LEFT)
+    itemPreviewContainer:SetHeight(itemHeight)
+    itemPreviewContainer:SetWidth(itemHeight)
+    itemPreviewContainer.Paint = function (self, w, h)
+      local color = Color(255, 255, 255, 20)
+      draw.RoundedBox(0, 0, 0, w, h, color)
+    end
+
+    local itemPriceTag = vgui.Create("DPanel", itemPanel)
+    itemPriceTag:Dock(RIGHT)
+    itemPriceTag:SetHeight(itemHeight)
+    itemPriceTag:SetWidth(itemHeight)
+    itemPriceTag.Paint = function (self, w, h)
+      local color = Color(0, 202, 255, 225)
+      draw.RoundedBox(0, 0, 0, w, h, color)
+
+      surface.SetFont("WskyFontSmaller")
+      local text = item.value
+      local priceWidth, priceHeight = surface.GetTextSize(text)
+      draw.SimpleText(text, "WskyFontSmaller", (w - priceWidth) / 2, (h - priceHeight) / 2)
+    end
+
+    if (itemPreviewData.type == "icon") then
+      local itemImage = vgui.Create("DImage", itemPreviewContainer)
+      itemImage:Dock(FILL)
+      itemImage:SetImage(itemPreviewData.data)
+      itemImage:SetMouseInputEnabled(true)
+    else
+      local itemPreview = vgui.Create("DModelPanel", itemPreviewContainer)
+      itemPreview:Dock(FILL)
+      itemPreview:SetModel(itemPreviewData.data)
+      itemPreview:SetMouseInputEnabled(false)
+      itemPreview:SetMouseInputEnabled(true)
+
+      function itemPreview:LayoutEntity(ent)
+        if (itemPreviewData.type == "playerModel") then return end
+
+        local rotation = -15
+        if (ent:GetModel() == "models/weapons/w_crowbar.mdl") then
+          rotation = 105
+        end
+        ent:SetAngles(Angle(rotation, 0, 0))
+        return
+      end
+
+      local center = itemPreview.Entity:OBBCenter()
+      itemPreview:SetLookAt(center-Vector(2, 0, -5))
+      itemPreview:SetCamPos(center-Vector(-10, -20, -5))
+      itemPreview:SetDirectionalLight(BOX_RIGHT, Color(255, 255, 255, 255))
+
+      if (itemPreviewData.type == "playerModel") then
+        local boneIndex = itemPreview.Entity:LookupBone("ValveBiped.Bip01_Head1")
+        local eyepos = itemPreview.Entity:GetBonePosition(boneIndex or 1)
+        eyepos:Add(Vector(0, 0, 2))	-- Move up slightly
+        itemPreview:SetLookAt(eyepos)
+        itemPreview:SetCamPos(eyepos-Vector(-14, 0, 0))	-- Move cam in front of eyes
+        itemPreview.Entity:SetEyeTarget(eyepos-Vector(-12, 0, 0))
+      end
+    end
+
+    local itemInfoPanel = vgui.Create("DPanel", itemPanel)
+    itemInfoPanel:SetMouseInputEnabled(true)
+    itemInfoPanel:Dock(FILL)
+    itemInfoPanel.Paint = function (self, w, h)
+      draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 0))
+      surface.SetFont("WskyFontSmaller")
+      draw.SimpleText(itemName, "WskyFontSmaller", margin, margin)
+    end
+
+    local itemButtonClickable = vgui.Create("DButton", itemPanel)
+    itemButtonClickable:SetPos(0, 0)
+    itemButtonClickable:SetSize(divider:GetLeftWidth() - (margin * 2), itemHeight)
+    itemButtonClickable:SetText("")
+    itemButtonClickable:SetMouseInputEnabled(true)
+    itemButtonClickable.Paint = function (self, w, h)
+      local equipped = false
+      
+      if (item.type == 'playerModel' and playerData.activePlayerModel.itemID == itemID) then
+          equipped = true
+      elseif (item.type == 'weapon') then
+        if (playerData.activeMeleeWeapon.itemID == itemID) then
+          equipped = true
+        elseif (playerData.activePrimaryWeapon.itemID == itemID) then
+          equipped = true
+        elseif (playerData.activeSecondaryWeapon.itemID == itemID) then
+          equipped = true
+        end
+      end
+
+      if (equipped) then
+        surface.SetDrawColor(120, 255, 120, 120)
+        surface.DrawOutlinedRect(0, 0, w, h, 1)
+      end
+    end
+    itemButtonClickable.DoClick = function () 
+      net.Start("WskyTTTLootboxes_BuyFromMarket")
         net.WriteFloat(itemID)
       net.SendToServer()
     end
