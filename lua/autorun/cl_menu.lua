@@ -243,6 +243,10 @@ function renderMenu()
   marketPanel.Paint = function () end
   sheet:AddSheet("Market", marketPanel)
 
+  local marketScroller = vgui.Create("DScrollPanel", marketPanel)
+  marketScroller:Dock(FILL)
+  marketScroller.Paint = function () end
+
 
   local itemNum = 0
   for itemID, item in pairs(playerData.inventory) do
@@ -486,7 +490,7 @@ function renderMenu()
 
     local offset = (itemNum - 1)
     local itemHeight = 75
-    local itemPanel = vgui.Create("DButton", marketPanel)
+    local itemPanel = vgui.Create("DButton", marketScroller)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
