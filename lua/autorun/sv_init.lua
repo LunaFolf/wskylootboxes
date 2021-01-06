@@ -426,6 +426,9 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
   elseif (item.type == "weapon") then
     local baseItem = allWeapons[item.className]
     itemTable[itemID].value = math.floor(baseItem.value * 0.75)
+  elseif (item.type == "playerModel") then
+    local baseItem = playerModels[item.modelName]
+    itemTable[itemID].value = math.floor(baseItem.value * 0.75)
   end
 
   table.Merge(playerData.inventory, itemTable)
