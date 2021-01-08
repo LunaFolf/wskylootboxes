@@ -34,6 +34,12 @@ primaryWeapons = {
   ["weapon_ttt_sg550"] = {
     ["value"] = 210
   },
+  ["weapon_752_e5"] = {
+    ["value"] = 210
+  },
+  ["weapon_752_dc15a"] = {
+    ["value"] = 250
+  },
   ["weapon_ttt_m16"] = {
     ["value"] = 205
   },
