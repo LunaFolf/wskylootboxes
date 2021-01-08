@@ -11,7 +11,6 @@ function requestNewData(openPlayerMenu)
 end
 
 net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
-  print(len)
   local freshPlayerData = net.ReadTable()
   local availableStoreItems = net.ReadTable()
   local freshMarketData = net.ReadTable()

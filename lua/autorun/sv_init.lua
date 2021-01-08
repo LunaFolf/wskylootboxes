@@ -134,8 +134,6 @@ function wskyLootboxesUnboxWeapon()
   local weaponNum = math.Round(math.Rand(1, weaponCount))
   local winningWeapon = weaponKeys[weaponNum]
 
-  print(winningWeapon)
-
   -- Randomly Select the weapon Tier.
   local tierCount = table.Count(weaponTiers)
   local tierNum = math.Round(math.Rand(1, tierCount))
@@ -249,6 +247,7 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
   if (!item) then return end
   item.value = valueToSell
   item.owner = steam64
+  item.ownerName = ply:GetName()
 
   table.Add(marketData.items, {item})
   playerData.inventory[itemID] = nil
@@ -380,17 +379,18 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
   end
 
   local item = table.Copy(storeItems[storeItemID])
+
+  if (playerData.scrap < item.value) then return end
+
   local itemID = uuid()
   local itemTable = {
     [itemID] = item
   }
+  playerData.scrap = playerData.scrap - item.value
+
   itemTable[itemID].value = math.floor(itemTable[itemID].value * 0.75)
 
-  if (playerData.scrap < item.value) then return end
-
   table.Merge(playerData.inventory, itemTable)
-
-  playerData.scrap = playerData.scrap - item.value
 
   savePlayerData(steam64, playerData)
 
@@ -604,6 +604,7 @@ end
 hook.Add("PlayerSpawn", "WskyTTTLootboxes_GiveActiveWeapons", function (ply)
   local steam64 = ply:SteamID64()
   if (!steam64) then return end
+  timer.Destroy("WskyTTTLootboxes_CheckPlayerModelChange")
 
   local playerData = getPlayerData(steam64)
   local primaryWeapon, secondaryWeapon, meleeWeapon = playerData.activePrimaryWeapon, playerData.activeSecondaryWeapon, playerData.activeMeleeWeapon 

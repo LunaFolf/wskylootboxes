@@ -22,6 +22,7 @@ function getItemName(item)
     local crateType = string.sub(item.type, string.len(crateTag) + 1)
     if (crateType == "weapon") then return "Weapon Crate"
     elseif (crateType == "playerModel") then return "Player Model Crate"
+    elseif (crateType == "any") then return "Random Crate"
     else return "Unknown Crate" end
   end
 
@@ -35,7 +36,8 @@ function getItemName(item)
 
   -- Check if Item is a playerModel
   if (item.type == "playerModel") then
-    return player_manager.TranslateToPlayerModelName(item.modelName)
+    local formattedName = player_manager.TranslateToPlayerModelName(item.modelName)
+    return string.upper(string.sub(formattedName, 1, 1)) .. string.sub(formattedName, 2)
   end
 
   return "[TBC] " .. item.type
@@ -94,8 +96,7 @@ function getItemPreview(item)
   }
 end
 
-function rightClickItem(frame, item, itemID, itemName, itemPreviewData)
-  print("right click!")
+function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
   if (!frame or !item) then return end
 
   -- Find cursor position and create menu.
@@ -117,12 +118,13 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData)
   
   local itemIsEquipped = (itemID == playerData.activeMeleeWeapon.itemID) or (itemID == playerData.activePrimaryWeapon.itemID) or (itemID == playerData.activeSecondaryWeapon.itemID) or (itemID == playerData.activePlayerModel.itemID)
 
-  -- Check if Item is a playerModel
+  -- Check if Item is a playerModel or weapon
   if (not itemIsEquipped and (item.type == "playerModel" or item.type == "weapon")) then
     Menu:AddOption("Equip", function ()
       net.Start("WskyTTTLootboxes_EquipItem")
         net.WriteString(itemID)
       net.SendToServer()
+      if (item.type == "playerModel" and inventoryModelPreview and item.modelName) then  inventoryModelPreview:SetModel(item.modelName) end
     end)
     Menu:AddSpacer()
   elseif (itemIsEquipped and (item.type == "playerModel" or item.type == "weapon")) then
@@ -192,12 +194,7 @@ end
 function renderMenu()
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
 
-  print("rendering menu!")
-
-  if (menuRef) then
-    print("existing menu open, closing the old one")
-    menuRef:Close()
-  end
+  if (menuRef) then menuRef:Close() end
 
   local inventoryMenuPanel = createBasicFrame(width, height, "Inventory", true)
   menuRef = inventoryMenuPanel
@@ -211,20 +208,33 @@ function renderMenu()
   sheet:SetSize(width, height - titleBarHeight)
   sheet.Paint = function () end
 
-  local leftPanel = vgui.Create("DPanel")
-  leftPanel.Paint = function () end
+  local leftInventoryPanel = vgui.Create("DPanel")
+  leftInventoryPanel.Paint = function () end
 
-  local scroller = vgui.Create("DScrollPanel", leftPanel)
+  local rightInventoryPanel = vgui.Create("DPanel")
+  rightInventoryPanel.Paint = function () end
+
+  local scroller = vgui.Create("DScrollPanel", leftInventoryPanel)
   scroller:Dock(FILL)
   scroller:InvalidateParent(true)
 
+  local inventoryModelPreview = vgui.Create("DModelPanel", rightInventoryPanel)
+  inventoryModelPreview:Dock(FILL)
+  inventoryModelPreview:InvalidateParent(true)
+
+  local playerModel = playerData.activePlayerModel.modelName
+  if (string.len(playerModel) < 1) then playerModel = LocalPlayer():GetModel() end
+  inventoryModelPreview:SetModel(playerModel)
+  inventoryModelPreview:SetCamPos(Vector(0, -40, 45))
+
   local divider = vgui.Create("DHorizontalDivider", sheet, "inventoryDivider")
   divider:Dock(FILL)
-  divider:SetLeft(leftPanel)
+  divider:SetLeft(leftInventoryPanel)
+  divider:SetRight(rightInventoryPanel)
   divider:SetDividerWidth(4)
-  divider:SetLeftMin(width)
-  divider:SetLeftWidth(width)
-  divider:SetRightMin(0)
+  divider:SetLeftMin(width * 0.75)
+  divider:SetLeftWidth(width * 0.75)
+  divider:SetRightMin(width * 0.25)
 
   sheet:AddSheet("Inventory", divider)
 
@@ -324,7 +334,11 @@ function renderMenu()
     itemInfoPanel.Paint = function (self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 0))
       surface.SetFont("WskyFontSmaller")
+      local _, textHeight = surface.GetTextSize(itemName)
       draw.SimpleText(itemName, "WskyFontSmaller", margin, margin)
+      if (item.type == "weapon") then
+        draw.SimpleText(getWeaponCategory(item.className) .. " weapon", "WskyFontSmaller", margin, textHeight + margin)
+      end
     end
 
     local itemButtonClickable = vgui.Create("DButton", itemPanel)
@@ -352,7 +366,7 @@ function renderMenu()
         surface.DrawOutlinedRect(0, 0, w, h, 1)
       end
     end
-    itemButtonClickable.DoRightClick = function () rightClickItem(inventoryMenuPanel, item, itemID, itemName, itemPreviewData) end
+    itemButtonClickable.DoRightClick = function () rightClickItem(inventoryMenuPanel, item, itemID, itemName, itemPreviewData, inventoryModelPreview) end
 
   end
 
@@ -572,7 +586,9 @@ function renderMenu()
     itemInfoPanel.Paint = function (self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 0))
       surface.SetFont("WskyFontSmaller")
+      local _, textHeight = surface.GetTextSize(itemName)
       draw.SimpleText(itemName, "WskyFontSmaller", margin, margin)
+      draw.SimpleText("Seller: " .. item.ownerName and item.ownerName or item.owner, "WskyFontSmaller", margin, textHeight + margin)
     end
 
     local itemButtonClickable = vgui.Create("DButton", itemPanel)

@@ -2,9 +2,20 @@ if SERVER then return end
 
 TryTranslation = LANG and LANG.TryTranslation or nil
 
+include('config.lua')
 include('cl_data.lua')
 include('cl_menu.lua')
 include('shared.lua')
+
+function getWeaponCategory(weaponClassName)
+  if(table.HasValue(table.GetKeys(primaryWeapons), weaponClassName)) then
+    return "primary"
+  elseif(table.HasValue(table.GetKeys(secondaryWeapons), weaponClassName)) then
+    return "secondary"
+  elseif(table.HasValue(table.GetKeys(meleeWeapons), weaponClassName)) then
+    return "melee"
+  end
+end
 
 net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
@@ -36,13 +47,5 @@ net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
 end)
 
 concommand.Add("wsky_ttt_whatweapon", function (ply)
-  print(ply:GetActiveWeapon())
-end)
-
-concommand.Add("wsky_ttt_getplayermodels", function (ply)
-  PrintTable(player_manager.AllValidModels())
-end)
-
-concommand.Add("wsky_ttt_getmymodel", function (ply)
-  print(ply:GetModel())
+  print(ply:GetActiveWeapon():GetClass())
 end)
