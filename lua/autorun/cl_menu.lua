@@ -37,7 +37,8 @@ function getItemName(item)
   -- Check if Item is a playerModel
   if (item.type == "playerModel") then
     local formattedName = player_manager.TranslateToPlayerModelName(item.modelName)
-    return string.upper(string.sub(formattedName, 1, 1)) .. string.sub(formattedName, 2)
+    local prepend = item.tier == "Exotic" and "Exotic " or ""
+    return prepend .. string.upper(string.sub(formattedName, 1, 1)) .. string.sub(formattedName, 2)
   end
 
   return "[TBC] " .. item.type
