@@ -133,7 +133,32 @@ if CLIENT then
 
 end
 
+if SERVER then
+  function SetPlayerModel (ply, model)
+    if (!ply or !model) then return end
+    ply:SetModel(model)
+  end
+
+  function GetPlayersAndSetModels()
+    for _, ply in pairs(player.GetAll()) do
+      local steam64 = ply:SteamID64()
+      local playerData = getPlayerData(steam64)
+
+      local playerModel = playerData.activePlayerModel.modelName
+      local hasCustomModel = string.len(playerModel) > 0
+
+      local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
+      local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
+      
+      if (needToUpdateModel) then
+        SetPlayerModel(ply, playerModel)
+      end
+    end
+  end
+end
+
 local random = math.random
+
 function uuid()
     local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
     return string.gsub(template, '[xy]', function (c)
@@ -146,4 +171,20 @@ function messagePlayer(ply, message)
   if (ply && message) then
     ply:PrintMessage(HUD_PRINTTALK, "[Lootbox] " .. message)
   end
+end
+
+function getWeaponCategory(weaponClassName)
+  if(table.HasValue(table.GetKeys(primaryWeapons), weaponClassName)) then
+    return "primary"
+  elseif(table.HasValue(table.GetKeys(secondaryWeapons), weaponClassName)) then
+    return "secondary"
+  elseif(table.HasValue(table.GetKeys(meleeWeapons), weaponClassName)) then
+    return "melee"
+  end
+end
+
+function givePlayerError(ply, message)
+  local messageToPrint = message or "There was an error! Please contact staff."
+  messagePlayer(ply, messageToPrint)
+  error(messageToPrint)
 end

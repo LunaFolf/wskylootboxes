@@ -17,23 +17,25 @@ net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
 
   local inventoryKeys = table.GetKeys(freshPlayerData.inventory)
 
-  table.sort(inventoryKeys, function (a, b)
-    local aData = freshPlayerData.inventory[a]
-    local bData = freshPlayerData.inventory[b]
+  if (table.Count(inventoryKeys)) then
+    table.sort(inventoryKeys, function (a, b)
+      local aData = freshPlayerData.inventory[a]
+      local bData = freshPlayerData.inventory[b]
 
-    return aData.createdAt < bData.createdAt
-  end)
+      return aData.createdAt < bData.createdAt
+    end)
 
-  local sortedInventory = {}
-  for index, ID in pairs(inventoryKeys) do
-    local item = freshPlayerData.inventory[ID]
-    item.itemID = ID
-    table.Merge(sortedInventory, {
-      [index] = item
-    })
+    local sortedInventory = {}
+    for index, ID in pairs(inventoryKeys) do
+      local item = freshPlayerData.inventory[ID]
+      item.itemID = ID
+      table.Merge(sortedInventory, {
+        [index] = item
+      })
+    end
+
+    freshPlayerData.inventory = sortedInventory
   end
-
-  freshPlayerData.inventory = sortedInventory
 
   playerData = freshPlayerData
   storeItems = availableStoreItems

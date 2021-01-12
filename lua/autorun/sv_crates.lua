@@ -1,6 +1,13 @@
 if CLIENT then return end
 
+util.AddNetworkString("WskyTTTLootboxes_RequestCrateOpening")
+
 percentageChanceToWinCrate = 30
+
+crateTypes = {
+  "weapon",
+  "playerModel"
+}
 
 function wskyLootboxesUnboxWeapon()
   -- Randomly Select the weapon.
@@ -39,19 +46,47 @@ function wskyLootboxesUnboxPlayerModel()
   return winningModel, value
 end
 
-crateTypes = {
-  "weapon",
-  "playerModel"
-}
+function generateACrate(type)
+  local crate = {}
+  if type then
+    crate.type = type
+  else
+    local numOfCrateTypes = table.Count(crateTypes)
+    crate.type = "crate_" .. crateTypes[math.Round(math.Rand(1, numOfCrateTypes))]
+  end
+  crate.value = 10
 
-function sendClientFreshData(ply, playerData)
-  if (!ply) then return end
+  crate.createdAt = os.time()
+  
+  return crate
+end
 
-  net.Start("WskyTTTLootboxes_ClientReceiveData")
-    net.WriteTable(playerData or getPlayerData(ply:SteamID64()))
-    net.WriteTable(storeItems)
-    net.WriteTable(getMarketData())
-  net.Send(ply)
+function GiveOutFreeCrates()
+  for _, ply in pairs(player.GetAll()) do
+    local steam64 = ply:SteamID64()
+    local playerData = getPlayerData(steam64)
+
+    local shouldGetACrate = (math.Rand(0, 1)*100) >= percentageChanceToWinCrate
+
+    if !shouldGetACrate then
+      messagePlayer(ply, "Ahh bummer, you nearly got a crate! maybe next round?")
+    else
+      local crate = generateACrate()
+      table.Merge(playerData.inventory, {
+        [uuid()] = crate
+      })
+
+      savePlayerData(steam64, playerData)
+
+      -- Let player know of their winnings, and play a little tune.
+      net.Start("WskyTTTLootboxes_ClientsideWinChime")
+      net.WriteString("garrysmod/save_load2.wav")
+        net.WriteTable(crate)
+      net.Send(ply)
+
+      sendClientFreshData(ply, playerData)
+    end
+  end
 end
 
 net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
@@ -107,7 +142,7 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   elseif (crateType == "playerModel") then
     winningItem, value = wskyLootboxesUnboxPlayerModel()
     newItem.modelName = winningItem
-    local exotic = math.Rand(0, 1) >= 0.9
+    local exotic = math.Rand(0, 1) >= 0.95
     newItem.tier = exotic and "Exotic" or "Common"
   end
 
@@ -146,5 +181,3 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
   net.Send(ply)
 end)
-
--- end of crate stuff

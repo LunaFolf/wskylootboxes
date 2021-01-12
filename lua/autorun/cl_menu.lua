@@ -329,7 +329,7 @@ function renderMenu()
 
       if (itemPreviewData.type == "playerModel") then
         local boneIndex = itemPreview.Entity:LookupBone("ValveBiped.Bip01_Head1")
-        local eyepos = itemPreview.Entity:GetBonePosition(boneIndex or 1)
+        local eyepos = itemPreview.Entity:GetBonePosition(boneIndex or 0)
         eyepos:Add(Vector(0, 0, 2))	-- Move up slightly
         itemPreview:SetLookAt(eyepos)
         itemPreview:SetCamPos(eyepos-Vector(-14, 0, 0))	-- Move cam in front of eyes
@@ -466,7 +466,7 @@ function renderMenu()
 
       if (itemPreviewData.type == "playerModel") then
         local boneIndex = itemPreview.Entity:LookupBone("ValveBiped.Bip01_Head1")
-        local eyepos = itemPreview.Entity:GetBonePosition(boneIndex or 1)
+        local eyepos = itemPreview.Entity:GetBonePosition(boneIndex or 0)
         eyepos:Add(Vector(0, 0, 2))	-- Move up slightly
         itemPreview:SetLookAt(eyepos)
         itemPreview:SetCamPos(eyepos-Vector(-14, 0, 0))	-- Move cam in front of eyes
@@ -510,7 +510,7 @@ function renderMenu()
     end
     itemButtonClickable.DoClick = function () 
       net.Start("WskyTTTLootboxes_BuyFromStore")
-        net.WriteFloat(itemID)
+        net.WriteFloat(itemIndex)
       net.SendToServer()
     end
 
@@ -593,7 +593,7 @@ function renderMenu()
 
       if (itemPreviewData.type == "playerModel") then
         local boneIndex = itemPreview.Entity:LookupBone("ValveBiped.Bip01_Head1")
-        local eyepos = itemPreview.Entity:GetBonePosition(boneIndex or 1)
+        local eyepos = itemPreview.Entity:GetBonePosition(boneIndex or 0)
         eyepos:Add(Vector(0, 0, 2))	-- Move up slightly
         itemPreview:SetLookAt(eyepos)
         itemPreview:SetCamPos(eyepos-Vector(-14, 0, 0))	-- Move cam in front of eyes
@@ -639,7 +639,7 @@ function renderMenu()
     end
     itemButtonClickable.DoClick = function () 
       net.Start("WskyTTTLootboxes_BuyFromMarket")
-        net.WriteFloat(itemID)
+        net.WriteFloat(itemIndex)
       net.SendToServer()
     end
 
