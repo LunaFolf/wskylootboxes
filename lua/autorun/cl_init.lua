@@ -47,5 +47,6 @@ net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
 end)
 
 concommand.Add("wsky_current_weapon", function (ply)
-  print(ply:GetActiveWeapon():GetClass())
+  local curWeapon = ply:GetActiveWeapon()
+  print(curWeapon:IsValid() and ply:GetActiveWeapon():GetClass() or "Can't find currently active weapon!")
 end, nil, "Retieve the class name of the currently active weapon.")
