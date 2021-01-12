@@ -46,6 +46,6 @@ net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
   ply:EmitSound(soundString)
 end)
 
-concommand.Add("wsky_ttt_whatweapon", function (ply)
+concommand.Add("wsky_current_weapon", function (ply)
   print(ply:GetActiveWeapon():GetClass())
-end)
+end, nil, "Retieve the class name of the currently active weapon.")
