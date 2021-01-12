@@ -54,7 +54,7 @@ if CLIENT then
 
       local scrap = playerData and playerData.scrap or nil
 
-      if scrap then
+      if title == "Inventory" and scrap then
         surface.SetFont("WskyFontSmaller")
         local scrapWidth, scrapHeight = surface.GetTextSize("Scrap: " .. scrap)
         draw.SimpleText("Scrap: " .. scrap, "WskyFontSmaller", (w - 38) - scrapWidth - 6, (36 - scrapHeight) / 2)
@@ -78,6 +78,57 @@ if CLIENT then
     end
 
     return Frame
+  end
+
+  function createDialog (width, height, confirmationText, confirmFnc, cancelFnc)
+    local confirmationMenu = createBasicFrame(width, height, "Confirmation", false)
+    confirmationText = confirmationText or "Are you sure?"
+
+    local container = vgui.Create("DPanel", confirmationMenu)
+    container.Paint = function () end
+    container:SetPos(0, 38)
+    container:SetSize(width, height - 38)
+    container:DockPadding(8, 8, 8, 8)
+
+    local confirmationTextPanel = vgui.Create("DPanel", container)
+    confirmationTextPanel:Dock(FILL)
+    confirmationTextPanel.Paint = function (self, w, h)
+      surface.SetFont("WskyFontSmaller")
+      local textW, textH = surface.GetTextSize(confirmationText)
+      draw.SimpleText(confirmationText, "WskyFontSmaller", (w - textW) / 2, (h - textH) / 2)
+    end
+
+    local footer = vgui.Create("DPanel", container)
+    footer:Dock(BOTTOM)
+    footer:SetHeight(height / 4)
+    footer.Paint = function () end
+
+    local confirmBtn = vgui.Create("DButton", footer)
+    confirmBtn:Dock(RIGHT)
+    confirmBtn:SetFGColor(Color(255, 255, 255, 255))
+    confirmBtn:SetText("Confirm")
+    confirmBtn.Paint = function (self, w, h)
+      local color = Color(0, 202, 255, 225)
+      draw.RoundedBox(0, 0, 0, w, h, color)
+    end
+    confirmBtn.DoClick = function ()
+      confirmationMenu:Close()
+      if (confirmFnc) then confirmFnc() end
+    end
+
+    local cancelBtn = vgui.Create("DButton", footer)
+    cancelBtn:Dock(LEFT)
+    cancelBtn:SetText("Cancel")
+    cancelBtn.Paint = function (self, w, h)
+      local color = Color(202, 202, 202, 225)
+      draw.RoundedBox(0, 0, 0, w, h, color)
+    end
+    cancelBtn.DoClick = function ()
+      confirmationMenu:Close()
+      if (cancelFnc) then cancelFnc() end
+    end
+
+    return confirmationMenu
   end
 
 end

@@ -25,8 +25,6 @@ util.AddNetworkString("WskyTTTLootboxes_ClientsideWinChime")
 
 local dir = "wsky/Lootboxes"
 
-local percentageChanceToWinCrate = 30
-
 function getStarterMarketData()
   return {
     ["items"] = {}
@@ -409,6 +407,8 @@ function generateACrate(type)
     crate.type = "crate_" .. crateTypes[math.Round(math.Rand(1, numOfCrateTypes))]
   end
   crate.value = 10
+
+  crate.createdAt = os.time()
   
   return crate
 end

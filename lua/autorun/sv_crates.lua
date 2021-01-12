@@ -117,6 +117,8 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
 
   playerData.inventory[itemID] = nil
 
+  newItem.createdAt = os.time()
+
   -- Store new item!
   table.Merge(playerData.inventory, {
     [uuid()] = newItem

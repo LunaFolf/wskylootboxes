@@ -101,9 +101,10 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
   if (!frame or !item) then return end
 
   -- Find cursor position and create menu.
-  local posX, posY = frame:CursorPos()
+  local posX, posY = frame:LocalCursorPos()
   local Menu = vgui.Create("DMenu", frame)
   Menu:SetPos(posX, posY)
+  Menu:MoveToFront()
 
   -- Check if Item is a crate
   local crateTag = "crate_"
@@ -142,9 +143,15 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
   if (item.value < 1) then scrapText = "Delete item" end
   if (item.value > -1) then
     Menu:AddOption(scrapText, function ()
-      net.Start("WskyTTTLootboxes_ScrapItem")
+      local width, height = width / 4, height / 4
+      width = math.max(350, width)
+      height = math.max(100, height)
+
+      createDialog(width, height, "Are you sure you want to scrap this item?" , function ()
+        net.Start("WskyTTTLootboxes_ScrapItem")
           net.WriteString(itemID)
         net.SendToServer()
+      end)
     end)
     Menu:AddSpacer()
   end
@@ -260,7 +267,8 @@ function renderMenu()
 
 
   local itemNum = 0
-  for itemID, item in pairs(playerData.inventory) do
+  for itemIndex, item in pairs(playerData.inventory) do
+    local itemID = item.itemID
     itemNum = itemNum + 1
     local itemName = getItemName(item)
     local itemPreviewData = getItemPreview(item)
@@ -336,7 +344,17 @@ function renderMenu()
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 0))
       surface.SetFont("WskyFontSmaller")
       local _, textHeight = surface.GetTextSize(itemName)
-      draw.SimpleText(itemName, "WskyFontSmaller", margin, margin)
+      local color = Color(255, 255, 255, 255)
+      if (item.tier == "Exotic") then
+        color = Color(240, 190, 15, 255)
+      elseif (item.tier == "Legendary") then
+        color = Color(170, 115, 235, 255)
+      elseif (item.tier == "Rare") then
+        color = Color(40, 140, 195, 255)
+      elseif (item.tier == "Uncommon") then
+        color = Color(40, 155, 115, 255)
+      end
+      draw.SimpleText(itemName, "WskyFontSmaller", margin, margin, color)
       if (item.type == "weapon") then
         draw.SimpleText(getWeaponCategory(item.className) .. " weapon", "WskyFontSmaller", margin, textHeight + margin)
       end
@@ -372,7 +390,8 @@ function renderMenu()
   end
 
   local itemNum = 0
-  for itemID, item in pairs(storeItems) do
+  for itemIndex, item in pairs(storeItems) do
+    local itemID = item.itemID
     itemNum = itemNum + 1
     local itemName = getItemName(item)
     local itemPreviewData = getItemPreview(item)
@@ -498,7 +517,8 @@ function renderMenu()
   end
 
   local itemNum = 0
-  for itemID, item in pairs(marketData.items) do
+  for itemIndex, item in pairs(marketData.items) do
+    local itemID = item.itemID
     itemNum = itemNum + 1
     local itemName = getItemName(item)
     local itemPreviewData = getItemPreview(item)
@@ -624,6 +644,13 @@ function renderMenu()
     end
 
   end
+
+  local bottomPaddingBlock = vgui.Create("DPanel", scroller)
+  bottomPaddingBlock:Dock(TOP)
+  bottomPaddingBlock:DockMargin(margin, margin * 2, margin * 2, margin)
+  bottomPaddingBlock:SetHeight(itemHeight)
+  bottomPaddingBlock:SetText("")
+  bottomPaddingBlock:SetMouseInputEnabled(true)
 end
 
 net.Receive("WskyTTTLootboxes_OpenPlayerInventory", renderMenu)

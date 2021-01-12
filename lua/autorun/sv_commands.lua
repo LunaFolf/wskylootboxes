@@ -17,7 +17,6 @@ end
 local function autoComplete(cmd, argStr)
 
   argStr = string.Trim(argStr) -- Trim any whitespace from the arguments
-  argStr = string.lower(argStr)
   
   local argTable = string.Split(argStr, " ") -- Get arguments in table format for easier access
   local curArgIndex, curArgValue = table.Count(argTable), argTable[table.Count(argTable)] -- Get current argument for autofill, It should just be the last one.
