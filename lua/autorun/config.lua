@@ -181,9 +181,6 @@ playerModels = {
   ["models/fbi_pack/fbi_01.mdl"] = {
     ["value"] = 170
   },
-  ["models/player/overwatch/genji.mdl"] = {
-    ["value"] = 190
-  },
   ["models/player/MasterChiefH3.mdl"] = {
     ["value"] = 200
   },
@@ -219,6 +216,9 @@ playerModels = {
   },
   ["models/pechenko_121/Deadpool/chr_deadpool2.mdl"] = {
     ["value"] = 240
+  },
+  ["models/player/infernonaval/agent/infernoagent.mdl"] = {
+    ["value"] = 200
   },
 }
 

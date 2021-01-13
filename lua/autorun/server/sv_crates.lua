@@ -1,6 +1,8 @@
 if CLIENT then return end
 
 util.AddNetworkString("WskyTTTLootboxes_RequestCrateOpening")
+util.AddNetworkString("WskyTTTLootboxes_OpenPlayerInventory")
+util.AddNetworkString("WskyTTTLootboxes_ClientsideWinChime")
 
 percentageChanceToWinCrate = 30
 

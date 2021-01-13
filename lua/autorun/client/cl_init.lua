@@ -2,10 +2,10 @@ if SERVER then return end
 
 TryTranslation = LANG and LANG.TryTranslation or nil
 
-include('config.lua')
+include('../config.lua')
 include('cl_data.lua')
 include('cl_menu.lua')
-include('shared.lua')
+include('../shared.lua')
 
 function getWeaponCategory(weaponClassName)
   if(table.HasValue(table.GetKeys(primaryWeapons), weaponClassName)) then
