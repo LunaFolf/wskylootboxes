@@ -134,25 +134,35 @@ if CLIENT then
 end
 
 if SERVER then
-  function SetPlayerModel (ply, model)
-    if (!ply or !model) then return end
-    ply:SetModel(model)
+  function SetPlayerModel (ply)
+    if (!ply or !ply:IsValid()) then return end
+    local steam64 = ply:SteamID64()
+    local playerData = getPlayerData(steam64)
+
+    local playerModel = playerData.activePlayerModel.modelName
+    local hasCustomModel = string.len(playerModel) > 0
+
+    if (ply:IsBot() and not hasCustomModel) then
+      local modelKeys = table.GetKeys(playerModels)
+      local modelCount = table.Count(playerModels)
+      local modelNum = math.Round(math.Rand(1, modelCount))
+      playerData.activePlayerModel.modelName = modelKeys[modelNum]
+
+      savePlayerData(steam64, playerData)
+      needToUpdateModel = true
+    end
+
+    local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
+    local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
+    
+    if (needToUpdateModel) then
+      ply:SetModel(playerModel)
+    end
   end
 
   function GetPlayersAndSetModels()
     for _, ply in pairs(player.GetAll()) do
-      local steam64 = ply:SteamID64()
-      local playerData = getPlayerData(steam64)
-
-      local playerModel = playerData.activePlayerModel.modelName
-      local hasCustomModel = string.len(playerModel) > 0
-
-      local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
-      local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
-      
-      if (needToUpdateModel) then
-        SetPlayerModel(ply, playerModel)
-      end
+      SetPlayerModel(ply)
     end
   end
 end

@@ -20,15 +20,7 @@ hook.Add("PlayerSpawn", "WskyTTTLootboxes_GiveActiveWeapons", function (ply)
   end
 
   timer.Simple(2, function ()
-    local playerModel = playerData.activePlayerModel.modelName
-    local hasCustomModel = string.len(playerModel) > 0
-
-    local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
-    local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
-
-    if (needToUpdateModel) then
-      SetPlayerModel(ply, playerModel)
-    end
+    SetPlayerModel(ply)
   end)
 end)
 
