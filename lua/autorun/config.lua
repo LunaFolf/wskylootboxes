@@ -139,6 +139,9 @@ playerModels = {
   ["models/player/niko.mdl"] = {
     ["value"] = 65
   },
+  ["models/player/sono/starwars/442nd_trooper.mdl"] = {
+    ["value"] = 225
+  },
   ["models/player/romanbellic.mdl"] = {
     ["value"] = 65
   },
@@ -169,6 +172,9 @@ playerModels = {
   ["models/player/genshin_impact_diluc.mdl"] = {
     ["value"] = 135
   },
+  ["models/player/sono/starwars/187th_trooper.mdl"] = {
+    ["value"] = 225
+  },
   ["models/ex-mo/quake3/players/doom.mdl"] = {
     ["value"] = 140
   },
@@ -183,6 +189,9 @@ playerModels = {
   },
   ["models/player/MasterChiefH3.mdl"] = {
     ["value"] = 200
+  },
+  ["models/player/sono/starwars/501st_trooper.mdl"] = {
+    ["value"] = 225
   },
   ["models/norpo/ArkhamOrigins/Assassins/Deathstroke_ValveBiped.mdl"] = {
     ["value"] = 215
@@ -203,15 +212,6 @@ playerModels = {
     ["value"] = 190
   },
   ["models/gonzo/regimentalclones2/cody/cody.mdl"] = {
-    ["value"] = 225
-  },
-  ["models/player/sono/starwars/187th_trooper.mdl"] = {
-    ["value"] = 225
-  },
-  ["models/player/sono/starwars/442nd_trooper.mdl"] = {
-    ["value"] = 225
-  },
-  ["models/player/sono/starwars/501st_trooper.mdl"] = {
     ["value"] = 225
   },
   ["models/pechenko_121/Deadpool/chr_deadpool2.mdl"] = {
