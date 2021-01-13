@@ -4,6 +4,8 @@ math.randomseed(os.time())
 
 include('../config.lua')
 
+include('sv_downloads.lua')
+
 include('sv_data.lua')
 include('sv_crates.lua')
 include('sv_commands.lua')
