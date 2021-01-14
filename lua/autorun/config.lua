@@ -7,8 +7,17 @@ meleeWeapons = {
 }
 
 primaryWeapons = {
+  ["weapon_sp_winchester"] = {
+    ["value"] = 310
+  },
+  ["weapon_752_bowcaster"] = {
+    ["value"] = 310
+  },
   ["weapon_zm_rifle"] = {
     ["value"] = 310
+  },
+  ["weapon_rp_pocket"] = {
+    ["value"] = 340
   },
   ["weapon_ttt_aug"] = {
     ["value"] = 187
@@ -21,6 +30,9 @@ primaryWeapons = {
   },
   ["weapon_ttt_sg550"] = {
     ["value"] = 210
+  },
+  ["weapon_ap_mrca1"] = {
+    ["value"] = 190
   },
   ["weapon_752_e5"] = {
     ["value"] = 210
@@ -46,6 +58,15 @@ primaryWeapons = {
   ["weapon_zm_mac10"] = {
     ["value"] = 115
   },
+  ["weapon_ap_mrca1"] = {
+    ["value"] = 125
+  },
+  ["weapon_ap_tec9"] = {
+    ["value"] = 135
+  },
+  ["weapon_ap_vector"] = {
+    ["value"] = 120
+  },
   ["weapon_ttt_mp5"] = {
     ["value"] = 225
   },
@@ -53,6 +74,12 @@ primaryWeapons = {
     ["value"] = 150
   },
   ["weapon_ttt_m3s90"] = {
+    ["value"] = 200
+  },
+  ["weapon_sp_striker"] = {
+    ["value"] = 210
+  },
+  ["weapon_sp_dbarrel"] = {
     ["value"] = 200
   },
   ["weapon_752_e11"] = {
@@ -63,6 +90,12 @@ primaryWeapons = {
 secondaryWeapons = {
   ["weapon_zm_revolver"] = {
     ["value"] = 162
+  },
+  ["weapon_pp_rbull"] = {
+    ["value"] = 162
+  },
+  ["weapon_pp_remington"] = {
+    ["value"] = 172
   },
   ["weapon_ttt_glock"] = {
     ["value"] = 75
