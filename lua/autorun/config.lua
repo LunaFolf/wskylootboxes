@@ -7,20 +7,8 @@ meleeWeapons = {
 }
 
 primaryWeapons = {
-  ["ttt_m9k_intervention"] = {
-    ["value"] = 400
-  },
-  ["ttt_m9k_m24"] = {
-    ["value"] = 350
-  },
   ["weapon_zm_rifle"] = {
     ["value"] = 310
-  },
-  ["ttt_m9k_svt40"] = {
-    ["value"] = 340
-  },
-  ["ttt_m9k_svu"] = {
-    ["value"] = 380
   },
   ["weapon_ttt_aug"] = {
     ["value"] = 187
@@ -46,9 +34,6 @@ primaryWeapons = {
   ["weapon_ttt_galil"] = {
     ["value"] = 225
   },
-  ["ttt_m9k_scar"] = {
-    ["value"] = 230
-  },
   ["weapon_zm_sledge"] = {
     ["value"] = 250
   },
@@ -58,38 +43,17 @@ primaryWeapons = {
   ["weapon_ttt_tmp"] = {
     ["value"] = 122
   },
-  ["ttt_m9k_smgp90"] = {
-    ["value"] = 120
-  },
-  ["ttt_m9k_fg42"] = {
-    ["value"] = 130
-  },
   ["weapon_zm_mac10"] = {
     ["value"] = 115
   },
   ["weapon_ttt_mp5"] = {
     ["value"] = 225
   },
-  ["ttt_m9k_usc"] = {
-    ["value"] = 225
-  },
   ["weapon_ttt_famas"] = {
     ["value"] = 150
   },
-  ["ttt_m9k_mp9"] = {
-    ["value"] = 160
-  },
-  ["ttt_m9k_g36"] = {
-    ["value"] = 160
-  },
   ["weapon_ttt_m3s90"] = {
     ["value"] = 200
-  },
-  ["ttt_m9k_spas12"] = {
-    ["value"] = 250
-  },
-  ["ttt_m9k_usas"] = {
-    ["value"] = 290
   },
   ["weapon_752_e11"] = {
     ["value"] = 160
@@ -97,17 +61,11 @@ primaryWeapons = {
 }
 
 secondaryWeapons = {
-  ["ttt_m9k_m29satan"] = {
-    ["value"] = 152
-  },
   ["weapon_zm_revolver"] = {
     ["value"] = 162
   },
   ["weapon_ttt_glock"] = {
     ["value"] = 75
-  },
-  ["ttt_m9k_hk45"] = {
-    ["value"] = 125
   },
   ["weapon_zm_pistol"] = {
     ["value"] = 120
@@ -118,18 +76,9 @@ secondaryWeapons = {
   ["weapon_752_dc17"] = {
     ["value"] = 150
   },
-  ["ttt_m9k_luger"] = {
-    ["value"] = 125
-  },
-  ["ttt_m9k_colt1911"] = {
-    ["value"] = 130
-  },
   ["weapon_ttt_dual_elites"] = {
     ["value"] = 135
   },
-  ["ttt_m9k_contender"] = {
-    ["value"] = 320
-  }
 }
 
 playerModels = {
