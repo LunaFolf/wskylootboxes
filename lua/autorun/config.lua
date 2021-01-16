@@ -305,7 +305,7 @@ exclusiveModels = {
   ["76561198080812606"] = {
     [1] = {
       ["type"] = "playerModel",
-      ["modelName"] = "models/gonzo/regimentalclones2/cody/cody.mdl"
+      ["modelName"] = "models/player/sono/starwars/commander_bly.mdl"
     }
   }
 }
