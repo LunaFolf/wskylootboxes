@@ -11,6 +11,23 @@ crateTypes = {
   "playerModel"
 }
 
+function generateItemValue(itemType, itemTier, baseValue)
+  print(itemType, itemTier, baseValue)
+
+  local tierCount = table.Count(weaponTiers)
+  local currentTier = weaponTiers[itemTier]
+  local multiplier = currentTier.multiplier
+
+  print(tierCount, currentTier, multiplier)
+
+  local value = math.Round(baseValue * multiplier)
+
+  print(baseValue, value)
+
+  return ((value > 0) and value) or baseValue
+
+end
+
 function wskyLootboxesUnboxWeapon()
   -- Randomly Select the weapon.
   local weaponKeys = table.GetKeys(allWeapons)
@@ -23,15 +40,7 @@ function wskyLootboxesUnboxWeapon()
   local tierNum = math.Round(math.Rand(1, tierCount))
   local weaponTier = weaponTiers[tierNum]
 
-  local nextTierUp = weaponTiers[math.min(tierCount, tierNum + 1)]
-
-  local multMin, multMax = weaponTier.multiplier, nextTierUp.multiplier
-
-  local multiplier = math.Rand(multMin, multMax)
-
-  local value = allWeapons[winningWeapon].value
-
-  value = math.Round(value * math.max(1, multiplier))
+  value = generateItemValue("weapon", tierNum, allWeapons[winningWeapon].value)
 
   return winningWeapon, weaponTier.name, value
 end
@@ -43,9 +52,11 @@ function wskyLootboxesUnboxPlayerModel()
   local modelNum = math.Round(math.Rand(1, modelCount))
   local winningModel = modelKeys[modelNum]
 
-  local value = playerModels[winningModel].value
+  local exotic = math.Rand(0, 1) >= 0.95
 
-  return winningModel, value
+  local value = generateItemValue("playerModel", exotic and 5 or 1, playerModels[winningModel].value)
+
+  return winningModel, (exotic and "Exotic" or "Common"), value
 end
 
 function generateACrate(type)
@@ -84,6 +95,7 @@ function GiveOutFreeCrates()
       net.Start("WskyTTTLootboxes_ClientsideWinChime")
       net.WriteString("garrysmod/save_load2.wav")
         net.WriteTable(crate)
+        net.WriteBool(false)
       net.Send(ply)
 
       sendClientFreshData(ply, playerData)
@@ -138,14 +150,13 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
 
   -- Find crate type and unbox it.
   if (crateType == "weapon") then
-    winningItem, weaponTier, value = wskyLootboxesUnboxWeapon()
-    newItem.className = winningItem
+    weaponClass, weaponTier, value = wskyLootboxesUnboxWeapon()
+    newItem.className = weaponClass
     newItem.tier = weaponTier
   elseif (crateType == "playerModel") then
-    winningItem, value = wskyLootboxesUnboxPlayerModel()
-    newItem.modelName = winningItem
-    local exotic = math.Rand(0, 1) >= 0.95
-    newItem.tier = exotic and "Exotic" or "Common"
+    modelName, modelTier, value = wskyLootboxesUnboxPlayerModel()
+    newItem.modelName = modelName
+    newItem.tier = modelTier
   end
 
   value = math.Round(valueDepreciationFn() * value)
@@ -176,6 +187,7 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/save_load1.wav")
     net.WriteTable(newItem)
+    net.WriteBool(winAFreeCrate)
   net.Send(ply)
 
   sendClientFreshData(ply, playerData)

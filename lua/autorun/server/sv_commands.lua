@@ -66,6 +66,7 @@ concommand.Add("wsky_crate_generate", function (ply, cmd, args, argStr)
       net.Start("WskyTTTLootboxes_ClientsideWinChime")
       net.WriteString("garrysmod/save_load2.wav")
         net.WriteTable(crate)
+        net.WriteBool(false)
       net.Send(v)
     end
   end

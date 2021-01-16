@@ -3,99 +3,16 @@ if SERVER then return end
 local menuOpen = false
 local menuRef = nil
 local width, height = ScrW() / 2, ScrH() / 2
-local margin = 8
-local padding = 8
+local margin = 4
+local padding = 6
 local titleBarHeight = 38
+local stockItemHeight = 65
 
 hook.Add("PlayerButtonDown", "WskyTTTLootboxes_RequestInventoryData", function (ply, key)
   if (menuOpen or (key ~= KEY_F3 and key ~= KEY_I)) then return end
   requestNewData(true)
   menuOpen = true
 end)
-
-function getItemName(item)
-  if (!item) then return end
-
-  -- Check if Item is a crate
-  local crateTag = "crate_"
-  if (string.StartWith(item.type, crateTag)) then
-    local crateType = string.sub(item.type, string.len(crateTag) + 1)
-    if (crateType == "weapon") then return "Weapon Crate"
-    elseif (crateType == "playerModel") then return "Player Model Crate"
-    elseif (crateType == "any") then return "Random Crate"
-    else return "Unknown Crate" end
-  end
-
-  -- Check if Item is a weapon
-  if (item.type == "weapon") then
-    local weapon = weapons.GetStored(item.className)
-    local name = TryTranslation(weapon.PrintName)
-    local tier = item.tier
-    return item.tier .. " " .. name
-  end
-
-  -- Check if Item is a playerModel
-  if (item.type == "playerModel") then
-    local formattedName = player_manager.TranslateToPlayerModelName(item.modelName)
-    local prepend = item.tier == "Exotic" and "Exotic " or ""
-    return prepend .. string.upper(string.sub(formattedName, 1, 1)) .. string.sub(formattedName, 2)
-  end
-
-  return "[TBC] " .. item.type
-end
-
-function getItemPreview(item)
-  if (!item) then return end
-
-  -- Check if Item is a crate.
-  local crateTag = "crate_"
-  if (string.StartWith(item.type, crateTag)) then
-    local crateType = string.sub(item.type, string.len(crateTag) + 1)
-    local crateIcon = "vgui/ttt/wsky/icon_crate.png"
-
-    if (crateType == "weapon") then
-      crateIcon = "vgui/ttt/wsky/icon_crate_weapon.png"
-    elseif (crateType == "playerModel") then
-      crateIcon = "vgui/ttt/wsky/icon_crate_playerModel.png"
-    end
-
-    return {
-      ["type"] = "icon",
-      ["data"] = crateIcon
-    }
-  end
-
-  if (item.type == "weapon") then
-    local weapon = weapons.GetStored(item.className)
-
-    -- If a weapon icon exists, return that.
-    if (weapon.Icon) then
-      return {
-        ["type"] = "icon",
-        ["data"] = weapon.Icon
-      }
-    end
-
-    -- Otherwise, find an available model and use that.
-    return {
-      ["type"] = "model",
-      ["data"] = weapon.WorldModel or ""
-    }
-  end
-
-  -- Check if Item is a playerModel
-  if (item.type == "playerModel") then
-    return {
-      ["type"] = "playerModel",
-      ["data"] = item.modelName
-    }
-  end
-
-  return {
-    ["type"] = "icon",
-    ["data"] = "vgui/spawnmenu/generating"
-  }
-end
 
 function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
   if (!frame or !item) then return end
@@ -234,6 +151,9 @@ function renderMenu()
   if (string.len(playerModel) < 1) then playerModel = LocalPlayer():GetModel() end
   inventoryModelPreview:SetModel(playerModel)
   inventoryModelPreview:SetCamPos(Vector(0, -40, 45))
+  function inventoryModelPreview.Entity:GetPlayerColor()
+    return LocalPlayer():GetPlayerColor():ToColor() or Vector(1, 1, 1)
+  end
 
   local divider = vgui.Create("DHorizontalDivider", sheet, "inventoryDivider")
   divider:Dock(FILL)
@@ -266,6 +186,8 @@ function renderMenu()
   marketScroller.Paint = function () end
 
 
+  -- draw inventory
+
   local itemNum = 0
   for itemIndex, item in pairs(playerData.inventory) do
     local itemID = item.itemID
@@ -274,7 +196,7 @@ function renderMenu()
     local itemPreviewData = getItemPreview(item)
 
     local offset = (itemNum - 1)
-    local itemHeight = 75
+    local itemHeight = stockItemHeight
     local itemPanel = vgui.Create("DButton", scroller)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
@@ -354,9 +276,9 @@ function renderMenu()
       elseif (item.tier == "Uncommon") then
         color = Color(40, 155, 115, 255)
       end
-      draw.SimpleText(itemName, "WskyFontSmaller", margin, margin, color)
+      draw.SimpleText(itemName, "WskyFontSmaller", padding, padding, color)
       if (item.type == "weapon") then
-        draw.SimpleText(getWeaponCategory(item.className) .. " weapon", "WskyFontSmaller", margin, textHeight + margin)
+        draw.SimpleText(getWeaponCategory(item.className) .. " weapon", "WskyFontSmaller", padding, textHeight + padding)
       end
     end
 
@@ -389,6 +311,8 @@ function renderMenu()
 
   end
 
+  -- draw store items
+
   local itemNum = 0
   for itemIndex, item in pairs(storeItems) do
     local itemID = item.itemID
@@ -397,7 +321,7 @@ function renderMenu()
     local itemPreviewData = getItemPreview(item)
 
     local offset = (itemNum - 1)
-    local itemHeight = 75
+    local itemHeight = stockItemHeight
     local itemPanel = vgui.Create("DButton", storePanel)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
@@ -516,6 +440,8 @@ function renderMenu()
 
   end
 
+  -- draw market items
+
   local itemNum = 0
   for itemIndex, item in pairs(marketData.items) do
     local itemID = item.itemID
@@ -524,7 +450,7 @@ function renderMenu()
     local itemPreviewData = getItemPreview(item)
 
     local offset = (itemNum - 1)
-    local itemHeight = 75
+    local itemHeight = stockItemHeight
     local itemPanel = vgui.Create("DButton", marketScroller)
     local y = (itemHeight * offset) + (padding * offset) + padding
 

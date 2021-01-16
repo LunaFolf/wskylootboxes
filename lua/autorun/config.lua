@@ -1,5 +1,5 @@
 valueDepreciationFn = function ()
-  return math.Rand(0.45, 0.85)
+  return math.Rand(0.35, 0.55)
 end
 
 -- Available weapons that can be won via lootboxes
@@ -149,6 +149,15 @@ playerModels = {
   ["models/player/genshin_impact_razor.mdl"] = {
     ["value"] = 115
   },
+  ["models/player/linktp.mdl"] = {
+    ["value"] = 115
+  },
+  ["models/player/genshin_impact_albedo.mdl"] = {
+    ["value"] = 115
+  },
+  ["models/player/drpyspy/spy.mdl"] = {
+    ["value"] = 115
+  },
   ["models/player/putin.mdl"] = {
     ["value"] = 125
   },
@@ -164,10 +173,85 @@ playerModels = {
   ["models/player/genshin_impact_zhongli.mdl"] = {
     ["value"] = 145
   },
+  ["models/player/uk_police/uk_police_01.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/gman_high.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/uk_police/uk_police_02.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/sono/starwars/green_company_trooper.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/uk_police/uk_police_03.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/breen.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/Paimon/genshin_impact/rstar/Paimon/Paimon.mdl"] = {
+    ["value"] = 200
+  },
   ["models/player/uk_police/uk_police_04.mdl"] = {
     ["value"] = 150
   },
+  ["models/player/genshin_impact_aether.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/uk_police/uk_police_05.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/Barbara/genshin_impact/rstar/Barbara/Barbara.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/genshin_impact_ayaka.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/uk_police/uk_police_06.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/uk_police/uk_police_07.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/uk_police/uk_police_08.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/uk_police/uk_police_09.mdl"] = {
+    ["value"] = 150
+  },
   ["models/fbi_pack/fbi_01.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/fbi_pack/fbi_02.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/fbi_pack/fbi_03.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/fbi_pack/fbi_04.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/player/MasterChiefH2_red.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/player/MasterChiefH2_blue.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/fbi_pack/fbi_05.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/fbi_pack/fbi_06.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/fbi_pack/fbi_07.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/fbi_pack/fbi_08.mdl"] = {
+    ["value"] = 170
+  },
+  ["models/fbi_pack/fbi_09.mdl"] = {
     ["value"] = 170
   },
   ["models/player/MasterChiefH3.mdl"] = {
@@ -182,10 +266,16 @@ playerModels = {
   ["models/player/sam.mdl"] = {
     ["value"] = 220
   },
-  ["models/player/alice.mdl"] = {
+  ["models/player/robber.mdl"] = {
+    ["value"] = 180
+  },
+  ["models/Klee/genshin_impact/rstar/Klee/Klee.mdl"] = {
     ["value"] = 220
   },
-  ["models/player/charple.mdl"] = {
+  ["models/player/zelda.mdl"] = {
+    ["value"] = 220
+  },
+  ["models/player/alice.mdl"] = {
     ["value"] = 220
   },
   ["models/player/macdguy.mdl"] = {
@@ -197,12 +287,30 @@ playerModels = {
   ["models/gonzo/regimentalclones2/cody/cody.mdl"] = {
     ["value"] = 225
   },
+  ["models/Avengers/Iron Man/mark7_player.mdl"] = {
+    ["value"] = 240
+  },
   ["models/pechenko_121/Deadpool/chr_deadpool2.mdl"] = {
     ["value"] = 240
   },
   ["models/player/infernonaval/agent/infernoagent.mdl"] = {
     ["value"] = 200
   },
+}
+
+exclusiveModels = {
+  ["76561198037289710"] = {
+    [1] = {
+      ["type"] = "playerModel",
+      ["modelName"] = "models/player/teslapower.mdl"
+    }
+  },
+  ["76561198332078167"] = {
+    [1] = {
+      ["type"] = "playerModel",
+      ["modelName"] = "models/player/genshin_impact_diona.mdl"
+    }
+  }
 }
 
 allWeapons = {}
@@ -247,20 +355,66 @@ local playersModelAveragePrice = math.ceil(playerModelsSum / table.Count(playerM
 
 storeItems = {
   [1] = {
-    ["type"] = "crate_weapon",
-    ["value"] = math.ceil(weaponsAveragePrice * 2.5)
+    ["type"] = "crate_any",
+    ["value"] = math.ceil(((playersModelAveragePrice + weaponsAveragePrice) / 2) * 1)
   },
   [2] = {
-    ["type"] = "crate_any",
-    ["value"] = math.ceil(((playersModelAveragePrice + weaponsAveragePrice) / 2) * 2.5)
+    ["type"] = "crate_weapon",
+    ["value"] = math.ceil(weaponsAveragePrice * 1.5)
   },
   [3] = {
     ["type"] = "crate_playerModel",
-    ["value"] = math.ceil(playersModelAveragePrice * 2.5)
+    ["value"] = math.ceil(playersModelAveragePrice * 1.5)
   },
   [4] = {
     ["type"] = "playerModel",
+    ["modelName"] = "models/petaly/petergriffin/petergriffin.mdl",
+    ["value"] = 4000
+  },
+  [5] = {
+    ["type"] = "playerModel",
     ["modelName"] = "models/player/fortnite/mandalorian.mdl",
+    ["value"] = 6000
+  },
+  [6] = {
+    ["type"] = "playerModel",
+    ["modelName"] = "models/player/teslapower.mdl",
     ["value"] = 8000
-  }
+  },
+}
+
+itemNameOverrides = {
+  ["Codyregimental2"] = "Commander Cody",
+  ["Swbf_imperial_inferno_agent"] = "Imperial Inferno Agent",
+  ["Libertyprime"] = "Liberty Prime",
+  ["Niko"] = "Niko Bellic",
+  ["Doomguy"] = "Doom guy",
+  ["Classygentleman"] = "Classy Gentleman",
+  ["Masterchief3"] = "Master Chief",
+  ["FBI_01"] = "FBI Agent",
+  ["FBI_02"] = "FBI Agent",
+  ["FBI_03"] = "FBI Agent",
+  ["FBI_04"] = "FBI Agent",
+  ["FBI_05"] = "FBI Agent",
+  ["FBI_06"] = "FBI Agent",
+  ["FBI_07"] = "FBI Agent",
+  ["FBI_08"] = "FBI Agent",
+  ["FBI_09"] = "FBI Agent",
+  ["UK_Police_01"] = "UK Police Officer",
+  ["UK_Police_02"] = "UK Police Officer",
+  ["UK_Police_03"] = "UK Police Officer",
+  ["UK_Police_04"] = "UK Police Officer",
+  ["UK_Police_05"] = "UK Police Officer",
+  ["UK_Police_06"] = "UK Police Officer",
+  ["UK_Police_07"] = "UK Police Officer",
+  ["UK_Police_08"] = "UK Police Officer",
+  ["UK_Police_09"] = "UK Police Officer",
+  ["Smith"] = "Agent Smith",
+  ["PuggaMaximus"] = "Pugga Maximus",
+  ["CHR_Deadpool"] = "Deadpool",
+  ["PUTIN"] = "Vladimir Putin",
+  ["Masterchief2Red"] = "Halo Spartan - Red",
+  ["Masterchief2blue"] = "Halo Spartan - Blue",
+  ["Spytf2"] = "Spy",
+  ["Linktp"] = "Link"
 }

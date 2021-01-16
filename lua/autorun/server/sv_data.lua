@@ -11,8 +11,8 @@ function getStarterMarketData()
   }
 end
 
-function getStarterPlayerData()
-  return {
+function getStarterPlayerData(steam64)
+  local defaultPlayerData = {
     ["activePlayerModel"] = {
       ["itemID"] = "",
       ["modelName"] = ""
@@ -43,6 +43,24 @@ function getStarterPlayerData()
       }
     }
   }
+
+  bonusInventoryItems = exclusiveModels[steam64]
+
+  if (bonusInventoryItems and table.Count(bonusInventoryItems) > 0) then
+    for i, item in pairs(bonusInventoryItems) do
+      local classKeyName = ((item.type == "weapon") and "className" or "modelName")
+      table.Merge(defaultPlayerData.inventory, {
+        [uuid()] = {
+          ["type"] = item.type,
+          [classKeyName] = item[classKeyName],
+          ["value"] = -1,
+          ["createdAt"] = os.time()
+        }
+      })
+    end
+  end
+
+  return defaultPlayerData
 end
 
 function checkAndCreateDir(dirs)
@@ -88,7 +106,7 @@ function getPlayerData(steam64)
   checkAndCreateDir(dir .. "/playerdata")
   local fileOutput = file.Read(fileName)
   if not fileOutput or string.len(fileOutput) <= 0 then
-    local starterPlayerData = getStarterPlayerData()
+    local starterPlayerData = getStarterPlayerData(steam64)
     file.Write(fileName, util.TableToJSON(starterPlayerData))
     playerInventoryData = starterPlayerData
   else

@@ -167,6 +167,8 @@ if SERVER then
   end
 end
 
+TryTranslation = LANG and LANG.TryTranslation or nil
+
 local random = math.random
 
 function uuid()
@@ -197,4 +199,100 @@ function givePlayerError(ply, message)
   local messageToPrint = message or "There was an error! Please contact staff."
   messagePlayer(ply, messageToPrint)
   error(messageToPrint)
+end
+
+function getItemName(item)
+  if (!item) then return end
+
+  local chosenName = nil
+  local tier = item.tier
+
+  -- Check if Item is a crate
+  local crateTag = "crate_"
+  if (string.StartWith(item.type, crateTag)) then
+    local crateType = string.sub(item.type, string.len(crateTag) + 1)
+    if (crateType == "weapon") then chosenName = "Weapon Crate"
+    elseif (crateType == "playerModel") then chosenName = "Player Model Crate"
+    elseif (crateType == "any") then chosenName = "Random Crate"
+    else chosenName = "Unknown Crate" end
+  end
+
+  -- Check if Item is a weapon
+  if (item.type == "weapon") then
+    local weapon = weapons.GetStored(item.className)
+    local name = TryTranslation(weapon.PrintName)
+    chosenName = tier .. " " .. name
+  end
+
+  -- Check if Item is a playerModel
+  if (item.type == "playerModel") then
+    local formattedName = player_manager.TranslateToPlayerModelName(item.modelName)
+    local genshinTag = "Genshin Impact "
+    if (string.StartWith(formattedName, genshinTag)) then
+      formattedName = string.sub(formattedName, string.len(genshinTag) + 1)
+    end
+    local prepend = (tier == "Exotic" and "Exotic " or "")
+    if (tier ~= "Exotic") then tier = nil end
+    chosenName = prepend .. string.upper(string.sub(formattedName, 1, 1)) .. string.sub(formattedName, 2)
+  end
+
+  -- Check for name overrides
+  local className = (tier and string.sub(chosenName, string.len(tier) + 2) or chosenName)
+  local override = itemNameOverrides[className]
+  if (override) then chosenName = (tier and (tier .. " " .. override) or override) end
+
+  return chosenName or "# WSKY_LOOTBOX_NAME_MISSING #"
+end
+
+function getItemPreview(item)
+  if (!item) then return end
+
+  -- Check if Item is a crate.
+  local crateTag = "crate_"
+  if (string.StartWith(item.type, crateTag)) then
+    local crateType = string.sub(item.type, string.len(crateTag) + 1)
+    local crateIcon = "vgui/ttt/wsky/icon_crate.png"
+
+    if (crateType == "weapon") then
+      crateIcon = "vgui/ttt/wsky/icon_crate_weapon.png"
+    elseif (crateType == "playerModel") then
+      crateIcon = "vgui/ttt/wsky/icon_crate_playerModel.png"
+    end
+
+    return {
+      ["type"] = "icon",
+      ["data"] = crateIcon
+    }
+  end
+
+  if (item.type == "weapon") then
+    local weapon = weapons.GetStored(item.className)
+
+    -- If a weapon icon exists, return that.
+    if (weapon.Icon) then
+      return {
+        ["type"] = "icon",
+        ["data"] = weapon.Icon
+      }
+    end
+
+    -- Otherwise, find an available model and use that.
+    return {
+      ["type"] = "model",
+      ["data"] = weapon.WorldModel or ""
+    }
+  end
+
+  -- Check if Item is a playerModel
+  if (item.type == "playerModel") then
+    return {
+      ["type"] = "playerModel",
+      ["data"] = item.modelName
+    }
+  end
+
+  return {
+    ["type"] = "icon",
+    ["data"] = "vgui/spawnmenu/generating"
+  }
 end
