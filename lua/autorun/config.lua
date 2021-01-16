@@ -275,6 +275,9 @@ playerModels = {
   ["models/player/macdguy.mdl"] = {
     ["value"] = 180
   },
+  ["models/konnie/isa/detroit/connor.mdl"] = {
+    ["value"] = 190
+  },
   ["models/player/rorschach.mdl"] = {
     ["value"] = 190
   },
@@ -306,6 +309,12 @@ exclusiveModels = {
     [1] = {
       ["type"] = "playerModel",
       ["modelName"] = "models/player/sono/starwars/commander_bly.mdl"
+    }
+  },
+  ["76561198412400073"] = {
+    [1] = {
+      ["type"] = "playerModel",
+      ["modelName"] = "models/konnie/isa/detroit/connor.mdl"
     }
   }
 }
