@@ -15,8 +15,9 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
 
   local item = table.Copy(marketData.items[marketItemID])
   local marketItemCost = item.value
+  local buyerIsOwner = (item.owner == steam64)
 
-  if (!item or (playerData.scrap < item.value)) then return end
+  if (!buyerIsOwner and (!item or (playerData.scrap < item.value))) then return end
 
   local itemID = uuid()
   local itemTable = {
@@ -27,14 +28,14 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
     itemTable[itemID].value = 10
   elseif (item.type == "weapon") then
     local baseItem = allWeapons[item.className]
-    itemTable[itemID].value = math.Round(math.Rand(0.85, 1.15) * baseItem.value)
+    itemTable[itemID].value = math.Round(valueDepreciationFn() * baseItem.value)
   elseif (item.type == "playerModel") then
     local baseItem = playerModels[item.modelName]
-    itemTable[itemID].value = math.Round(math.Rand(0.85, 1.15) * baseItem.value)
+    itemTable[itemID].value = math.Round(valueDepreciationFn() * baseItem.value)
   end
 
   table.Merge(playerData.inventory, itemTable)
-  playerData.scrap = playerData.scrap - marketItemCost
+  if (!buyerIsOwner) then playerData.scrap = playerData.scrap - marketItemCost end
   marketData.items[marketItemID] = nil
   savePlayerData(steam64, playerData)
   saveMarketData(marketData)
@@ -45,7 +46,10 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
   savePlayerData(item.owner, ownerPlayerData)
 
   sendClientFreshData(ply, playerData)
-  if (owner) then sendClientFreshData(owner, ownerPlayerData) end
+  if (owner) then
+    messagePlayer(owner, ply:Nick() .. " Bought your " .. (item.className or item.modelName) .. "!")
+    sendClientFreshData(owner, ownerPlayerData)
+  end
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
   net.Send(ply)

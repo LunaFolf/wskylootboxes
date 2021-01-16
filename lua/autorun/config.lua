@@ -1,3 +1,7 @@
+valueDepreciationFn = function ()
+  return math.Rand(0.45, 0.85)
+end
+
 -- Available weapons that can be won via lootboxes
 
 meleeWeapons = {
@@ -123,9 +127,6 @@ playerModels = {
   },
   ["models/player/sono/starwars/442nd_trooper.mdl"] = {
     ["value"] = 225
-  },
-  ["models/player/romanbellic.mdl"] = {
-    ["value"] = 65
   },
   ["models/player/smith.mdl"] = {
     ["value"] = 70

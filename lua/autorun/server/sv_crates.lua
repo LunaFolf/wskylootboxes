@@ -148,7 +148,7 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
     newItem.tier = exotic and "Exotic" or "Common"
   end
 
-  value = math.Round(math.Rand(0.85, 1.15) * value)
+  value = math.Round(valueDepreciationFn() * value)
 
   newItem.value = value
 
