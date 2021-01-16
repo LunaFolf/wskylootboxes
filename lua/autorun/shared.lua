@@ -1,3 +1,5 @@
+TryTranslation = LANG and LANG.TryTranslation or nil
+
 if CLIENT then
   local fontName = "Segoe UI"
   topHatBlue = Color(0, 202, 255, 225)
@@ -167,8 +169,6 @@ if SERVER then
   end
 end
 
-TryTranslation = LANG and LANG.TryTranslation or nil
-
 local random = math.random
 
 function uuid()
@@ -202,6 +202,7 @@ function givePlayerError(ply, message)
 end
 
 function getItemName(item)
+  if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
   if (!item) then return end
 
   local chosenName = nil
@@ -220,7 +221,8 @@ function getItemName(item)
   -- Check if Item is a weapon
   if (item.type == "weapon") then
     local weapon = weapons.GetStored(item.className)
-    local name = TryTranslation(weapon.PrintName)
+    local weaponName = weapon.PrintName or weapon.ClassName
+    local name = (TryTranslation and TryTranslation(weaponName) or weaponName)
     chosenName = tier .. " " .. name
   end
 

@@ -1,5 +1,42 @@
 if CLIENT then return end
 
+concommand.Add("wsky_lootbox_debug_genshin", function (ply, cmd, args)
+  if (!args[1]) then return end
+  local steam64 = args[1]
+  local playerData = getPlayerData(steam64)
+
+  if (!playerData) then return end
+
+  if (table.Count(table.GetKeys(playerData.inventory)) > 0) then
+    playerData.inventory = {}
+  end
+
+  local models = player_manager.AllValidModels()
+  local genshinModels = {}
+
+  for name, path in pairs(models) do
+    if (string.find(string.lower(name), "genshin")) then
+      table.insert(genshinModels, path)
+    end
+  end
+
+  for i, modelName in pairs(genshinModels) do
+    table.Merge(playerData.inventory, {
+      [uuid()] = {
+        ["type"] = "playerModel",
+        ["modelName"] = modelName,
+        ["value"] = 1,
+        ["tier"] = "Common",
+        ["createdAt"] = os.time()
+      }
+    })
+  end
+
+  savePlayerData(steam64, playerData)
+
+  PrintTable(genshinModels)
+end)
+
 concommand.Add("wsky_lootbox_debug_printAllModels", function (ply)
   if (!ply) then return end
   local steam64 = ply:SteamID64()
@@ -27,6 +64,7 @@ concommand.Add("wsky_lootbox_debug_printAllModels", function (ply)
 
   PrintTable(models)
 end)
+
 concommand.Add("wsky_lootbox_debug_allItems", function (ply)
   if (!ply) then return end
   local steam64 = ply:SteamID64()

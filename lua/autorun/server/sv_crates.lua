@@ -12,17 +12,10 @@ crateTypes = {
 }
 
 function generateItemValue(itemType, itemTier, baseValue)
-  print(itemType, itemTier, baseValue)
-
   local tierCount = table.Count(weaponTiers)
   local currentTier = weaponTiers[itemTier]
   local multiplier = currentTier.multiplier
-
-  print(tierCount, currentTier, multiplier)
-
   local value = math.Round(baseValue * multiplier)
-
-  print(baseValue, value)
 
   return ((value > 0) and value) or baseValue
 
@@ -93,7 +86,7 @@ function GiveOutFreeCrates()
 
       -- Let player know of their winnings, and play a little tune.
       net.Start("WskyTTTLootboxes_ClientsideWinChime")
-      net.WriteString("garrysmod/save_load2.wav")
+        net.WriteString("garrysmod/save_load2.wav")
         net.WriteTable(crate)
         net.WriteBool(false)
       net.Send(ply)

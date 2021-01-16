@@ -534,7 +534,17 @@ function renderMenu()
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 0))
       surface.SetFont("WskyFontSmaller")
       local _, textHeight = surface.GetTextSize(itemName)
-      draw.SimpleText(itemName, "WskyFontSmaller", margin, margin)
+      local color = Color(255, 255, 255, 255)
+      if (item.tier == "Exotic") then
+        color = Color(240, 190, 15, 255)
+      elseif (item.tier == "Legendary") then
+        color = Color(170, 115, 235, 255)
+      elseif (item.tier == "Rare") then
+        color = Color(40, 140, 195, 255)
+      elseif (item.tier == "Uncommon") then
+        color = Color(40, 155, 115, 255)
+      end
+      draw.SimpleText(itemName, "WskyFontSmaller", margin, margin, color)
       draw.SimpleText("Seller: " .. item.ownerName and item.ownerName or item.owner, "WskyFontSmaller", margin, textHeight + margin)
     end
 

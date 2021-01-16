@@ -191,9 +191,6 @@ playerModels = {
   ["models/player/breen.mdl"] = {
     ["value"] = 150
   },
-  ["models/Paimon/genshin_impact/rstar/Paimon/Paimon.mdl"] = {
-    ["value"] = 200
-  },
   ["models/player/uk_police/uk_police_04.mdl"] = {
     ["value"] = 150
   },
@@ -269,9 +266,6 @@ playerModels = {
   ["models/player/robber.mdl"] = {
     ["value"] = 180
   },
-  ["models/Klee/genshin_impact/rstar/Klee/Klee.mdl"] = {
-    ["value"] = 220
-  },
   ["models/player/zelda.mdl"] = {
     ["value"] = 220
   },
@@ -283,9 +277,6 @@ playerModels = {
   },
   ["models/player/rorschach.mdl"] = {
     ["value"] = 190
-  },
-  ["models/gonzo/regimentalclones2/cody/cody.mdl"] = {
-    ["value"] = 225
   },
   ["models/Avengers/Iron Man/mark7_player.mdl"] = {
     ["value"] = 240
@@ -308,7 +299,13 @@ exclusiveModels = {
   ["76561198332078167"] = {
     [1] = {
       ["type"] = "playerModel",
-      ["modelName"] = "models/player/genshin_impact_diona.mdl"
+      ["modelName"] = "models/player/genshin_impact_chongyun.mdl"
+    }
+  },
+  ["76561198080812606"] = {
+    [1] = {
+      ["type"] = "playerModel",
+      ["modelName"] = "models/gonzo/regimentalclones2/cody/cody.mdl"
     }
   }
 }

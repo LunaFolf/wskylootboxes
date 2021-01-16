@@ -24,14 +24,20 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
     [itemID] = item
   }
 
+  local tierNum = nil
+
+  for index, tier in ipairs(weaponTiers) do
+    if (tier.name == itemTable[itemID].tier) then tierNum = index end
+  end
+
   if (string.StartWith(item.type, "crate_")) then
     itemTable[itemID].value = 10
   elseif (item.type == "weapon") then
     local baseItem = allWeapons[item.className]
-    itemTable[itemID].value = math.Round(valueDepreciationFn() * baseItem.value)
+    itemTable[itemID].value = generateItemValue("weapon", tierNum, baseItem.value)
   elseif (item.type == "playerModel") then
     local baseItem = playerModels[item.modelName]
-    itemTable[itemID].value = math.Round(valueDepreciationFn() * baseItem.value)
+    itemTable[itemID].value = generateItemValue("playerModel", tierNum, baseItem.value)
   end
 
   table.Merge(playerData.inventory, itemTable)
@@ -54,5 +60,11 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
   end
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+  net.Send(ply)
+
+  net.Start("WskyTTTLootboxes_ClientsideWinChime")
+    net.WriteString("garrysmod/save_load2.wav")
+    net.WriteTable(itemTable[itemID])
+    net.WriteBool(false)
   net.Send(ply)
 end)
