@@ -275,9 +275,6 @@ playerModels = {
   ["models/player/macdguy.mdl"] = {
     ["value"] = 180
   },
-  ["models/konnie/isa/detroit/connor.mdl"] = {
-    ["value"] = 190
-  },
   ["models/player/rorschach.mdl"] = {
     ["value"] = 190
   },
@@ -422,5 +419,6 @@ itemNameOverrides = {
   ["Masterchief2Red"] = "Halo Spartan - Red",
   ["Masterchief2blue"] = "Halo Spartan - Blue",
   ["Spytf2"] = "Spy",
-  ["Linktp"] = "Link"
+  ["Linktp"] = "Link",
+  ["Fornite Mandalorian"] = "Mandalorian"
 }

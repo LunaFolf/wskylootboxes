@@ -13,6 +13,12 @@ net.Receive("WskyTTTLootboxes_ClientsideUpdateWeaponName", function ()
 
     local weapon = LocalPlayer():GetWeapon(weaponClass)
     local customName = getItemName(inventoryWeapon)
+
     weapon:SetNWString("customName", customName)
+
+    net.Start("WskyTTTLootboxes_SetEntityCustomName")
+      net.WriteEntity(weapon)
+      net.WriteString(customName)
+    net.SendToServer()
   end)
 end)

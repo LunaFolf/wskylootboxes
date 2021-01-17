@@ -6,6 +6,8 @@ util.AddNetworkString("WskyTTTLootboxes_EquipItem")
 util.AddNetworkString("WskyTTTLootboxes_UnequipItem")
 util.AddNetworkString("WskyTTTLootboxes_RenameItem")
 
+util.AddNetworkString("WskyTTTLootboxes_SetEntityCustomName")
+
 function unEquipItem(playerData, itemID)
   local item = playerData.inventory[itemID]
 
@@ -70,6 +72,15 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
   net.Send(ply)
+end)
+
+net.Receive("WskyTTTLootboxes_SetEntityCustomName", function ()
+  local weapon = net.ReadEntity()
+  local name = net.ReadString()
+
+  if (!weapon or !name) then return end
+
+  weapon:SetNWString("customName", name)
 end)
 
 net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
