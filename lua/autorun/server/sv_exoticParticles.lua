@@ -5,15 +5,27 @@ concommand.Add( "wsky_test_particle", function( ply, cmd, args )
   spawnParticleOnPlayer("playerModel", particle, ply)
 end )
 
-function spawnParticleOnPlayer(position, particle, player)
-  local eyesAttachment = player:LookupAttachment("eyes")
-  
-  print(position, particle, player, eyesAttachment)
+function spawnParticleOnPlayer(position, particle, entity)
+  if (position == "playerModel") then
+    local attachment = entity:LookupAttachment("anim_attachment_head")
+    if (attachment < 1) then attachment = entity:LookupAttachment("eyes") end
 
-  ParticleEffectAttach(particle, PATTACH_POINT_FOLLOW, player, eyesAttachment)
-  print(type(particle), particle)
+    ParticleEffectAttach(particle, PATTACH_POINT_FOLLOW, entity, attachment)
+  -- elseif (position == "weapon") then
+  --   PrintTable(entity:GetAttachments())
+  --   local attachment = entity:LookupAttachment("anim_attachment_RH")
+
+  --   print(particle, PATTACH_POINT_FOLLOW, entity, attachment)
+
+  --   local part = ParticleEffectAttach(particle, PATTACH_POINT_FOLLOW, entity, attachment)
+  --   print(part)
+  elseif (position == "weapon_world") then
+
+    ParticleEffectAttach(particle, PATTACH_ABSORIGIN_FOLLOW, entity, 1)
+  end
 end
 
-function clearParticlesOnPlayer(player)
-  player:StopParticles()
+function clearParticlesOnPlayer(entity)
+  if (!entity:IsValid()) then return end
+  entity:StopParticles()
 end

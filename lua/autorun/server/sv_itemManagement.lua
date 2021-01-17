@@ -4,6 +4,7 @@ util.AddNetworkString("WskyTTTLootboxes_SellItem")
 util.AddNetworkString("WskyTTTLootboxes_ScrapItem")
 util.AddNetworkString("WskyTTTLootboxes_EquipItem")
 util.AddNetworkString("WskyTTTLootboxes_UnequipItem")
+util.AddNetworkString("WskyTTTLootboxes_RenameItem")
 
 function unEquipItem(playerData, itemID)
   local item = playerData.inventory[itemID]
@@ -94,6 +95,35 @@ net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
   net.Send(ply)
 end)
 
+net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
+  local steam64 = ply:SteamID64()
+  local playerData = getPlayerData(steam64)
+  local itemID = net.ReadString()
+  local newItemName = net.ReadString()
+
+  if (!itemID or !newItemName) then
+    givePlayerError(ply)
+    return
+  end
+
+  if (playerData.scrap < 200) then return end
+
+  playerData.inventory[itemID].customName = newItemName
+  playerData.scrap = playerData.scrap - 200
+
+  savePlayerData(steam64, playerData)
+
+  sendClientFreshData(ply, playerData)
+
+  net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+  net.Send(ply)
+
+  net.Start("WskyTTTLootboxes_ClientsideUpdateWeaponName")
+    net.WriteTable(playerData.inventory[itemID])
+    net.WriteString(playerData.inventory[itemID].className)
+  net.Send(ply)
+end)
+
 net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
   if (!len or !ply) then return end
   local steam64 = ply:SteamID64()
@@ -118,8 +148,7 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
       return
     end
 
-    playerData.activePlayerModel.modelName = item.modelName
-    playerData.activePlayerModel.exoticParticleEffect = item.exoticParticleEffect or nil
+    playerData.activePlayerModel = item
     playerData.activePlayerModel.itemID = itemID
   end
 
@@ -132,13 +161,13 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
     local weaponCategory = getWeaponCategory(item.className)
 
     if(weaponCategory == "primary") then
-      playerData.activePrimaryWeapon.className = item.className
+      playerData.activePrimaryWeapon = item
       playerData.activePrimaryWeapon.itemID = itemID
     elseif(weaponCategory == "secondary") then
-      playerData.activeSecondaryWeapon.className = item.className
+      playerData.activeSecondaryWeapon = item
       playerData.activeSecondaryWeapon.itemID = itemID
     elseif(weaponCategory == "melee") then
-      playerData.activeMeleeWeapon.className = item.className
+      playerData.activeMeleeWeapon = item
       playerData.activeMeleeWeapon.itemID = itemID
     end
   end

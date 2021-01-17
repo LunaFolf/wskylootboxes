@@ -55,6 +55,46 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     Menu:AddSpacer()
   end
 
+  if (item.type == "weapon") then
+    local name = nil
+    Menu:AddOption("Rename Weapon (200 scrap)", function ()
+        local questionPanel = vgui.Create("DFrame")
+        questionPanel:MakePopup()
+        questionPanel:SetSize( 400, 200 )
+        questionPanel:Center()
+
+        function renameItem()
+          if (name and string.len(name) > 0 and string.len(name) < 50) then
+            net.Start("WskyTTTLootboxes_RenameItem")
+              net.WriteString(itemID)
+              net.WriteString(name)
+            net.SendToServer()
+          end
+        end
+
+        local valueEntry = vgui.Create( "DTextEntry", questionPanel )
+        valueEntry:Dock(TOP)
+        valueEntry:SetPlaceholderText("Enter your weapon's new name!")
+        valueEntry.OnEnter = function( self )
+          name = self:GetValue()
+          questionPanel:Close()
+
+          renameItem()
+        end
+
+        local continueBtn = vgui.Create("DButton", questionPanel)
+        continueBtn:Dock(BOTTOM)
+        continueBtn:SetText("Continue")
+        continueBtn.DoClick = function ()
+          name = valueEntry:GetValue()
+          questionPanel:Close()
+
+          renameItem()
+        end
+      end)
+      Menu:AddSpacer()
+  end
+
   -- Give option to scrap/delete, if allowed.
   local scrapText = "Scrap Item (" .. item.value .. ")"
   if (item.value < 1) then scrapText = "Delete item" end

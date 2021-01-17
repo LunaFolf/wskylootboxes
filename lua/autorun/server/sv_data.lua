@@ -27,7 +27,7 @@ function getStarterPlayerData(steam64)
     },
     ["activeSecondaryWeapon"] = {
       ["itemID"] = "",
-      ["modelName"] = ""
+      ["className"] = ""
     },
     ["scrap"] = 100,
     ["inventory"] = {

@@ -11,9 +11,16 @@ crateTypes = {
   "playerModel"
 }
 
-function generateExoticParticleEffect()
-  local particleCount = table.Count(particles)
-  return particles[math.Round(math.Rand(1, particleCount))]
+function generateExoticParticleEffect(type)
+  local particleCount = 0
+  if (type == "playerModel") then
+    particleCount = table.Count(playerModelParticles)
+    return playerModelParticles[math.Round(math.Rand(1, particleCount))]
+  end
+  if (type == "weapon") then
+    particleCount = table.Count(weaponParticles)
+    return weaponParticles[math.Round(math.Rand(1, particleCount))]
+  end
 end
 
 function generateItemValue(itemType, itemTier, baseValue)
@@ -50,7 +57,7 @@ function wskyLootboxesUnboxPlayerModel()
   local modelNum = math.Round(math.Rand(1, modelCount))
   local winningModel = modelKeys[modelNum]
 
-  local exotic = math.Rand(0, 1) <= 0.95
+  local exotic = math.Rand(0, 1) >= 0.95
 
   local value = generateItemValue("playerModel", exotic and 5 or 1, playerModels[winningModel].value)
 
@@ -158,7 +165,7 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   end
 
   if (newItem.tier == "Exotic") then
-    newItem.exoticParticleEffect = generateExoticParticleEffect()
+    newItem.exoticParticleEffect = generateExoticParticleEffect(crateType)
   end
 
   value = math.Round(valueDepreciationFn() * value)

@@ -6,6 +6,7 @@ include('../shared.lua')
 include('cl_data.lua')
 include('cl_menu.lua')
 include('cl_notifications.lua')
+include('cl_weaponNaming.lua')
 
 function getWeaponCategory(weaponClassName)
   if(table.HasValue(table.GetKeys(primaryWeapons), weaponClassName)) then
