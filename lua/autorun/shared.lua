@@ -207,9 +207,7 @@ end
 function getItemName(item)
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
   if (!item) then return end
-
-  print("customName: ", item.customName)
-
+  
   if (item.customName) then return item.customName end
 
   local chosenName = nil
