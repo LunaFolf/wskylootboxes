@@ -142,6 +142,7 @@ if SERVER then
     local playerData = getPlayerData(steam64)
 
     local playerModel = playerData.activePlayerModel.modelName
+    local exoticEffect = playerData.activePlayerModel.exoticParticleEffect
     local hasCustomModel = string.len(playerModel) > 0
 
     if (ply:IsBot() and not hasCustomModel) then
@@ -159,6 +160,8 @@ if SERVER then
     
     if (needToUpdateModel) then
       ply:SetModel(playerModel)
+      clearParticlesOnPlayer(ply)
+      if (exoticEffect) then spawnParticleOnPlayer("playerModel", exoticEffect, ply) end
     end
   end
 

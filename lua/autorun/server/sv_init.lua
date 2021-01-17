@@ -14,6 +14,7 @@ include('sv_itemManagement.lua')
 include('sv_market.lua')
 include('sv_store.lua')
 include('sv_debug.lua')
+include('sv_exoticParticles.lua')
 
 include('sv_hooks.lua')
 

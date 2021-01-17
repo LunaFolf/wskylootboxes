@@ -119,6 +119,7 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
     end
 
     playerData.activePlayerModel.modelName = item.modelName
+    playerData.activePlayerModel.exoticParticleEffect = item.exoticParticleEffect or nil
     playerData.activePlayerModel.itemID = itemID
   end
 

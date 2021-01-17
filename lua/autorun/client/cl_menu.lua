@@ -265,7 +265,7 @@ function renderMenu()
     itemInfoPanel.Paint = function (self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 0))
       surface.SetFont("WskyFontSmaller")
-      local _, textHeight = surface.GetTextSize(itemName)
+      local textWidth, textHeight = surface.GetTextSize(itemName)
       local color = Color(255, 255, 255, 255)
       if (item.tier == "Exotic") then
         color = Color(240, 190, 15, 255)
@@ -279,6 +279,9 @@ function renderMenu()
       draw.SimpleText(itemName, "WskyFontSmaller", padding, padding, color)
       if (item.type == "weapon") then
         draw.SimpleText(getWeaponCategory(item.className) .. " weapon", "WskyFontSmaller", padding, textHeight + padding)
+      end
+      if (item.tier == "Exotic") then
+        draw.SimpleText(item.exoticParticleEffect, "WskyFontSmaller", textWidth + (padding * 2), padding)
       end
     end
 
