@@ -128,19 +128,19 @@ function savePlayerData(steam64, playerData)
 end
 
 function sendClientFreshPlayerData(player, playerData)
-  sendPlayerData({
+  sendPlayerData(player, {
     ["player"] = playerData or getPlayerData(player:SteamID64())
   })
 end
 
 function sendClientFreshMarketData(player)
-  sendPlayerData({
+  sendPlayerData(player, {
     ["market"] = getMarketData()
   })
 end
 
 function sendClientFreshStoreData(player)
-  sendPlayerData({
+  sendPlayerData(player, {
     ["store"] = storeItems
   })
 end
