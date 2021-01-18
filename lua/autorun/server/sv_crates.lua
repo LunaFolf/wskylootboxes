@@ -2,6 +2,7 @@ if CLIENT then return end
 
 util.AddNetworkString("WskyTTTLootboxes_RequestCrateOpening")
 util.AddNetworkString("WskyTTTLootboxes_OpenPlayerInventory")
+util.AddNetworkString("WskyTTTLootboxes_ClientsideWinItem")
 util.AddNetworkString("WskyTTTLootboxes_ClientsideWinChime")
 
 percentageChanceToWinCrate = 30
@@ -97,8 +98,8 @@ function GiveOutFreeCrates()
       savePlayerData(steam64, playerData)
 
       -- Let player know of their winnings, and play a little tune.
-      net.Start("WskyTTTLootboxes_ClientsideWinChime")
-        net.WriteString("garrysmod/save_load2.wav")
+      net.Start("WskyTTTLootboxes_ClientsideWinItem")
+        net.WriteString("wsky_lootboxes/item_2.ogg")
         net.WriteTable(crate)
         net.WriteBool(false)
       net.Send(ply)
@@ -193,8 +194,8 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   savePlayerData(steam64, playerData)
 
   -- Let player know of their winnings, and play a little tune.
-  net.Start("WskyTTTLootboxes_ClientsideWinChime")
-    net.WriteString("garrysmod/save_load1.wav")
+  net.Start("WskyTTTLootboxes_ClientsideWinItem")
+    net.WriteString(newItem.tier == "Exotic" and "wsky_lootboxes/partyblower.mp3" or "wsky_lootboxes/item.ogg")
     net.WriteTable(newItem)
     net.WriteBool(winAFreeCrate)
   net.Send(ply)

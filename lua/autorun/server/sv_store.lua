@@ -34,4 +34,8 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
   net.Send(ply)
+
+  net.Start("WskyTTTLootboxes_ClientsideWinChime")
+    net.WriteString("wsky_lootboxes/item.ogg")
+  net.Send(ply)
 end)

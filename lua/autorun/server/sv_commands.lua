@@ -63,8 +63,8 @@ concommand.Add("wsky_crate_generate", function (ply, cmd, args, argStr)
       savePlayerData(steam64, playerData)
 
       -- Let player know of their winnings, and play a little tune.
-      net.Start("WskyTTTLootboxes_ClientsideWinChime")
-      net.WriteString("garrysmod/save_load2.wav")
+      net.Start("WskyTTTLootboxes_ClientsideWinItem")
+      net.WriteString("wsky_lootboxes/item_2.ogg")
         net.WriteTable(crate)
         net.WriteBool(false)
       net.Send(v)

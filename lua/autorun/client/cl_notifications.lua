@@ -140,7 +140,7 @@ local function drawNewItemNotification(item, playerWonAFreeCrate)
   newItemNotification = notify
 end
 
-net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
+net.Receive("WskyTTTLootboxes_ClientsideWinItem", function ()
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
   local ply = LocalPlayer()
   local soundString = net.ReadString()
@@ -151,5 +151,12 @@ net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
 
   messagePlayer(ply, "New item" .. (winAFreeCrate and "s" or "") .. ": " .. getItemName(item) .. (winAFreeCrate and ", and a free crate" or "") .. "!")
 
+  ply:EmitSound(soundString)
+end)
+
+net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
+  local ply = LocalPlayer()
+  local soundString = net.ReadString()
+  if (!ply or !soundString) then return end
   ply:EmitSound(soundString)
 end)
