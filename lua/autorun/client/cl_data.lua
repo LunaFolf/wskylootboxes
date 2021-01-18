@@ -5,15 +5,16 @@ storeItems = nil
 marketData = nil
 
 function requestNewData(openPlayerMenu)
-  net.Start("WskyTTTLootboxes_ClientRequestData")
+  net.Start("WskyTTTLootboxes_ClientRequestPlayerData")
     net.WriteBool(openPlayerMenu)
   net.SendToServer()
 end
 
 net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
-  local freshPlayerData = net.ReadTable()
-  local availableStoreItems = net.ReadTable()
-  local freshMarketData = net.ReadTable()
+  local data = net.ReadTable()
+  local freshPlayerData = data["player"]
+  local availableStoreItems = data["store"]
+  local freshMarketData = data["market"]
 
   local inventoryKeys = table.GetKeys(freshPlayerData.inventory)
 

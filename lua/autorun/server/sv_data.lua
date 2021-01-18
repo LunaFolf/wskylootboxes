@@ -1,6 +1,8 @@
 if CLIENT then return end
 
-util.AddNetworkString("WskyTTTLootboxes_ClientRequestData")
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestPlayerData")
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestMarketData")
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestStoreData")
 util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
 
 dir = "wsky/Lootboxes"
@@ -125,19 +127,35 @@ function savePlayerData(steam64, playerData)
   file.Write(fileName, util.TableToJSON(playerData))
 end
 
-function sendClientFreshData(ply, playerData)
-  if (!ply) then return end
+function sendClientFreshPlayerData(player, playerData)
+  sendPlayerData([
+    ["player"] = playerData or getPlayerData(player:SteamID64())
+  ])
+end
+
+function sendClientFreshMarketData(player)
+  sendPlayerData([
+    ["market"] = getMarketData()
+  ])
+end
+
+function sendClientFreshStoreData(player)
+  sendPlayerData([
+    ["store"] = storeItems
+  ])
+end
+
+function sendPlayerData(ply, data)
+  if (!ply or !data) then return end
 
   net.Start("WskyTTTLootboxes_ClientReceiveData")
-    net.WriteTable(playerData or getPlayerData(ply:SteamID64()))
-    net.WriteTable(storeItems)
-    net.WriteTable(getMarketData())
+    net.WriteTable(data)
   net.Send(ply)
 end
 
-net.Receive("WskyTTTLootboxes_ClientRequestData", function (len, ply)
+net.Receive("WskyTTTLootboxes_ClientRequestPlayerData", function (len, ply)
   local openPlayerMenu = net.ReadBool()
-  sendClientFreshData(ply)
+  sendClientFreshPlayerData(ply)
 
   if (openPlayerMenu) then
     net.Start("WskyTTTLootboxes_OpenPlayerInventory")
