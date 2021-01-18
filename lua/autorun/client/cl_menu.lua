@@ -576,7 +576,7 @@ function renderMenu()
     itemInfoPanel.Paint = function (self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 0))
       surface.SetFont("WskyFontSmaller")
-      local _, textHeight = surface.GetTextSize(itemName)
+      local textWidth, textHeight = surface.GetTextSize(itemName)
       local color = Color(255, 255, 255, 255)
       if (item.tier == "Exotic") then
         color = Color(240, 190, 15, 255)
@@ -589,6 +589,9 @@ function renderMenu()
       end
       draw.SimpleText(itemName, "WskyFontSmaller", margin, margin, color)
       draw.SimpleText("Seller: " .. item.ownerName and item.ownerName or item.owner, "WskyFontSmaller", margin, textHeight + margin)
+      if (item.tier == "Exotic") then
+        draw.SimpleText(item.exoticParticleEffect, "WskyFontSmaller", textWidth + (padding * 2), padding)
+      end
     end
 
     local itemButtonClickable = vgui.Create("DButton", itemPanel)

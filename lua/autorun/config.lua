@@ -38,6 +38,9 @@ primaryWeapons = {
   ["weapon_ap_mrca1"] = {
     ["value"] = 190
   },
+  ["weapon_ttt_garand"] = {
+    ["value"] = 120
+  },
   ["weapon_752_e5"] = {
     ["value"] = 210
   },
@@ -197,25 +200,10 @@ playerModels = {
   ["models/player/genshin_impact_aether.mdl"] = {
     ["value"] = 150
   },
-  ["models/player/uk_police/uk_police_05.mdl"] = {
-    ["value"] = 150
-  },
   ["models/Barbara/genshin_impact/rstar/Barbara/Barbara.mdl"] = {
     ["value"] = 150
   },
   ["models/player/genshin_impact_ayaka.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/uk_police/uk_police_06.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/uk_police/uk_police_07.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/uk_police/uk_police_08.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/uk_police/uk_police_09.mdl"] = {
     ["value"] = 150
   },
   ["models/fbi_pack/fbi_01.mdl"] = {
@@ -234,21 +222,6 @@ playerModels = {
     ["value"] = 170
   },
   ["models/player/MasterChiefH2_blue.mdl"] = {
-    ["value"] = 170
-  },
-  ["models/fbi_pack/fbi_05.mdl"] = {
-    ["value"] = 170
-  },
-  ["models/fbi_pack/fbi_06.mdl"] = {
-    ["value"] = 170
-  },
-  ["models/fbi_pack/fbi_07.mdl"] = {
-    ["value"] = 170
-  },
-  ["models/fbi_pack/fbi_08.mdl"] = {
-    ["value"] = 170
-  },
-  ["models/fbi_pack/fbi_09.mdl"] = {
     ["value"] = 170
   },
   ["models/player/MasterChiefH3.mdl"] = {
