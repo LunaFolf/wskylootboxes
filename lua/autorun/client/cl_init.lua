@@ -1,7 +1,7 @@
 if SERVER then return end
 
-include('../config.lua')
-include('../shared.lua')
+include('wsky_lootbox_config.lua')
+include('wsky_lootbox_shared.lua')
 
 include('cl_data.lua')
 include('cl_menu.lua')

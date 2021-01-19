@@ -6,6 +6,7 @@ net.Receive("WskyTTTLootboxes_ClientsideUpdateWeaponName", function ()
   if (!weaponClass) then return end
 
   local ply = LocalPlayer()
+  if (!ply) then return end
   local steam64 = ply:SteamID64()
 
   timer.Simple(0.2, function ()

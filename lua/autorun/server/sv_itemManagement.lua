@@ -70,11 +70,14 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
 
   sendClientFreshPlayerData(ply, playerData)
 
+  sendClientFreshMarketData()
+
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/save_load2.wav")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 end)
 
@@ -111,6 +114,7 @@ net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 end)
 
@@ -139,6 +143,7 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_ClientsideUpdateWeaponName")
@@ -222,6 +227,7 @@ net.Receive("WskyTTTLootboxes_UnequipItem", function (len, ply)
   sendClientFreshPlayerData(ply, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")

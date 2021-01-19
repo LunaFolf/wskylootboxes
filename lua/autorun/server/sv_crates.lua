@@ -203,5 +203,6 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   sendClientFreshPlayerData(ply, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 end)

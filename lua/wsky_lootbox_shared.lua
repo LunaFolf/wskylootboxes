@@ -42,7 +42,7 @@ if CLIENT then
   } )
 
   function createBasicFrame (width, height, title, draggable)
-    local Frame = vgui.Create( "DFrame" )
+    local Frame = vgui.Create( "DFrame", nil, "WskyDFrame" )
     Frame:SetSize(width, height)
     Frame:SetTitle( "" )
     Frame:SetVisible(true)
@@ -303,3 +303,11 @@ function getItemPreview(item)
     ["data"] = "vgui/spawnmenu/generating"
   }
 end
+
+function darken (color, multiplier)
+  local hue, sat, light = color:ToHSL()
+  light = light * multiplier
+  return HSLToColor(hue, sat, light)
+end
+
+lighten = darken

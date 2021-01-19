@@ -11,14 +11,6 @@ function spawnParticleOnPlayer(position, particle, entity)
     if (attachment < 1) then attachment = entity:LookupAttachment("eyes") end
 
     ParticleEffectAttach(particle, PATTACH_POINT_FOLLOW, entity, attachment)
-  -- elseif (position == "weapon") then
-  --   PrintTable(entity:GetAttachments())
-  --   local attachment = entity:LookupAttachment("anim_attachment_RH")
-
-  --   print(particle, PATTACH_POINT_FOLLOW, entity, attachment)
-
-  --   local part = ParticleEffectAttach(particle, PATTACH_POINT_FOLLOW, entity, attachment)
-  --   print(part)
   elseif (position == "weapon_world") then
 
     ParticleEffectAttach(particle, PATTACH_ABSORIGIN_FOLLOW, entity, 1)

@@ -2,8 +2,8 @@ if CLIENT then return end
 
 math.randomseed(os.time())
 
-include('../config.lua')
-include('../shared.lua')
+include('wsky_lootbox_config.lua')
+include('wsky_lootbox_shared.lua')
 
 include('sv_downloads.lua')
 

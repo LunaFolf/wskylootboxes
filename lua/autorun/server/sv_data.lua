@@ -127,38 +127,55 @@ function savePlayerData(steam64, playerData)
   file.Write(fileName, util.TableToJSON(playerData))
 end
 
-function sendClientFreshPlayerData(player, playerData)
+function sendClientFreshPlayerData(player, playerData, openMenu)
   sendPlayerData(player, {
     ["player"] = playerData or getPlayerData(player:SteamID64())
-  })
+  }, openMenu and "inventory" or nil)
 end
 
-function sendClientFreshMarketData(player)
-  sendPlayerData(player, {
-    ["market"] = getMarketData()
-  })
+function sendClientFreshMarketData(players, marketData, openMenu)
+  if (type(players) == "Player") then
+    players = { players }
+  elseif(!players) then players = player.GetAll() end
+
+  for i, player in ipairs(players) do
+    sendPlayerData(player, {
+      ["market"] = marketData or getMarketData()
+    }, openMenu and "market" or nil)
+  end
 end
 
-function sendClientFreshStoreData(player)
+function sendClientFreshStoreData(player, openMenu)
   sendPlayerData(player, {
     ["store"] = storeItems
-  })
+  }, openMenu and "store" or nil)
 end
 
-function sendPlayerData(ply, data)
+function sendPlayerData(ply, data, openMenu)
   if (!ply or !data) then return end
 
   net.Start("WskyTTTLootboxes_ClientReceiveData")
     net.WriteTable(data)
   net.Send(ply)
+
+  if (openMenu) then
+    net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+      net.WriteString(openMenu)
+    net.Send(ply)
+  end
 end
 
 net.Receive("WskyTTTLootboxes_ClientRequestPlayerData", function (len, ply)
-  local openPlayerMenu = net.ReadBool()
-  sendClientFreshPlayerData(ply)
+  local openMenu = net.ReadBool()
+  sendClientFreshPlayerData(ply, nil, openMenu)
+end)
 
-  if (openPlayerMenu) then
-    net.Start("WskyTTTLootboxes_OpenPlayerInventory")
-    net.Send(ply)
-  end
+net.Receive("WskyTTTLootboxes_ClientRequestStoreData", function (len, ply)
+  local openMenu = net.ReadBool()
+  sendClientFreshStoreData(ply, openMenu)
+end)
+
+net.Receive("WskyTTTLootboxes_ClientRequestMarketData", function (len, ply)
+  local openMenu = net.ReadBool()
+  sendClientFreshMarketData(ply, nil, openMenu)
 end)

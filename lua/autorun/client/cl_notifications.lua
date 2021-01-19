@@ -17,9 +17,7 @@ local function drawNewItemNotification(item, playerWonAFreeCrate)
   local notifyPanel = vgui.Create("DPanel", notify)
   notifyPanel:Dock(FILL)
   local color = Color(topHatBlue.r, topHatBlue.g, topHatBlue.b)
-  local hue, sat, light = color:ToHSL()
-  light = light * 0.25
-  color = HSLToColor(hue, sat, light)
+  color = darken(color, 0.25)
   notifyPanel:SetBackgroundColor(color)
 
   local title = vgui.Create("DPanel", notifyPanel)

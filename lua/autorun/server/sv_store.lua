@@ -33,6 +33,7 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
   sendClientFreshPlayerData(ply, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("store")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")

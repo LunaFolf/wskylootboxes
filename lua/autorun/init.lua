@@ -1,13 +1,14 @@
 AddCSLuaFile('client/cl_data.lua')
 AddCSLuaFile('client/cl_menu.lua')
 AddCSLuaFile('client/cl_init.lua')
+AddCSLuaFile('client/cl_renderer.lua')
 AddCSLuaFile('client/cl_notifications.lua')
 AddCSLuaFile('client/cl_weaponNaming.lua')
 
-AddCSLuaFile('shared.lua')
-AddCSLuaFile('config.lua')
+AddCSLuaFile('wsky_lootbox_shared.lua')
+AddCSLuaFile('wsky_lootbox_config.lua')
 
-include("config.lua")
+include("wsky_lootbox_config.lua")
 
 local pcfFiles = {
   "halloween2015_unusuals",

@@ -52,16 +52,16 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
   savePlayerData(item.owner, ownerPlayerData)
 
   sendClientFreshPlayerData(ply, playerData)
-  sendClientFreshMarketData(ply)
+  sendClientFreshMarketData()
   if (owner and item.owner ~= steam64) then
     messagePlayer(owner, ply:Nick() .. " Bought your " .. getItemName(item) .. "!")
     sendClientFreshPlayerData(owner, ownerPlayerData)
-    sendClientFreshMarketData(owner)
   elseif (buyerIsOwner) then
     messagePlayer(owner, "Your " .. getItemName(item) .. " has been taken off the market.")
   end
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("market")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_ClientsideWinItem")
