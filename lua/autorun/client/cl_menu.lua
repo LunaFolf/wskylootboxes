@@ -10,6 +10,7 @@ padding = 6
 titleBarHeight = 38
 stockItemHeight = 65
 lastTab = nil
+scrollToChild = nil
 
 hook.Add("PlayerButtonDown", "WskyTTTLootboxes_RequestInventoryData", function (ply, key)
   if (menuOpen or (key ~= KEY_F3 and key ~= KEY_I)) then return end
@@ -77,7 +78,7 @@ function renderMenu(activeTab)
   local bottomPaddingBlock = vgui.Create("DPanel", scroller)
   bottomPaddingBlock:Dock(TOP)
   bottomPaddingBlock:DockMargin(margin, margin * 2, margin * 2, margin)
-  bottomPaddingBlock:SetHeight(stockItemHeight)
+  bottomPaddingBlock:SetHeight(margin * 2)
   bottomPaddingBlock:SetText("")
   bottomPaddingBlock:SetMouseInputEnabled(true)
   bottomPaddingBlock.Paint = function () end

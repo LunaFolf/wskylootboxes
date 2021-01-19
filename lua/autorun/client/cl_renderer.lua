@@ -224,7 +224,7 @@ function drawInventory(parent, inventory)
 
     local offset = (itemNum - 1)
     local itemHeight = stockItemHeight
-    local itemPanel = vgui.Create("DButton", parent)
+    local itemPanel = vgui.Create("DButton", parent, "inventoryItem_"..tostring(itemNum))
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
@@ -339,8 +339,29 @@ function drawInventory(parent, inventory)
     end
     local highestParent = getHighestParent(parent)
     local inventoryModelPreview = highestParent:Find("playerModelPreview")
-    itemButtonClickable.DoRightClick = function () rightClickItem(highestParent, item, itemID, itemName, itemPreviewData, inventoryModelPreview) end
+    itemButtonClickable.DoRightClick = function (self)
+      scrollToChild = self:GetParent():GetName()
+      rightClickItem(highestParent, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
+    end
 
+  end
+
+  if (scrollToChild) then
+    parent:InvalidateParent(true)
+    local itemNum = tonumber(string.Split(scrollToChild, "_")[2])
+    local panelName = "inventoryItem_"..tostring(math.max(1, itemNum - 1))
+
+    local children = parent:GetCanvas():GetChildren()
+    local childCount = 1
+    local panel = nil
+
+    while !panel and childCount < table.Count(children) do
+      if (children[childCount]:GetName() == panelName) then panel = children[childCount] end
+      childCount = childCount + 1
+    end
+
+    if (panel) then parent:ScrollToChild(panel) end
+    scrollToChild = nil
   end
 end
 
