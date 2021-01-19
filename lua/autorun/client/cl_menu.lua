@@ -58,14 +58,25 @@ function renderMenu(activeTab)
 
   local inventoryModelPreview = vgui.Create("DModelPanel", rightInventoryPanel, "playerModelPreview")
   inventoryModelPreview:Dock(FILL)
-  inventoryModelPreview:InvalidateParent(true)
+
+  local viewModelScroller = vgui.Create("DNumberScratch", rightInventoryPanel)
+  viewModelScroller:Dock(FILL)
+  viewModelScroller:SetHeight(32)
+  viewModelScroller:SetValue(180)
+  viewModelScroller:SetMin(0)
+  viewModelScroller:SetMax(360)
+  viewModelScroller:SetImageVisible(false)
+  viewModelScroller.PaintScratchWindow = function () end
 
   local playerModel = playerData.activePlayerModel.modelName
   if (string.len(playerModel) < 1) then playerModel = LocalPlayer():GetModel() end
   inventoryModelPreview:SetModel(playerModel)
-  inventoryModelPreview:SetCamPos(Vector(0, -40, 45))
+  inventoryModelPreview:SetCamPos(Vector(0, 40, 45))
   function inventoryModelPreview.Entity:GetPlayerColor()
     return LocalPlayer():GetPlayerColor():ToColor() or Vector(1, 1, 1)
+  end
+  function inventoryModelPreview:LayoutEntity(ent)
+    ent:SetAngles(Angle(0, viewModelScroller:GetFloatValue() - 90,  0))
   end
 
   drawTabs(inventoryMenuContainer, activeTab, renderMenu)
@@ -73,6 +84,7 @@ function renderMenu(activeTab)
   if (activeTab == "inventory") then drawInventory(scroller, playerData.inventory)
   elseif (activeTab == "store") then drawStore(scroller, storeItems)
   elseif (activeTab == "market") then drawMarket(scroller, marketData.items)
+  elseif (activeTab == "leaderboard") then drawLeaderboard(scroller, leaderboardData)
   else renderMenu("inventory") end
 
   local bottomPaddingBlock = vgui.Create("DPanel", scroller)

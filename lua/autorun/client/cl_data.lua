@@ -3,6 +3,7 @@ if SERVER then return end
 playerData = nil
 storeItems = nil
 marketData = nil
+leaderboardData = nil
 
 function requestFreshPlayerData(openMenu)
   net.Start("WskyTTTLootboxes_ClientRequestPlayerData")
@@ -22,12 +23,19 @@ function requestFreshMarketData(openMenu)
   net.SendToServer()
 end
 
+function requestFreshLeaderboardData(openMenu)
+  net.Start("WskyTTTLootboxes_ClientRequestLeaderboardData")
+    net.WriteBool(openMenu)
+  net.SendToServer()
+end
+
 net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
   local data = net.ReadTable()
 
   local freshPlayerData = data["player"]
   local availableStoreItems = data["store"]
   local freshMarketData = data["market"]
+  local freshLeaderboardData = data["leaderboard"]
 
   if (freshPlayerData) then
     local inventoryKeys = table.GetKeys(freshPlayerData.inventory)
@@ -56,6 +64,7 @@ net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
 
   if availableStoreItems then storeItems = availableStoreItems end
   if freshMarketData then marketData = freshMarketData end
+  if freshLeaderboardData then leaderboardData = freshLeaderboardData end
 
   if (menuRef) then renderMenu(lastTab) end
 end)

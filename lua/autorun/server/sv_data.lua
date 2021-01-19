@@ -3,6 +3,7 @@ if CLIENT then return end
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestPlayerData")
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestMarketData")
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestStoreData")
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestLeaderboardData")
 util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
 
 dir = "wsky/Lootboxes"
@@ -10,6 +11,32 @@ dir = "wsky/Lootboxes"
 function getStarterMarketData()
   return {
     ["items"] = {}
+  }
+end
+
+function getLeaderboardData()
+  local playerFiles, _ = file.Find(dir.."/playerdata/*.json","DATA","nameasc")
+  
+  local mostScrap = nil
+
+  for i, file in ipairs(playerFiles) do
+    local steam64 = string.Split(file, ".json")[1]
+    local playerData = getPlayerData(steam64)
+    if !mostScrap then
+      mostScrap = {
+        ["steam64"] = steam64,
+        ["value"] = playerData.scrap
+      }
+    elseif (playerData.scrap > mostScrap.value) then
+      mostScrap = {
+        ["steam64"] = steam64,
+        ["value"] = playerData.scrap
+      }
+    end
+  end
+
+  return {
+    ["mostScrap"] = mostScrap
   }
 end
 
@@ -151,6 +178,12 @@ function sendClientFreshStoreData(player, openMenu)
   }, openMenu and "store" or nil)
 end
 
+function sendClientFreshLeaderboardData(player, openMenu)
+  sendPlayerData(player, {
+    ["leaderboard"] = getLeaderboardData()
+  }, openMenu and "leaderboard" or nil)
+end
+
 function sendPlayerData(ply, data, openMenu)
   if (!ply or !data) then return end
 
@@ -178,4 +211,9 @@ end)
 net.Receive("WskyTTTLootboxes_ClientRequestMarketData", function (len, ply)
   local openMenu = net.ReadBool()
   sendClientFreshMarketData(ply, nil, openMenu)
+end)
+
+net.Receive("WskyTTTLootboxes_ClientRequestLeaderboardData", function (len, ply)
+  local openMenu = net.ReadBool()
+  sendClientFreshLeaderboardData(ply, openMenu)
 end)

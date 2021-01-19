@@ -206,7 +206,8 @@ function drawTabs(parent, activeTab, renderMenuFn)
     tabButton.DoClick = function ()
       if (tab.class == "inventory") then requestFreshPlayerData(true)
       elseif (tab.class == "store") then requestFreshStoreData(true)
-      elseif (tab.class == "market") then requestFreshMarketData(true) end
+      elseif (tab.class == "market") then requestFreshMarketData(true)
+      elseif (tab.class == "leaderboard") then requestFreshLeaderboardData(true) end
     end
   end
 end
@@ -642,4 +643,20 @@ function drawMarket(parent, marketItems)
     end
 
   end
+end
+
+function drawLeaderboard(parent, leaderboardData)
+  -- really dirty hack to get divider, don't do this
+  local divider = parent:GetParent():GetParent()
+  divider:InvalidateParent(true)
+
+  local wipText = vgui.Create("DLabel", parent)
+  local _, divHeight = divider:GetSize()
+  wipText:SetText("This panel is still being developed and is currently not available.\nPlease check again in the future.")
+  wipText:Dock(FILL)
+  wipText:SetHeight(stockItemHeight)
+  wipText:SetFont("WskyFontSmaller")
+  wipText:DockMargin(margin * 2, 0, margin * 2, 0)
+  wipText:SetWrap(true)
+  wipText:CenterHorizontal()
 end
