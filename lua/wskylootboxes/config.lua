@@ -253,10 +253,7 @@ playerModels = {
   },
   ["models/pechenko_121/Deadpool/chr_deadpool2.mdl"] = {
     ["value"] = 240
-  },
-  ["models/player/infernonaval/agent/infernoagent.mdl"] = {
-    ["value"] = 200
-  },
+  }
 }
 
 exclusiveModels = {
@@ -353,7 +350,6 @@ storeItems = {
 
 itemNameOverrides = {
   ["Codyregimental2"] = "Commander Cody",
-  ["Swbf_imperial_inferno_agent"] = "Imperial Inferno Agent",
   ["Libertyprime"] = "Liberty Prime",
   ["Niko"] = "Niko Bellic",
   ["Doomguy"] = "Doom guy",

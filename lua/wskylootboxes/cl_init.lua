@@ -1,12 +1,12 @@
 if SERVER then return end
 
-include('wsky_lootbox_config.lua')
-include('wsky_lootbox_shared.lua')
+include('config.lua')
+include('shared.lua')
 
-include('cl_data.lua')
-include('cl_menu.lua')
-include('cl_notifications.lua')
-include('cl_weaponNaming.lua')
+include('wskylootboxes/cl_data.lua')
+include('wskylootboxes/cl_menu.lua')
+include('wskylootboxes/cl_notifications.lua')
+include('wskylootboxes/cl_weaponNaming.lua')
 
 function getWeaponCategory(weaponClassName)
   if(table.HasValue(table.GetKeys(primaryWeapons), weaponClassName)) then

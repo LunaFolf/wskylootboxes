@@ -12,8 +12,13 @@ stockItemHeight = 65
 lastTab = nil
 scrollToChild = nil
 
-hook.Add("PlayerButtonDown", "WskyTTTLootboxes_RequestInventoryData", function (ply, key)
+concommand.Add("wsky_lootboxes_menu", function ()
+  requestFreshPlayerData(true)
+end)
+
+hook.Add("PlayerButtonUp", "WskyTTTLootboxes_RequestInventoryData", function (ply, key)
   if (menuOpen or (key ~= KEY_F3 and key ~= KEY_I)) then return end
+  menuOpen = true
   requestFreshPlayerData(true)
 end)
 
