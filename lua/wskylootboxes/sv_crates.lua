@@ -104,7 +104,7 @@ function GiveOutFreeCrates()
         net.WriteBool(false)
       net.Send(ply)
 
-      sendClientFreshData(ply, playerData)
+      sendClientFreshPlayerData(ply, playerData)
     end
   end
 end
@@ -200,8 +200,9 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
     net.WriteBool(winAFreeCrate)
   net.Send(ply)
 
-  sendClientFreshData(ply, playerData)
+  sendClientFreshPlayerData(ply, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 end)

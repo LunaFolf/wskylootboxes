@@ -38,9 +38,6 @@ primaryWeapons = {
   ["weapon_ap_mrca1"] = {
     ["value"] = 190
   },
-  ["weapon_ttt_garand"] = {
-    ["value"] = 120
-  },
   ["weapon_752_e5"] = {
     ["value"] = 210
   },
@@ -256,10 +253,7 @@ playerModels = {
   },
   ["models/pechenko_121/Deadpool/chr_deadpool2.mdl"] = {
     ["value"] = 240
-  },
-  ["models/player/infernonaval/agent/infernoagent.mdl"] = {
-    ["value"] = 200
-  },
+  }
 }
 
 exclusiveModels = {
@@ -330,29 +324,24 @@ end
 local playersModelAveragePrice = math.ceil(playerModelsSum / table.Count(playerModels) * 1.75)
 
 storeItems = {
-  [1] = {
+  {
     ["type"] = "crate_any",
     ["value"] = math.ceil(((playersModelAveragePrice + weaponsAveragePrice) / 2) * 1)
   },
-  [2] = {
+  {
     ["type"] = "crate_weapon",
     ["value"] = math.ceil(weaponsAveragePrice * 1.5)
   },
-  [3] = {
+  {
     ["type"] = "crate_playerModel",
     ["value"] = math.ceil(playersModelAveragePrice * 1.5)
   },
-  [4] = {
-    ["type"] = "playerModel",
-    ["modelName"] = "models/petaly/petergriffin/petergriffin.mdl",
-    ["value"] = 4000
-  },
-  [5] = {
+  {
     ["type"] = "playerModel",
     ["modelName"] = "models/player/fortnite/mandalorian.mdl",
     ["value"] = 6000
   },
-  [6] = {
+  {
     ["type"] = "playerModel",
     ["modelName"] = "models/player/teslapower.mdl",
     ["value"] = 8000
@@ -361,7 +350,6 @@ storeItems = {
 
 itemNameOverrides = {
   ["Codyregimental2"] = "Commander Cody",
-  ["Swbf_imperial_inferno_agent"] = "Imperial Inferno Agent",
   ["Libertyprime"] = "Liberty Prime",
   ["Niko"] = "Niko Bellic",
   ["Doomguy"] = "Doom guy",

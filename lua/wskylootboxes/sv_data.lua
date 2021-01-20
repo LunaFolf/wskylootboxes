@@ -1,6 +1,9 @@
 if CLIENT then return end
 
-util.AddNetworkString("WskyTTTLootboxes_ClientRequestData")
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestPlayerData")
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestMarketData")
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestStoreData")
+util.AddNetworkString("WskyTTTLootboxes_ClientRequestLeaderboardData")
 util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
 
 dir = "wsky/Lootboxes"
@@ -8,6 +11,32 @@ dir = "wsky/Lootboxes"
 function getStarterMarketData()
   return {
     ["items"] = {}
+  }
+end
+
+function getLeaderboardData()
+  local playerFiles, _ = file.Find(dir.."/playerdata/*.json","DATA","nameasc")
+  
+  local mostScrap = nil
+
+  for i, file in ipairs(playerFiles) do
+    local steam64 = string.Split(file, ".json")[1]
+    local playerData = getPlayerData(steam64)
+    if !mostScrap then
+      mostScrap = {
+        ["steam64"] = steam64,
+        ["value"] = playerData.scrap
+      }
+    elseif (playerData.scrap > mostScrap.value) then
+      mostScrap = {
+        ["steam64"] = steam64,
+        ["value"] = playerData.scrap
+      }
+    end
+  end
+
+  return {
+    ["mostScrap"] = mostScrap
   }
 end
 
@@ -125,22 +154,66 @@ function savePlayerData(steam64, playerData)
   file.Write(fileName, util.TableToJSON(playerData))
 end
 
-function sendClientFreshData(ply, playerData)
-  if (!ply) then return end
-
-  net.Start("WskyTTTLootboxes_ClientReceiveData")
-    net.WriteTable(playerData or getPlayerData(ply:SteamID64()))
-    net.WriteTable(storeItems)
-    net.WriteTable(getMarketData())
-  net.Send(ply)
+function sendClientFreshPlayerData(player, playerData, openMenu)
+  sendPlayerData(player, {
+    ["player"] = playerData or getPlayerData(player:SteamID64())
+  }, openMenu and "inventory" or nil)
 end
 
-net.Receive("WskyTTTLootboxes_ClientRequestData", function (len, ply)
-  local openPlayerMenu = net.ReadBool()
-  sendClientFreshData(ply)
+function sendClientFreshMarketData(players, marketData, openMenu)
+  if (type(players) == "Player") then
+    players = { players }
+  elseif(!players) then players = player.GetAll() end
 
-  if (openPlayerMenu) then
+  for i, player in ipairs(players) do
+    sendPlayerData(player, {
+      ["market"] = marketData or getMarketData()
+    }, openMenu and "market" or nil)
+  end
+end
+
+function sendClientFreshStoreData(player, openMenu)
+  sendPlayerData(player, {
+    ["store"] = storeItems
+  }, openMenu and "store" or nil)
+end
+
+function sendClientFreshLeaderboardData(player, openMenu)
+  sendPlayerData(player, {
+    ["leaderboard"] = getLeaderboardData()
+  }, openMenu and "leaderboard" or nil)
+end
+
+function sendPlayerData(ply, data, openMenu)
+  if (!ply or !data) then return end
+
+  net.Start("WskyTTTLootboxes_ClientReceiveData")
+    net.WriteTable(data)
+  net.Send(ply)
+
+  if (openMenu) then
     net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+      net.WriteString(openMenu)
     net.Send(ply)
   end
+end
+
+net.Receive("WskyTTTLootboxes_ClientRequestPlayerData", function (len, ply)
+  local openMenu = net.ReadBool()
+  sendClientFreshPlayerData(ply, nil, openMenu)
+end)
+
+net.Receive("WskyTTTLootboxes_ClientRequestStoreData", function (len, ply)
+  local openMenu = net.ReadBool()
+  sendClientFreshStoreData(ply, openMenu)
+end)
+
+net.Receive("WskyTTTLootboxes_ClientRequestMarketData", function (len, ply)
+  local openMenu = net.ReadBool()
+  sendClientFreshMarketData(ply, nil, openMenu)
+end)
+
+net.Receive("WskyTTTLootboxes_ClientRequestLeaderboardData", function (len, ply)
+  local openMenu = net.ReadBool()
+  sendClientFreshLeaderboardData(ply, openMenu)
 end)

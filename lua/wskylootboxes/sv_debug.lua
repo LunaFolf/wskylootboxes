@@ -86,20 +86,6 @@ concommand.Add("wsky_lootbox_debug_printAllModels", function (ply)
 
   local models = player_manager.AllValidModels()
 
-  -- for model, modelName in pairs(models) do
-  --   table.Merge(playerData.inventory, {
-  --     [uuid()] = {
-  --       ["type"] = "playerModel",
-  --       ["modelName"] = modelName,
-  --       ["value"] = 1,
-  --       ["tier"] = "Common",
-  --       ["createdAt"] = os.time()
-  --     }
-  --   })
-  -- end
-
-  -- savePlayerData(steam64, playerData)
-
   PrintTable(models)
 end)
 

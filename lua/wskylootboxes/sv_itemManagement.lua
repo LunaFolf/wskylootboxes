@@ -68,13 +68,16 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
   saveMarketData(marketData)
   savePlayerData(steam64, playerData)
 
-  sendClientFreshData(ply, playerData)
+  sendClientFreshPlayerData(ply, playerData)
+
+  sendClientFreshMarketData()
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/save_load2.wav")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 end)
 
@@ -104,13 +107,14 @@ net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshData(ply, playerData)
+  sendClientFreshPlayerData(ply, playerData)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("wsky_lootboxes/scrapItem.ogg")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 end)
 
@@ -132,13 +136,14 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshData(ply, playerData)
+  sendClientFreshPlayerData(ply, playerData)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/content_downloaded.wav")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_ClientsideUpdateWeaponName")
@@ -197,7 +202,7 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshData(ply, playerData)
+  sendClientFreshPlayerData(ply, playerData)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/ui_click.wav")
@@ -219,9 +224,10 @@ net.Receive("WskyTTTLootboxes_UnequipItem", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshData(ply, playerData)
+  sendClientFreshPlayerData(ply, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
+    net.WriteString("inventory")
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")

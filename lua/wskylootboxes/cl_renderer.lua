@@ -1,18 +1,36 @@
 if SERVER then return end
 
-local menuOpen = false
-local menuRef = nil
-local width, height = ScrW() / 2, ScrH() / 2
-local margin = 4
-local padding = 6
-local titleBarHeight = 38
-local stockItemHeight = 65
+local tabs = {
+  {
+    ["name"] = "Inventory",
+    ["class"] = "inventory"
+  },
+  {
+    ["name"] = "Store",
+    ["class"] = "store"
+  },
+  {
+    ["name"] = "Market",
+    ["class"] = "market"
+  },
+  {
+    ["name"] = "Leaderboard",
+    ["class"] = "leaderboard"
+  }
+}
 
-hook.Add("PlayerButtonDown", "WskyTTTLootboxes_RequestInventoryData", function (ply, key)
-  if (menuOpen or (key ~= KEY_F3 and key ~= KEY_I)) then return end
-  requestNewData(true)
-  menuOpen = true
-end)
+function getHighestParent(panel)
+  local parent = nil
+  local loop = true
+
+  while loop do
+    parent = (parent and parent:GetParent() or panel:GetParent())
+    if parent:GetName() == "WskyDFrame" then
+      loop = false
+    end
+  end
+  return parent
+end
 
 function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
   if (!frame or !item) then return end
@@ -156,80 +174,50 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
   end
 end
 
-function renderMenu()
-  if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
+local function drawTabButton(self, w, h, tab, activeTab)
+  local color = Color(topHatBlue.r, topHatBlue.g, topHatBlue.b)
+  color = darken(color, 0.25)
+  if (activeTab == tab.class) then color.a = 0 end
+  draw.RoundedBox(0, 0, 0, w, h, color)
+  draw.SimpleText(tab.name, "WskyFontSmaller", w / 2, h / 2, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+end
 
-  if (menuRef) then menuRef:Close() end
+function drawTabs(parent, activeTab, renderMenuFn)
+  local width, height = parent:GetSize()
+  local numberOfTabs = table.Count(tabs)
 
-  local inventoryMenuPanel = createBasicFrame(width, height, "Inventory", true)
-  menuRef = inventoryMenuPanel
-  inventoryMenuPanel.OnClose = function ()
-    menuOpen = false
-    menuRef = nil
+  local tabsPanel = vgui.Create("DPanel", parent)
+  tabsPanel:Dock(TOP)
+  tabsPanel:SetHeight(32)
+  tabsPanel.Paint = function (self, w, h)
+    local color = Color(topHatBlue.r, topHatBlue.g, topHatBlue.b)
+    color = darken(color, 0.75)
+    draw.RoundedBox(0, 0, 0, w, h, color)
   end
 
-  local sheet = vgui.Create("DPropertySheet", inventoryMenuPanel)
-  sheet:SetPos(0, titleBarHeight)
-  sheet:SetSize(width, height - titleBarHeight)
-  sheet.Paint = function () end
-
-  local leftInventoryPanel = vgui.Create("DPanel")
-  leftInventoryPanel.Paint = function () end
-
-  local rightInventoryPanel = vgui.Create("DPanel")
-  rightInventoryPanel.Paint = function () end
-
-  local scroller = vgui.Create("DScrollPanel", leftInventoryPanel)
-  scroller:Dock(FILL)
-  scroller:InvalidateParent(true)
-
-  local inventoryModelPreview = vgui.Create("DModelPanel", rightInventoryPanel)
-  inventoryModelPreview:Dock(FILL)
-  inventoryModelPreview:InvalidateParent(true)
-
-  local playerModel = playerData.activePlayerModel.modelName
-  if (string.len(playerModel) < 1) then playerModel = LocalPlayer():GetModel() end
-  inventoryModelPreview:SetModel(playerModel)
-  inventoryModelPreview:SetCamPos(Vector(0, -40, 45))
-  function inventoryModelPreview.Entity:GetPlayerColor()
-    return LocalPlayer():GetPlayerColor():ToColor() or Vector(1, 1, 1)
+  for i, tab in ipairs(tabs) do
+    local tabButton = vgui.Create("DButton", tabsPanel)
+    tabButton:Dock(LEFT)
+    tabButton:SetWidth(width / numberOfTabs)
+    tabButton:SetText("")
+    tabButton.Paint = function (self, w, h)
+      drawTabButton(self, w, h, tab, activeTab)
+    end
+    tabButton.DoClick = function ()
+      if (tab.class == "inventory") then requestFreshPlayerData(true)
+      elseif (tab.class == "store") then requestFreshStoreData(true)
+      elseif (tab.class == "market") then requestFreshMarketData(true)
+      elseif (tab.class == "leaderboard") then requestFreshLeaderboardData(true) end
+    end
   end
+end
 
-  local divider = vgui.Create("DHorizontalDivider", sheet, "inventoryDivider")
-  divider:Dock(FILL)
-  divider:SetLeft(leftInventoryPanel)
-  divider:SetRight(rightInventoryPanel)
-  divider:SetDividerWidth(4)
-  divider:SetLeftMin(width * 0.75)
-  divider:SetLeftWidth(width * 0.75)
-  divider:SetRightMin(width * 0.25)
-
-  sheet:AddSheet("Inventory", divider)
-
-  local storePanel = vgui.Create("DPanel", sheet)
-  storePanel:Dock(FILL)
-  storePanel.Paint = function () end
-  sheet:AddSheet("Store", storePanel)
-
-  -- local tradingPanel = vgui.Create("DPanel", sheet)
-  -- tradingPanel:Dock(FILL)
-  -- tradingPanel.Paint = function () end
-  -- sheet:AddSheet("Trading", tradingPanel)
-
-  local marketPanel = vgui.Create("DPanel", sheet)
-  marketPanel:Dock(FILL)
-  marketPanel.Paint = function () end
-  sheet:AddSheet("Market", marketPanel)
-
-  local marketScroller = vgui.Create("DScrollPanel", marketPanel)
-  marketScroller:Dock(FILL)
-  marketScroller.Paint = function () end
-
-
-  -- draw inventory
+function drawInventory(parent, inventory)
+  -- really dirty hack to get divider, don't do this
+  local divider = parent:GetParent():GetParent()
 
   local itemNum = 0
-  for itemIndex, item in pairs(playerData.inventory) do
+  for itemIndex, item in pairs(inventory) do
     local itemID = item.itemID
     itemNum = itemNum + 1
     local itemName = getItemName(item)
@@ -237,7 +225,7 @@ function renderMenu()
 
     local offset = (itemNum - 1)
     local itemHeight = stockItemHeight
-    local itemPanel = vgui.Create("DButton", scroller)
+    local itemPanel = vgui.Create("DButton", parent, "inventoryItem_"..tostring(itemNum))
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
@@ -350,11 +338,37 @@ function renderMenu()
         surface.DrawOutlinedRect(0, 0, w, h, 1)
       end
     end
-    itemButtonClickable.DoRightClick = function () rightClickItem(inventoryMenuPanel, item, itemID, itemName, itemPreviewData, inventoryModelPreview) end
+    local highestParent = getHighestParent(parent)
+    local inventoryModelPreview = highestParent:Find("playerModelPreview")
+    itemButtonClickable.DoRightClick = function (self)
+      scrollToChild = self:GetParent():GetName()
+      rightClickItem(highestParent, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
+    end
 
   end
 
-  -- draw store items
+  if (scrollToChild) then
+    parent:InvalidateParent(true)
+    local itemNum = tonumber(string.Split(scrollToChild, "_")[2])
+    local panelName = "inventoryItem_"..tostring(math.max(1, itemNum - 1))
+
+    local children = parent:GetCanvas():GetChildren()
+    local childCount = 1
+    local panel = nil
+
+    while !panel and childCount < table.Count(children) do
+      if (children[childCount]:GetName() == panelName) then panel = children[childCount] end
+      childCount = childCount + 1
+    end
+
+    if (panel) then parent:ScrollToChild(panel) end
+    scrollToChild = nil
+  end
+end
+
+function drawStore(parent, storeItems)
+  -- really dirty hack to get divider, don't do this
+  local divider = parent:GetParent():GetParent()
 
   local itemNum = 0
   for itemIndex, item in pairs(storeItems) do
@@ -365,7 +379,7 @@ function renderMenu()
 
     local offset = (itemNum - 1)
     local itemHeight = stockItemHeight
-    local itemPanel = vgui.Create("DButton", storePanel)
+    local itemPanel = vgui.Create("DButton", parent)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
@@ -482,11 +496,14 @@ function renderMenu()
     end
 
   end
+end
 
-  -- draw market items
+function drawMarket(parent, marketItems)
+  -- really dirty hack to get divider, don't do this
+  local divider = parent:GetParent():GetParent()
 
   local itemNum = 0
-  for itemIndex, item in pairs(marketData.items) do
+  for itemIndex, item in pairs(marketItems) do
     local itemID = item.itemID
     itemNum = itemNum + 1
     local itemName = getItemName(item)
@@ -494,7 +511,7 @@ function renderMenu()
 
     local offset = (itemNum - 1)
     local itemHeight = stockItemHeight
-    local itemPanel = vgui.Create("DButton", marketScroller)
+    local itemPanel = vgui.Create("DButton", parent)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
@@ -626,13 +643,20 @@ function renderMenu()
     end
 
   end
-
-  local bottomPaddingBlock = vgui.Create("DPanel", scroller)
-  bottomPaddingBlock:Dock(TOP)
-  bottomPaddingBlock:DockMargin(margin, margin * 2, margin * 2, margin)
-  bottomPaddingBlock:SetHeight(itemHeight)
-  bottomPaddingBlock:SetText("")
-  bottomPaddingBlock:SetMouseInputEnabled(true)
 end
 
-net.Receive("WskyTTTLootboxes_OpenPlayerInventory", renderMenu)
+function drawLeaderboard(parent, leaderboardData)
+  -- really dirty hack to get divider, don't do this
+  local divider = parent:GetParent():GetParent()
+  divider:InvalidateParent(true)
+
+  local wipText = vgui.Create("DLabel", parent)
+  local _, divHeight = divider:GetSize()
+  wipText:SetText("This panel is still being developed and is currently not available.\nPlease check again in the future.")
+  wipText:Dock(FILL)
+  wipText:SetHeight(stockItemHeight)
+  wipText:SetFont("WskyFontSmaller")
+  wipText:DockMargin(margin * 2, 0, margin * 2, 0)
+  wipText:SetWrap(true)
+  wipText:CenterHorizontal()
+end

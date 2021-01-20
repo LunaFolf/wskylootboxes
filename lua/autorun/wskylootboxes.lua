@@ -1,14 +1,3 @@
-AddCSLuaFile('client/cl_data.lua')
-AddCSLuaFile('client/cl_menu.lua')
-AddCSLuaFile('client/cl_init.lua')
-AddCSLuaFile('client/cl_notifications.lua')
-AddCSLuaFile('client/cl_weaponNaming.lua')
-
-AddCSLuaFile('shared.lua')
-AddCSLuaFile('config.lua')
-
-include("config.lua")
-
 local pcfFiles = {
   "halloween2015_unusuals",
   "halloween2016_unusuals",
@@ -44,6 +33,9 @@ end
 for i, particle in ipairs(particles) do
   PrecacheParticleSystem( particle )
 end
+
+if SERVER then include('wskylootboxes/sv_init.lua') end
+if CLIENT then include('wskylootboxes/cl_init.lua') end
 
 concommand.Add("wsky_steam64", function (ply)
   print(ply:SteamID64())
