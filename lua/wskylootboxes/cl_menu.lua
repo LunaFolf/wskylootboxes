@@ -2,6 +2,9 @@ if SERVER then return end
 
 include('cl_renderer.lua')
 
+CreateClientConVar("wskylootboxes_confirm_scrap", 1, true, false, "Show confirmation popup when scrapping an item.")
+CreateClientConVar("wskylootboxes_quick_unbox", 0, true, false, "Left click a crate to unbox it instantly.")
+
 local minWidth, minHeight = 960, 540
 
 function updateMenuSize ()
@@ -28,7 +31,7 @@ local renderingHeight = (height - ((titleBarHeight * 2) + 38 + (padding * 2)))
 stockItemHeight = renderingHeight / 10
 
 
-concommand.Add("wsky_lootboxes_menu", function ()
+concommand.Add("wskylootboxes_menu", function ()
   requestFreshPlayerData(true)
 end)
 

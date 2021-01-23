@@ -30,7 +30,7 @@ function getPaginated(tableData, currentPage)
   end)
 
   local output = {}
-  local startPos, endPos = math.max(1, (currentPage - 1) * paginationPerPageLimit), currentPage * paginationPerPageLimit
+  local startPos, endPos = ((currentPage - 1) * paginationPerPageLimit) + 1, currentPage * paginationPerPageLimit
   local totalNumberOfPages = math.ceil(table.Count(tableData) / paginationPerPageLimit)
 
   for i=startPos,endPos do

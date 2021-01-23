@@ -126,12 +126,22 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
       width = math.max(350, width)
       height = math.max(100, height)
 
-      createDialog(width, height, "Are you sure you want to scrap this item?" , function ()
+      local submitScrapRequest = function ()
         net.Start("WskyTTTLootboxes_ScrapItem")
           net.WriteString(itemID)
           net.WriteTable(pagination)
         net.SendToServer()
-      end)
+      end
+
+      local showDialog = GetConVar("wskylootboxes_confirm_scrap")
+      if !showDialog then showDialog = true else showDialog = showDialog:GetBool() end
+
+      if showDialog then
+        createDialog(width, height, "Are you sure you want to scrap this item?" , function ()
+          submitScrapRequest()
+        end)
+      else submitScrapRequest() end
+
     end)
     Menu:AddSpacer()
   end

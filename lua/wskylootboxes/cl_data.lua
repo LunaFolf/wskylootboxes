@@ -10,7 +10,6 @@ pagination = {
 }
 
 function requestFreshPlayerData(openMenu)
-  print("requesting data")
   net.Start("WskyTTTLootboxes_ClientRequestPlayerData")
     net.WriteBool(openMenu)
     net.WriteFloat(pagination.currentPage)
@@ -37,8 +36,6 @@ end
 
 net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
   local data = net.ReadTable()
-
-  PrintTable(data)
 
   local freshPlayerData = data["player"]
   local availableStoreItems = data["store"]

@@ -1,6 +1,6 @@
 if CLIENT then return end
 
-concommand.Add("wsky_lootbox_debug_genshin", function (ply, cmd, args)
+concommand.Add("wskylootboxes_debug_genshin", function (ply, cmd, args)
   if (!args[1]) then return end
   local steam64 = args[1]
   local playerData = getPlayerData(steam64)
@@ -37,7 +37,7 @@ concommand.Add("wsky_lootbox_debug_genshin", function (ply, cmd, args)
   PrintTable(genshinModels)
 end)
 
-concommand.Add("wsky_lootbox_debug_modelsearch", function (ply, cmd, args)
+concommand.Add("wskylootboxes_debug_modelsearch", function (ply, cmd, args)
   if (!args[1]) then return end
   local steam64 = args[1]
   local searchQuery = args[2] or ""
@@ -75,7 +75,7 @@ concommand.Add("wsky_lootbox_debug_modelsearch", function (ply, cmd, args)
   PrintTable(genshinModels)
 end)
 
-concommand.Add("wsky_lootbox_debug_printAllModels", function (ply)
+concommand.Add("wskylootboxes_debug_printAllModels", function (ply)
   if (!ply) then return end
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)
@@ -89,7 +89,7 @@ concommand.Add("wsky_lootbox_debug_printAllModels", function (ply)
   PrintTable(models)
 end)
 
-concommand.Add("wsky_lootbox_debug_allItems", function (ply)
+concommand.Add("wskylootboxes_debug_allItems", function (ply)
   if (!ply) then return end
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)

@@ -37,6 +37,7 @@ end
 if SERVER then include('wskylootboxes/sv_init.lua') end
 if CLIENT then include('wskylootboxes/cl_init.lua') end
 
-concommand.Add("wsky_steam64", function (ply)
+concommand.Add("wskylootboxes_steam64", function (ply)
+  if SERVER then return end
   print(ply:SteamID64())
 end)
