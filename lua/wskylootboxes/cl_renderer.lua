@@ -357,6 +357,17 @@ function drawInventory(parent, inventory)
     itemButtonClickable.DoRightClick = function (self)
       rightClickItem(highestParent, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
     end
+    local quickOpenConvar = GetConVar("wskylootboxes_quick_unbox")
+    if !quickOpenConvar then quickOpenConvar = false else quickOpenConvar = quickOpenConvar:GetBool() end
+
+    if (string.StartWith(item.type, "crate_") and quickOpenConvar) then
+      itemButtonClickable.DoClick = function ()
+        net.Start("WskyTTTLootboxes_RequestCrateOpening")
+          net.WriteString(itemID)
+          net.WriteTable(pagination)
+        net.SendToServer()
+      end
+    end
 
   end
 end
