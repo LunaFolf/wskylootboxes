@@ -30,7 +30,7 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshPlayerData(ply, playerData)
+  sendClientFreshPlayerData(ply, nil, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
     net.WriteString("store")

@@ -104,7 +104,7 @@ function GiveOutFreeCrates()
         net.WriteBool(false)
       net.Send(ply)
 
-      sendClientFreshPlayerData(ply, playerData)
+      sendClientFreshPlayerData(ply, nil, playerData)
     end
   end
 end
@@ -114,6 +114,7 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)
   local itemID = net.ReadString()
+  local pagination = net.ReadTable()
 
   if (!itemID) then
     givePlayerError(ply)
@@ -200,7 +201,7 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
     net.WriteBool(winAFreeCrate)
   net.Send(ply)
 
-  sendClientFreshPlayerData(ply, playerData)
+  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
     net.WriteString("inventory")

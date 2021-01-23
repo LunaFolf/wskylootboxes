@@ -4,10 +4,16 @@ playerData = nil
 storeItems = nil
 marketData = nil
 leaderboardData = nil
+pagination = {
+  ["totalPages"] = 1,
+  ["currentPage"] = 1
+}
 
 function requestFreshPlayerData(openMenu)
+  print("requesting data")
   net.Start("WskyTTTLootboxes_ClientRequestPlayerData")
     net.WriteBool(openMenu)
+    net.WriteFloat(pagination.currentPage)
   net.SendToServer()
 end
 
@@ -32,36 +38,16 @@ end
 net.Receive("WskyTTTLootboxes_ClientReceiveData", function (len, ply)
   local data = net.ReadTable()
 
+  PrintTable(data)
+
   local freshPlayerData = data["player"]
   local availableStoreItems = data["store"]
   local freshMarketData = data["market"]
   local freshLeaderboardData = data["leaderboard"]
+  local freshPagination = data["pagination"]
 
-  if (freshPlayerData) then
-    local inventoryKeys = table.GetKeys(freshPlayerData.inventory)
-
-    if (table.Count(inventoryKeys)) then
-      table.sort(inventoryKeys, function (a, b)
-        local aData = freshPlayerData.inventory[a]
-        local bData = freshPlayerData.inventory[b]
-
-        return aData.createdAt < bData.createdAt
-      end)
-
-      local sortedInventory = {}
-      for index, ID in pairs(inventoryKeys) do
-        local item = freshPlayerData.inventory[ID]
-        item.itemID = ID
-        table.Merge(sortedInventory, {
-          [index] = item
-        })
-      end
-
-      freshPlayerData.inventory = sortedInventory
-      playerData = freshPlayerData
-    end
-  end
-
+  if freshPagination then pagination = freshPagination end
+  if freshPlayerData then playerData = freshPlayerData end
   if availableStoreItems then storeItems = availableStoreItems end
   if freshMarketData then marketData = freshMarketData end
   if freshLeaderboardData then leaderboardData = freshLeaderboardData end

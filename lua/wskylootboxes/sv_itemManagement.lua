@@ -48,6 +48,7 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
   local marketData = getMarketData()
   local itemID = net.ReadString()
   local valueToSell = net.ReadFloat()
+  local pagination = net.ReadTable()
 
   if (!itemID) then
     givePlayerError(ply)
@@ -68,7 +69,7 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
   saveMarketData(marketData)
   savePlayerData(steam64, playerData)
 
-  sendClientFreshPlayerData(ply, playerData)
+  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
 
   sendClientFreshMarketData()
 
@@ -94,6 +95,7 @@ net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)
   local itemID = net.ReadString()
+  local pagination = net.ReadTable()
 
   if (!itemID) then
     givePlayerError(ply)
@@ -107,7 +109,7 @@ net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshPlayerData(ply, playerData)
+  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("wsky_lootboxes/scrapItem.ogg")
@@ -123,6 +125,7 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
   local playerData = getPlayerData(steam64)
   local itemID = net.ReadString()
   local newItemName = net.ReadString()
+  local pagination = net.ReadTable()
 
   if (!itemID or !newItemName) then
     givePlayerError(ply)
@@ -136,7 +139,7 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshPlayerData(ply, playerData)
+  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/content_downloaded.wav")
@@ -157,6 +160,7 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)
   local itemID = net.ReadString()
+  local pagination = net.ReadTable()
 
   if (!itemID) then
     givePlayerError(ply)
@@ -202,7 +206,7 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshPlayerData(ply, playerData)
+  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/ui_click.wav")
@@ -214,6 +218,7 @@ net.Receive("WskyTTTLootboxes_UnequipItem", function (len, ply)
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)
   local itemID = net.ReadString()
+  local pagination = net.ReadTable()
 
   if (!itemID) then
     givePlayerError(ply)
@@ -224,7 +229,7 @@ net.Receive("WskyTTTLootboxes_UnequipItem", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
-  sendClientFreshPlayerData(ply, playerData)
+  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
     net.WriteString("inventory")
