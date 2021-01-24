@@ -2,6 +2,7 @@ function drawMarket(parent, marketItems)
 
   local itemNum = 0
   for itemIndex, item in pairs(marketItems) do
+    local buyerIsOwner = LocalPlayer():SteamID64() == item.owner
     local itemID = item.itemID
     itemNum = itemNum + 1
     local itemName = getItemName(item)
@@ -33,18 +34,27 @@ function drawMarket(parent, marketItems)
       draw.RoundedBox(0, 0, 0, w, h, color)
     end
 
+    surface.SetFont("WskyFontSmaller")
+    local priceText = formatScrap(item.value)
+    local priceWidth, _ = surface.GetTextSize(item.value)
+
     local itemPriceTag = vgui.Create("DPanel", itemPanel)
     itemPriceTag:Dock(RIGHT)
     itemPriceTag:SetHeight(itemHeight)
-    itemPriceTag:SetWidth(itemHeight)
+    itemPriceTag:SetWidth(math.min(parent:GetWide() - (itemHeight * 4), math.max(itemHeight, priceWidth + (padding * 2))))
     itemPriceTag.Paint = function (self, w, h)
       local color = Color(0, 202, 255, 225)
+      if playerData.scrap < item.value then
+        color = globalColors.negative
+      end
+      if buyerIsOwner then
+        color = globalColors.warning
+      end
       draw.RoundedBox(0, 0, 0, w, h, color)
 
       surface.SetFont("WskyFontSmaller")
-      local text = item.value
-      local priceWidth, priceHeight = surface.GetTextSize(text)
-      draw.SimpleText(text, "WskyFontSmaller", (w - priceWidth) / 2, (h - priceHeight) / 2)
+      local priceWidth, priceHeight = surface.GetTextSize(priceText)
+      draw.SimpleText(priceText, "WskyFontSmaller", (w - priceWidth) / 2, (h - priceHeight) / 2)
     end
 
     if (itemPreviewData.type == "icon") then
@@ -117,10 +127,21 @@ function drawMarket(parent, marketItems)
     itemButtonClickable.Paint = function (self, w, h)
       if !self:IsHovered() then return end
       local text = "Buy Item?"
-      if playerData.scrap < item.value then text = "Not enough scrap" end
-      if item.owner == LocalPlayer():SteamID64() then text = "Remove item from market" end
+      local enoughMoneyToBuy = playerData.scrap >= item.value
+      local borderColor = globalColors.positive
+      if !enoughMoneyToBuy then
+        text = "Not enough scrap"
+        borderColor = globalColors.negative
+      end
+      if buyerIsOwner then
+        text = "Remove item from market"
+        borderColor = globalColors.warning
+      end
+      borderColor.a = 120
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 125))
       draw.SimpleText(text, "WskyFontDefault", w / 2, h / 2, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+      surface.SetDrawColor(borderColor.r, borderColor.g, borderColor.b, borderColor.a)
+      surface.DrawOutlinedRect(0, 0, w, h, 1)
     end
     itemButtonClickable.DoClick = function () 
       net.Start("WskyTTTLootboxes_BuyFromMarket")

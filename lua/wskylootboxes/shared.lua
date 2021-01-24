@@ -19,11 +19,12 @@ if CLIENT then
 
   updateMenuColor()
 
-  local r, g, b = GetConVar("wskylootboxes_menucolor_red"):GetFloat(), GetConVar("wskylootboxes_menucolor_green"):GetFloat(), GetConVar("wskylootboxes_menucolor_blue"):GetFloat()
+  globalColors = {
+    ["positive"] = mainMenuColor,
+    ["negative"] = Color(255, 120, 120),
+    ["warning"] = Color(255, 190, 120)
+  }
 
-
-  local fontName = "Segoe UI"
-  mainMenuColor = Color(r, g, b, 225)
   local headerSize, defaultSize, regularSize, smallSize, miniSize, extraSmallSize = 182, 72, 58, 32, 22, 12
 
   surface.CreateFont( "WskyFontHeader", {
@@ -194,6 +195,14 @@ if SERVER then
 end
 
 local random = math.random
+
+function formatScrap(scrap)
+  if (!scrap) then return "0" end
+  if type(scrap) == "number" then scrap = tostring(scrap) end
+
+  local left,num,right = string.match(scrap, '^([^%d]*%d)(%d*)(.-)$')
+  return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+end
 
 function uuid()
     local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
