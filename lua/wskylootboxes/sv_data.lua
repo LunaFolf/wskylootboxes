@@ -151,9 +151,6 @@ function getMarketData()
     marketData = util.JSONToTable(fileOutput)
   end
 
-  PrintTable(marketData)
-  print(util.TableToJSON(marketData, true))
-
   return marketData
 end
 
