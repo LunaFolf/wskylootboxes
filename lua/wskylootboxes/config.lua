@@ -225,60 +225,84 @@ playerModels = {
     ["value"] = 200
   },
   ["models/player/sono/starwars/501st_trooper.mdl"] = {
-    ["value"] = 225
+    ["value"] = 185
   },
   ["models/norpo/ArkhamOrigins/Assassins/Deathstroke_ValveBiped.mdl"] = {
-    ["value"] = 215
+    ["value"] = 175
   },
   ["models/player/sam.mdl"] = {
-    ["value"] = 220
+    ["value"] = 125
   },
   ["models/player/robber.mdl"] = {
-    ["value"] = 180
+    ["value"] = 155
   },
   ["models/player/zelda.mdl"] = {
-    ["value"] = 220
+    ["value"] = 155
   },
   ["models/player/alice.mdl"] = {
-    ["value"] = 220
+    ["value"] = 150
   },
   ["models/player/macdguy.mdl"] = {
-    ["value"] = 180
+    ["value"] = 140
   },
   ["models/player/rorschach.mdl"] = {
-    ["value"] = 190
+    ["value"] = 170
   },
   ["models/Avengers/Iron Man/mark7_player.mdl"] = {
-    ["value"] = 240
+    ["value"] = 160
   },
   ["models/pechenko_121/Deadpool/chr_deadpool2.mdl"] = {
-    ["value"] = 240
+    ["value"] = 160
+  },
+  ["models/defcon/loudmantis/shadows/vale.mdl"] = {
+    ["value"] = 180
+  },
+  ["models/defcon/loudmantis/shadows/riggs.mdl"] = {
+    ["value"] = 180
+  },
+  ["models/defcon/loudmantis/shadows/plank.mdl"] = {
+    ["value"] = 180
+  },
+  ["models/defcon/loudmantis/shadows/witt.mdl"] = {
+    ["value"] = 180
+  },
+  ["models/epangelmatikes/RoyalGuard/Sovereign_Protector.mdl"] = {
+    ["value"] = 175
+  },
+  ["models/epangelmatikes/RoyalGuard/Shawod_Guard.mdl"] = {
+    ["value"] = 175
   }
 }
 
 exclusiveModels = {
   ["76561198037289710"] = {
-    [1] = {
+    {
       ["type"] = "playerModel",
-      ["modelName"] = "models/player/teslapower.mdl"
+      ["modelName"] = "models/11thDoctor/thedoctor.mdl"
     }
   },
   ["76561198332078167"] = {
-    [1] = {
+    {
       ["type"] = "playerModel",
-      ["modelName"] = "models/player/genshin_impact_chongyun.mdl"
+      ["modelName"] = "models/sansplayer/sansplayer.mdl"
     }
   },
   ["76561198080812606"] = {
-    [1] = {
+    {
       ["type"] = "playerModel",
       ["modelName"] = "models/player/sono/starwars/commander_bly.mdl"
     }
   },
   ["76561198412400073"] = {
-    [1] = {
+    {
       ["type"] = "playerModel",
       ["modelName"] = "models/konnie/isa/detroit/connor.mdl"
+    }
+  },
+  ["76561198891822681"] = {
+    {
+      ["type"] = "playerModel",
+      ["modelName"] = "models/player/plague_doktor/PLAYER_Plague_Doktor.mdl"
     }
   }
 }
