@@ -47,6 +47,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     Menu:AddOption("Open Crate", function ()
       net.Start("WskyTTTLootboxes_RequestCrateOpening")
         net.WriteString(itemID)
+        net.WriteTable(pagination.inventory)
       net.SendToServer()
     end)
     Menu:AddSpacer()
@@ -60,6 +61,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     Menu:AddOption("Equip", function ()
       net.Start("WskyTTTLootboxes_EquipItem")
         net.WriteString(itemID)
+        net.WriteTable(pagination.inventory)
       net.SendToServer()
       if (item.type == "playerModel" and inventoryModelPreview and item.modelName) then  inventoryModelPreview:SetModel(item.modelName) end
     end)
@@ -68,6 +70,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     Menu:AddOption("Unequip", function ()
       net.Start("WskyTTTLootboxes_UnequipItem")
         net.WriteString(itemID)
+        net.WriteTable(pagination.inventory)
       net.SendToServer()
     end)
     Menu:AddSpacer()
@@ -86,6 +89,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
             net.Start("WskyTTTLootboxes_RenameItem")
               net.WriteString(itemID)
               net.WriteString(name)
+              net.WriteTable(pagination.inventory)
             net.SendToServer()
           end
         end
@@ -122,11 +126,22 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
       width = math.max(350, width)
       height = math.max(100, height)
 
-      createDialog(width, height, "Are you sure you want to scrap this item?" , function ()
+      local submitScrapRequest = function ()
         net.Start("WskyTTTLootboxes_ScrapItem")
           net.WriteString(itemID)
+          net.WriteTable(pagination.inventory)
         net.SendToServer()
-      end)
+      end
+
+      local showDialog = GetConVar("wskylootboxes_confirm_scrap")
+      if !showDialog then showDialog = true else showDialog = showDialog:GetBool() end
+
+      if showDialog then
+        createDialog(width, height, "Are you sure you want to scrap this item?" , function ()
+          submitScrapRequest()
+        end)
+      else submitScrapRequest() end
+
     end)
     Menu:AddSpacer()
   end
@@ -147,6 +162,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
           net.Start("WskyTTTLootboxes_SellItem")
             net.WriteString(itemID)
             net.WriteFloat(value)
+            net.WriteTable(pagination.inventory)
           net.SendToServer()
         end
       end
@@ -188,7 +204,7 @@ function drawTabs(parent, activeTab, renderMenuFn)
 
   local tabsPanel = vgui.Create("DPanel", parent)
   tabsPanel:Dock(TOP)
-  tabsPanel:SetHeight(32)
+  tabsPanel:SetHeight(tabsSize)
   tabsPanel.Paint = function (self, w, h)
     local color = Color(topHatBlue.r, topHatBlue.g, topHatBlue.b)
     color = darken(color, 0.75)
@@ -213,8 +229,6 @@ function drawTabs(parent, activeTab, renderMenuFn)
 end
 
 function drawInventory(parent, inventory)
-  -- really dirty hack to get divider, don't do this
-  local divider = parent:GetParent():GetParent()
 
   local itemNum = 0
   for itemIndex, item in pairs(inventory) do
@@ -229,7 +243,7 @@ function drawInventory(parent, inventory)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
-    itemPanel:DockMargin(margin, margin, margin, margin)
+    itemPanel:DockMargin(margin, margin, margin, 0)
     itemPanel:SetHeight(itemHeight)
     itemPanel:SetText("")
     itemPanel:SetMouseInputEnabled(true)
@@ -315,7 +329,7 @@ function drawInventory(parent, inventory)
 
     local itemButtonClickable = vgui.Create("DButton", itemPanel)
     itemButtonClickable:SetPos(0, 0)
-    itemButtonClickable:SetSize(divider:GetLeftWidth() - (margin * 2), itemHeight)
+    itemButtonClickable:SetSize(parent:GetWide() - (margin * 2), itemHeight)
     itemButtonClickable:SetText("")
     itemButtonClickable:SetMouseInputEnabled(true)
     itemButtonClickable.Paint = function (self, w, h)
@@ -341,34 +355,24 @@ function drawInventory(parent, inventory)
     local highestParent = getHighestParent(parent)
     local inventoryModelPreview = highestParent:Find("playerModelPreview")
     itemButtonClickable.DoRightClick = function (self)
-      scrollToChild = self:GetParent():GetName()
       rightClickItem(highestParent, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
     end
+    local quickOpenConvar = GetConVar("wskylootboxes_quick_unbox")
+    if !quickOpenConvar then quickOpenConvar = false else quickOpenConvar = quickOpenConvar:GetBool() end
 
-  end
-
-  if (scrollToChild) then
-    parent:InvalidateParent(true)
-    local itemNum = tonumber(string.Split(scrollToChild, "_")[2])
-    local panelName = "inventoryItem_"..tostring(math.max(1, itemNum - 1))
-
-    local children = parent:GetCanvas():GetChildren()
-    local childCount = 1
-    local panel = nil
-
-    while !panel and childCount < table.Count(children) do
-      if (children[childCount]:GetName() == panelName) then panel = children[childCount] end
-      childCount = childCount + 1
+    if (string.StartWith(item.type, "crate_") and quickOpenConvar) then
+      itemButtonClickable.DoClick = function ()
+        net.Start("WskyTTTLootboxes_RequestCrateOpening")
+          net.WriteString(itemID)
+          net.WriteTable(pagination.inventory)
+        net.SendToServer()
+      end
     end
 
-    if (panel) then parent:ScrollToChild(panel) end
-    scrollToChild = nil
   end
 end
 
 function drawStore(parent, storeItems)
-  -- really dirty hack to get divider, don't do this
-  local divider = parent:GetParent():GetParent()
 
   local itemNum = 0
   for itemIndex, item in pairs(storeItems) do
@@ -383,7 +387,7 @@ function drawStore(parent, storeItems)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
-    itemPanel:DockMargin(margin, margin, margin, margin)
+    itemPanel:DockMargin(margin, margin, margin, 0)
     itemPanel:SetHeight(itemHeight)
     itemPanel:SetText("")
     itemPanel:SetMouseInputEnabled(true)
@@ -466,7 +470,7 @@ function drawStore(parent, storeItems)
 
     local itemButtonClickable = vgui.Create("DButton", itemPanel)
     itemButtonClickable:SetPos(0, 0)
-    itemButtonClickable:SetSize(divider:GetLeftWidth() - (margin * 2), itemHeight)
+    itemButtonClickable:SetSize(parent:GetWide() - (margin * 2), itemHeight)
     itemButtonClickable:SetText("")
     itemButtonClickable:SetMouseInputEnabled(true)
     itemButtonClickable.Paint = function (self, w, h)
@@ -499,8 +503,6 @@ function drawStore(parent, storeItems)
 end
 
 function drawMarket(parent, marketItems)
-  -- really dirty hack to get divider, don't do this
-  local divider = parent:GetParent():GetParent()
 
   local itemNum = 0
   for itemIndex, item in pairs(marketItems) do
@@ -515,7 +517,7 @@ function drawMarket(parent, marketItems)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
-    itemPanel:DockMargin(margin, margin, margin, margin)
+    itemPanel:DockMargin(margin, margin, margin, 0)
     itemPanel:SetHeight(itemHeight)
     itemPanel:SetText("")
     itemPanel:SetMouseInputEnabled(true)
@@ -613,7 +615,7 @@ function drawMarket(parent, marketItems)
 
     local itemButtonClickable = vgui.Create("DButton", itemPanel)
     itemButtonClickable:SetPos(0, 0)
-    itemButtonClickable:SetSize(divider:GetLeftWidth() - (margin * 2), itemHeight)
+    itemButtonClickable:SetSize(parent:GetWide() - (margin * 2), itemHeight)
     itemButtonClickable:SetText("")
     itemButtonClickable:SetMouseInputEnabled(true)
     itemButtonClickable.Paint = function (self, w, h)
@@ -638,7 +640,7 @@ function drawMarket(parent, marketItems)
     end
     itemButtonClickable.DoClick = function () 
       net.Start("WskyTTTLootboxes_BuyFromMarket")
-        net.WriteFloat(itemIndex)
+        net.WriteFloat((itemIndex) + ((pagination.market.currentPage - 1) * 9))
       net.SendToServer()
     end
 
@@ -646,12 +648,8 @@ function drawMarket(parent, marketItems)
 end
 
 function drawLeaderboard(parent, leaderboardData)
-  -- really dirty hack to get divider, don't do this
-  local divider = parent:GetParent():GetParent()
-  divider:InvalidateParent(true)
-
   local wipText = vgui.Create("DLabel", parent)
-  local _, divHeight = divider:GetSize()
+  local _, divHeight = parent:GetSize()
   wipText:SetText("This panel is still being developed and is currently not available.\nPlease check again in the future.")
   wipText:Dock(FILL)
   wipText:SetHeight(stockItemHeight)

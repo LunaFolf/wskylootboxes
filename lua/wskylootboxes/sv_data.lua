@@ -8,6 +8,41 @@ util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
 
 dir = "wsky/Lootboxes"
 
+local paginationPerPageLimit = 9
+
+function getPaginated(tableData, currentPage, sort)
+  if sort == nil then sort = true end
+  if (!tableData or type(tableData) ~= "table") then return end
+
+  if ( type(table.GetKeys(tableData)[1]) == "string" ) then
+    -- decouple uuid items from their ids, makes sorting and clientside data management easier
+    local tempTable = {}
+    local keys = table.GetKeys(tableData)
+    for i, key in ipairs(keys) do
+      local item = tableData[key]
+      item.itemID = key
+      table.insert(tempTable, item)
+    end
+    tableData = tempTable
+  end
+
+  if sort then
+    table.sort(tableData, function (a, b)
+      return a.createdAt < b.createdAt
+    end)
+  end
+
+  local output = {}
+  local startPos, endPos = ((currentPage - 1) * paginationPerPageLimit) + 1, currentPage * paginationPerPageLimit
+  local totalNumberOfPages = math.ceil(table.Count(tableData) / paginationPerPageLimit)
+
+  for i=startPos,endPos do
+    table.insert(output, tableData[i])
+  end
+
+  return output, totalNumberOfPages
+end
+
 function getStarterMarketData()
   return {
     ["items"] = {}
@@ -116,6 +151,9 @@ function getMarketData()
     marketData = util.JSONToTable(fileOutput)
   end
 
+  PrintTable(marketData)
+  print(util.TableToJSON(marketData, true))
+
   return marketData
 end
 
@@ -154,38 +192,60 @@ function savePlayerData(steam64, playerData)
   file.Write(fileName, util.TableToJSON(playerData))
 end
 
-function sendClientFreshPlayerData(player, playerData, openMenu)
-  sendPlayerData(player, {
+function sendClientFreshPlayerData(player, currentPage, playerData, openMenu)
+  local totalPages = 1
+  playerData = playerData or getPlayerData(player:SteamID64())
+  currentPage = (currentPage or (math.ceil(math.max(1, table.Count(playerData.inventory)) / paginationPerPageLimit)))
+  playerData.inventory, totalPages = getPaginated(playerData.inventory, currentPage)
+  sendPlayerData(player, currentPage, totalPages, {
     ["player"] = playerData or getPlayerData(player:SteamID64())
   }, openMenu and "inventory" or nil)
 end
 
-function sendClientFreshMarketData(players, marketData, openMenu)
+function sendClientFreshMarketData(players, currentPage, marketData, openMenu)
+  local totalPages = 1
   if (type(players) == "Player") then
     players = { players }
   elseif(!players) then players = player.GetAll() end
 
+  marketData = marketData or getMarketData()
+  currentPage = (currentPage or (math.ceil(math.max(1, table.Count(marketData.items)) / paginationPerPageLimit)))
+  marketData.items, totalPages = getPaginated(marketData.items, currentPage, false)
+
   for i, player in ipairs(players) do
-    sendPlayerData(player, {
-      ["market"] = marketData or getMarketData()
+    sendPlayerData(player, currentPage, totalPages, {
+      ["market"] = marketData
     }, openMenu and "market" or nil)
   end
 end
 
-function sendClientFreshStoreData(player, openMenu)
-  sendPlayerData(player, {
+function sendClientFreshStoreData(player, currentPage, openMenu)
+  local totalPages = 1
+  sendPlayerData(player, currentPage, totalPages, {
     ["store"] = storeItems
   }, openMenu and "store" or nil)
 end
 
-function sendClientFreshLeaderboardData(player, openMenu)
-  sendPlayerData(player, {
+function sendClientFreshLeaderboardData(player, currentPage, openMenu)
+  local totalPages = 1
+  sendPlayerData(player, currentPage, totalPages, {
     ["leaderboard"] = getLeaderboardData()
   }, openMenu and "leaderboard" or nil)
 end
 
-function sendPlayerData(ply, data, openMenu)
+function sendPlayerData(ply, currentPage, totalPages, data, openMenu)
   if (!ply or !data) then return end
+
+  whichTab = nil
+
+  if data.player then whichTab = "inventory"
+  elseif data.market then whichTab = "market" end
+
+  data.pagination = {
+    ["tab"] = whichTab,
+    ["currentPage"] = (currentPage or 1),
+    ["totalPages"] = (totalPages or 1)
+  }
 
   net.Start("WskyTTTLootboxes_ClientReceiveData")
     net.WriteTable(data)
@@ -200,20 +260,22 @@ end
 
 net.Receive("WskyTTTLootboxes_ClientRequestPlayerData", function (len, ply)
   local openMenu = net.ReadBool()
-  sendClientFreshPlayerData(ply, nil, openMenu)
+  local currentPage = net.ReadFloat()
+  sendClientFreshPlayerData(ply, currentPage, nil, openMenu)
 end)
 
 net.Receive("WskyTTTLootboxes_ClientRequestStoreData", function (len, ply)
   local openMenu = net.ReadBool()
-  sendClientFreshStoreData(ply, openMenu)
+  sendClientFreshStoreData(ply, 1, openMenu)
 end)
 
 net.Receive("WskyTTTLootboxes_ClientRequestMarketData", function (len, ply)
   local openMenu = net.ReadBool()
-  sendClientFreshMarketData(ply, nil, openMenu)
+  local currentPage = net.ReadFloat()
+  sendClientFreshMarketData(ply, currentPage, nil, openMenu)
 end)
 
 net.Receive("WskyTTTLootboxes_ClientRequestLeaderboardData", function (len, ply)
   local openMenu = net.ReadBool()
-  sendClientFreshLeaderboardData(ply, openMenu)
+  sendClientFreshLeaderboardData(ply, 1, openMenu)
 end)

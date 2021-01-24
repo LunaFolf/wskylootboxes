@@ -42,7 +42,7 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
 
   table.Merge(playerData.inventory, itemTable)
   if (!buyerIsOwner) then playerData.scrap = playerData.scrap - marketItemCost end
-  marketData.items[marketItemID] = nil
+  table.remove(marketData.items, marketItemID)
   savePlayerData(steam64, playerData)
   saveMarketData(marketData)
 
@@ -51,11 +51,11 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
   if (!buyerIsOwner) then ownerPlayerData.scrap = ownerPlayerData.scrap + marketItemCost end
   savePlayerData(item.owner, ownerPlayerData)
 
-  sendClientFreshPlayerData(ply, playerData)
-  sendClientFreshMarketData()
+  sendClientFreshPlayerData(ply, nil, playerData)
+  sendClientFreshMarketData(nil, nil)
   if (owner and item.owner ~= steam64) then
     messagePlayer(owner, ply:Nick() .. " Bought your " .. getItemName(item) .. "!")
-    sendClientFreshPlayerData(owner, ownerPlayerData)
+    sendClientFreshPlayerData(owner, nil, ownerPlayerData)
   elseif (buyerIsOwner) then
     messagePlayer(owner, "Your " .. getItemName(item) .. " has been taken off the market.")
   end
