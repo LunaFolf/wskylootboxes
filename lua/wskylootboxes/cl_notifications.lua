@@ -16,7 +16,7 @@ local function drawNewItemNotification(item, playerWonAFreeCrate)
 
   local notifyPanel = vgui.Create("DPanel", notify)
   notifyPanel:Dock(FILL)
-  local color = Color(topHatBlue.r, topHatBlue.g, topHatBlue.b)
+  local color = Color(mainMenuColor.r, mainMenuColor.g, mainMenuColor.b)
   color = darken(color, 0.25)
   notifyPanel:SetBackgroundColor(color)
 
@@ -27,7 +27,7 @@ local function drawNewItemNotification(item, playerWonAFreeCrate)
     surface.SetFont("WskyFontSmall")
     local text = "New Item" .. (playerWonAFreeCrate and "s" or "") .. "!"
     local textWidth, textHeight = surface.GetTextSize(text)
-    draw.DrawText(text, "WskyFontSmall", w / 2, padding, topHatBlue, TEXT_ALIGN_CENTER)
+    draw.DrawText(text, "WskyFontSmall", w / 2, padding, mainMenuColor, TEXT_ALIGN_CENTER)
 
     if !playerWonAFreeCrate then return end
   end

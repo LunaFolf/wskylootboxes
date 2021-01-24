@@ -1,0 +1,11 @@
+function drawLeaderboard(parent, leaderboardData)
+  local wipText = vgui.Create("DLabel", parent)
+  local _, divHeight = parent:GetSize()
+  wipText:SetText("This panel is still being developed and is currently not available.\nPlease check again in the future.")
+  wipText:Dock(FILL)
+  wipText:SetHeight(stockItemHeight)
+  wipText:SetFont("WskyFontSmaller")
+  wipText:DockMargin(margin * 2, 0, margin * 2, 0)
+  wipText:SetWrap(true)
+  wipText:CenterHorizontal()
+end

@@ -1,8 +1,29 @@
 TryTranslation = LANG and LANG.TryTranslation or nil
 
 if CLIENT then
+
+  CreateClientConVar("wskylootboxes_menucolor_red", 0, true, false)
+  CreateClientConVar("wskylootboxes_menucolor_green", 202, true, false)
+  CreateClientConVar("wskylootboxes_menucolor_blue", 255, true, false)
+
   local fontName = "Segoe UI"
-  topHatBlue = Color(0, 202, 255, 225)
+  mainMenuColor = Color(0, 202, 255, 225)
+
+  function updateMenuColor(r, g, b)
+    r = r or GetConVar("wskylootboxes_menucolor_red"):GetFloat()
+    g = g or GetConVar("wskylootboxes_menucolor_green"):GetFloat()
+    b = b or GetConVar("wskylootboxes_menucolor_blue"):GetFloat()
+    
+    mainMenuColor = Color(r, g, b, 255)
+  end
+
+  updateMenuColor()
+
+  local r, g, b = GetConVar("wskylootboxes_menucolor_red"):GetFloat(), GetConVar("wskylootboxes_menucolor_green"):GetFloat(), GetConVar("wskylootboxes_menucolor_blue"):GetFloat()
+
+
+  local fontName = "Segoe UI"
+  mainMenuColor = Color(r, g, b, 225)
   local headerSize, defaultSize, regularSize, smallSize, miniSize, extraSmallSize = 182, 72, 58, 32, 22, 12
 
   surface.CreateFont( "WskyFontHeader", {
@@ -51,12 +72,12 @@ if CLIENT then
     Frame:Center()
     Frame.Paint = function(self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(65, 65, 65, 225))
-      draw.RoundedBox(0, 0, 0, w, 38, topHatBlue)
+      draw.RoundedBox(0, 0, 0, w, 38, mainMenuColor)
       draw.SimpleText(title, "WskyFontSmall", 6, 0)
 
       local scrap = playerData and playerData.scrap or nil
 
-      if title == "Inventory" and scrap then
+      if scrap then
         surface.SetFont("WskyFontSmaller")
         local scrapWidth, scrapHeight = surface.GetTextSize("Scrap: " .. scrap)
         draw.SimpleText("Scrap: " .. scrap, "WskyFontSmaller", (w - 38) - scrapWidth - 6, (36 - scrapHeight) / 2)
