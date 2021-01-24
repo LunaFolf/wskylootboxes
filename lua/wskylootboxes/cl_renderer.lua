@@ -47,7 +47,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     Menu:AddOption("Open Crate", function ()
       net.Start("WskyTTTLootboxes_RequestCrateOpening")
         net.WriteString(itemID)
-        net.WriteTable(pagination)
+        net.WriteTable(pagination.inventory)
       net.SendToServer()
     end)
     Menu:AddSpacer()
@@ -61,7 +61,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     Menu:AddOption("Equip", function ()
       net.Start("WskyTTTLootboxes_EquipItem")
         net.WriteString(itemID)
-        net.WriteTable(pagination)
+        net.WriteTable(pagination.inventory)
       net.SendToServer()
       if (item.type == "playerModel" and inventoryModelPreview and item.modelName) then  inventoryModelPreview:SetModel(item.modelName) end
     end)
@@ -70,7 +70,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     Menu:AddOption("Unequip", function ()
       net.Start("WskyTTTLootboxes_UnequipItem")
         net.WriteString(itemID)
-        net.WriteTable(pagination)
+        net.WriteTable(pagination.inventory)
       net.SendToServer()
     end)
     Menu:AddSpacer()
@@ -89,7 +89,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
             net.Start("WskyTTTLootboxes_RenameItem")
               net.WriteString(itemID)
               net.WriteString(name)
-              net.WriteTable(pagination)
+              net.WriteTable(pagination.inventory)
             net.SendToServer()
           end
         end
@@ -129,7 +129,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
       local submitScrapRequest = function ()
         net.Start("WskyTTTLootboxes_ScrapItem")
           net.WriteString(itemID)
-          net.WriteTable(pagination)
+          net.WriteTable(pagination.inventory)
         net.SendToServer()
       end
 
@@ -162,7 +162,7 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
           net.Start("WskyTTTLootboxes_SellItem")
             net.WriteString(itemID)
             net.WriteFloat(value)
-            net.WriteTable(pagination)
+            net.WriteTable(pagination.inventory)
           net.SendToServer()
         end
       end
@@ -243,7 +243,7 @@ function drawInventory(parent, inventory)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
-    itemPanel:DockMargin(margin, margin, margin, margin)
+    itemPanel:DockMargin(margin, margin, margin, 0)
     itemPanel:SetHeight(itemHeight)
     itemPanel:SetText("")
     itemPanel:SetMouseInputEnabled(true)
@@ -364,7 +364,7 @@ function drawInventory(parent, inventory)
       itemButtonClickable.DoClick = function ()
         net.Start("WskyTTTLootboxes_RequestCrateOpening")
           net.WriteString(itemID)
-          net.WriteTable(pagination)
+          net.WriteTable(pagination.inventory)
         net.SendToServer()
       end
     end
@@ -387,7 +387,7 @@ function drawStore(parent, storeItems)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
-    itemPanel:DockMargin(margin, margin, margin, margin)
+    itemPanel:DockMargin(margin, margin, margin, 0)
     itemPanel:SetHeight(itemHeight)
     itemPanel:SetText("")
     itemPanel:SetMouseInputEnabled(true)
@@ -517,7 +517,7 @@ function drawMarket(parent, marketItems)
     local y = (itemHeight * offset) + (padding * offset) + padding
 
     itemPanel:Dock(TOP)
-    itemPanel:DockMargin(margin, margin, margin, margin)
+    itemPanel:DockMargin(margin, margin, margin, 0)
     itemPanel:SetHeight(itemHeight)
     itemPanel:SetText("")
     itemPanel:SetMouseInputEnabled(true)
@@ -640,7 +640,7 @@ function drawMarket(parent, marketItems)
     end
     itemButtonClickable.DoClick = function () 
       net.Start("WskyTTTLootboxes_BuyFromMarket")
-        net.WriteFloat(itemIndex)
+        net.WriteFloat((itemIndex) + ((pagination.market.currentPage - 1) * 9))
       net.SendToServer()
     end
 
@@ -648,7 +648,6 @@ function drawMarket(parent, marketItems)
 end
 
 function drawLeaderboard(parent, leaderboardData)
-
   local wipText = vgui.Create("DLabel", parent)
   local _, divHeight = parent:GetSize()
   wipText:SetText("This panel is still being developed and is currently not available.\nPlease check again in the future.")

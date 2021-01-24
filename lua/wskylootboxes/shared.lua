@@ -182,10 +182,16 @@ function uuid()
     end)
 end
 
-function messagePlayer(ply, message)
-  if (ply && message) then
-    ply:PrintMessage(HUD_PRINTTALK, "[Lootbox] " .. message)
+function messageAllPlayers(message)
+  if !message then return end
+  for _, player in ipairs(player.GetAll()) do
+    messagePlayer(player, message)
   end
+end
+
+function messagePlayer(ply, message)
+  if (!ply or !message) then return end
+  ply:PrintMessage(HUD_PRINTTALK, "[Lootbox] " .. message)
 end
 
 function getWeaponCategory(weaponClassName)

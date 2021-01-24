@@ -71,7 +71,7 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
 
   sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
 
-  sendClientFreshMarketData()
+  sendClientFreshMarketData(nil, nil)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/save_load2.wav")

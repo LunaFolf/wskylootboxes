@@ -10,7 +10,8 @@ dir = "wsky/Lootboxes"
 
 local paginationPerPageLimit = 9
 
-function getPaginated(tableData, currentPage)
+function getPaginated(tableData, currentPage, sort)
+  if sort == nil then sort = true end
   if (!tableData or type(tableData) ~= "table") then return end
 
   if ( type(table.GetKeys(tableData)[1]) == "string" ) then
@@ -25,9 +26,11 @@ function getPaginated(tableData, currentPage)
     tableData = tempTable
   end
 
-  table.sort(tableData, function (a, b)
-    return a.createdAt < b.createdAt
-  end)
+  if sort then
+    table.sort(tableData, function (a, b)
+      return a.createdAt < b.createdAt
+    end)
+  end
 
   local output = {}
   local startPos, endPos = ((currentPage - 1) * paginationPerPageLimit) + 1, currentPage * paginationPerPageLimit
@@ -148,6 +151,9 @@ function getMarketData()
     marketData = util.JSONToTable(fileOutput)
   end
 
+  PrintTable(marketData)
+  print(util.TableToJSON(marketData, true))
+
   return marketData
 end
 
@@ -189,6 +195,7 @@ end
 function sendClientFreshPlayerData(player, currentPage, playerData, openMenu)
   local totalPages = 1
   playerData = playerData or getPlayerData(player:SteamID64())
+  currentPage = (currentPage or (math.ceil(math.max(1, table.Count(playerData.inventory)) / paginationPerPageLimit)))
   playerData.inventory, totalPages = getPaginated(playerData.inventory, currentPage)
   sendPlayerData(player, currentPage, totalPages, {
     ["player"] = playerData or getPlayerData(player:SteamID64())
@@ -201,9 +208,13 @@ function sendClientFreshMarketData(players, currentPage, marketData, openMenu)
     players = { players }
   elseif(!players) then players = player.GetAll() end
 
+  marketData = marketData or getMarketData()
+  currentPage = (currentPage or (math.ceil(math.max(1, table.Count(marketData.items)) / paginationPerPageLimit)))
+  marketData.items, totalPages = getPaginated(marketData.items, currentPage, false)
+
   for i, player in ipairs(players) do
     sendPlayerData(player, currentPage, totalPages, {
-      ["market"] = marketData or getMarketData()
+      ["market"] = marketData
     }, openMenu and "market" or nil)
   end
 end
@@ -225,9 +236,15 @@ end
 function sendPlayerData(ply, currentPage, totalPages, data, openMenu)
   if (!ply or !data) then return end
 
+  whichTab = nil
+
+  if data.player then whichTab = "inventory"
+  elseif data.market then whichTab = "market" end
+
   data.pagination = {
-    ["currentPage"] = currentPage or 1,
-    ["totalPages"] = totalPages or 1
+    ["tab"] = whichTab,
+    ["currentPage"] = (currentPage or 1),
+    ["totalPages"] = (totalPages or 1)
   }
 
   net.Start("WskyTTTLootboxes_ClientReceiveData")
@@ -254,7 +271,8 @@ end)
 
 net.Receive("WskyTTTLootboxes_ClientRequestMarketData", function (len, ply)
   local openMenu = net.ReadBool()
-  sendClientFreshMarketData(ply, 1, nil, openMenu)
+  local currentPage = net.ReadFloat()
+  sendClientFreshMarketData(ply, currentPage, nil, openMenu)
 end)
 
 net.Receive("WskyTTTLootboxes_ClientRequestLeaderboardData", function (len, ply)

@@ -194,6 +194,10 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
+  if newItem.tier == "Exotic" then
+    messageAllPlayers(ply:Nick() .. " got a " .. getItemName(newItem))
+  end
+
   -- Let player know of their winnings, and play a little tune.
   net.Start("WskyTTTLootboxes_ClientsideWinItem")
     net.WriteString(newItem.tier == "Exotic" and "wsky_lootboxes/partyblower.mp3" or "wsky_lootboxes/item.ogg")

@@ -5,30 +5,30 @@ include('cl_renderer.lua')
 CreateClientConVar("wskylootboxes_confirm_scrap", 1, true, false, "Show confirmation popup when scrapping an item.")
 CreateClientConVar("wskylootboxes_quick_unbox", 0, true, false, "Left click a crate to unbox it instantly.")
 
-local minWidth, minHeight = 960, 540
+local minWidth, minHeight = 1200, 675
 
 function updateMenuSize ()
   local w, h = ScrW() / 2, ScrH() / 2
   width, height = math.Clamp(w, minWidth, (ScrW() * 0.75)), math.Clamp(h, minHeight, (ScrH() * 0.75))
+  renderingHeight = height - (titleBarHeight + tabsSize + footerSize)
+  stockItemHeight = ((renderingHeight - (margin * 9)) / 9)
 end
 
 menuOpen = false
 menuRef = nil
 width, height = ScrW() / 2, ScrH() / 2
+renderingHeight = height
 margin = 4
 padding = 6
 titleBarHeight = 38
 tabsSize = 32
-footerSize = 46
+footerSize = 42
 stockItemHeight = 65
 lastTab = nil
 
 updateMenuSize()
 
 hook.Add("OnScreenSizeChanged", "WskyTTTLootboxes_UpdateScreenSize", updateMenuSize)
-
-local renderingHeight = (height - ((titleBarHeight * 2) + 38 + (padding * 2)))
-stockItemHeight = renderingHeight / 10
 
 
 concommand.Add("wskylootboxes_menu", function ()
@@ -40,6 +40,13 @@ hook.Add("PlayerButtonUp", "WskyTTTLootboxes_RequestInventoryData", function (pl
   menuOpen = true
   requestFreshPlayerData(true)
 end)
+
+function paginationRequestData(activeTab)
+  if !activeTab then return end
+
+  if activeTab == "inventory" then requestFreshPlayerData(true)
+  elseif activeTab == "market" then requestFreshMarketData(true) end
+end
 
 function renderMenu(activeTab)
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
@@ -78,7 +85,7 @@ function renderMenu(activeTab)
   footerPanel:SetPos(0, parentHeight - footerSize)
   footerPanel:SetSize(width * 0.75, footerSize)
   footerPanel.Paint = function (self, w, h)
-    local currentPage = ("Page "..pagination.currentPage.."/"..pagination.totalPages)
+    local currentPage = ("Page "..pagination[activeTab].currentPage.."/"..pagination[activeTab].totalPages)
     draw.SimpleText(currentPage, "WskyFontSmaller", w / 2, h / 2, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
   end
 
@@ -87,7 +94,7 @@ function renderMenu(activeTab)
   pageBackButton:SetText("")
   pageBackButton:SetWidth(math.max(100, footerPanel:GetWide() / 6))
   pageBackButton.Paint = function (self, w, h)
-    local lastPage = pagination.currentPage <= 1
+    local lastPage = pagination[activeTab].currentPage <= 1
     local color = topHatBlue
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
@@ -98,9 +105,9 @@ function renderMenu(activeTab)
     draw.SimpleText("Back", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
   end
   pageBackButton.DoClick = function ()
-    if (pagination.currentPage <= 1) then return end
-    pagination.currentPage = pagination.currentPage - 1
-    requestFreshPlayerData(true)
+    if (pagination[activeTab].currentPage <= 1) then return end
+    pagination[activeTab].currentPage = pagination[activeTab].currentPage - 1
+    paginationRequestData(activeTab)
   end
 
   local pageNextButton = vgui.Create("DButton", footerPanel)
@@ -108,7 +115,7 @@ function renderMenu(activeTab)
   pageNextButton:SetText("")
   pageNextButton:SetWidth(math.max(100, footerPanel:GetWide() / 6))
   pageNextButton.Paint = function (self, w, h)
-    local lastPage = pagination.currentPage >= pagination.totalPages
+    local lastPage = pagination[activeTab].currentPage >= pagination[activeTab].totalPages
     local color = topHatBlue
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
@@ -119,9 +126,9 @@ function renderMenu(activeTab)
     draw.SimpleText("Next Page", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
   end
   pageNextButton.DoClick = function ()
-    if (pagination.currentPage >= pagination.totalPages) then return end
-    pagination.currentPage = pagination.currentPage + 1
-    requestFreshPlayerData(true)
+    if (pagination[activeTab].currentPage >= pagination[activeTab].totalPages) then return end
+    pagination[activeTab].currentPage = pagination[activeTab].currentPage + 1
+    paginationRequestData(activeTab)
   end
 
   local inventoryModelPreview = vgui.Create("DModelPanel", rightInventoryPanel, "playerModelPreview")
@@ -148,9 +155,15 @@ function renderMenu(activeTab)
   end
 
   if (activeTab == "inventory") then drawInventory(leftInventoryPanel, playerData.inventory)
-  elseif (activeTab == "store") then drawStore(leftInventoryPanel, storeItems)
+  elseif (activeTab == "store") then
+    footerPanel:Remove()
+    drawStore(leftInventoryPanel, storeItems)
   elseif (activeTab == "market") then drawMarket(leftInventoryPanel, marketData.items)
-  elseif (activeTab == "leaderboard") then drawLeaderboard(leftInventoryPanel, leaderboardData)
+  elseif (activeTab == "leaderboard") then
+    rightInventoryPanel:Remove()
+    footerPanel:Remove()
+    leftInventoryPanel:SetWidth(width)
+    drawLeaderboard(leftInventoryPanel, leaderboardData)
   else renderMenu("inventory") end
 
 end
