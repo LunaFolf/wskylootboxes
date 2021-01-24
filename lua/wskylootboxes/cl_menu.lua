@@ -1,6 +1,6 @@
 if SERVER then return end
 
-include('cl_renderer.lua')
+include('renderer/cl_renderer_init.lua')
 
 CreateClientConVar("wskylootboxes_confirm_scrap", 1, true, false, "Show confirmation popup when scrapping an item.")
 CreateClientConVar("wskylootboxes_quick_unbox", 0, true, false, "Left click a crate to unbox it instantly.")
@@ -51,12 +51,14 @@ end
 function renderMenu(activeTab)
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
 
+  updateMenuColor()
+
   if (menuRef) then menuRef:Close() end
 
   activeTab = activeTab or "inventory"
   lastTab = string.sub(activeTab, 1)
 
-  local inventoryMenuPanel = createBasicFrame(width, height, "Inventory", true)
+  local inventoryMenuPanel = createBasicFrame(width, height, "Wsky Lootboxes", true)
   menuRef = inventoryMenuPanel
   inventoryMenuPanel.OnClose = function ()
     menuOpen = false
@@ -95,10 +97,10 @@ function renderMenu(activeTab)
   pageBackButton:SetWidth(math.max(100, footerPanel:GetWide() / 6))
   pageBackButton.Paint = function (self, w, h)
     local lastPage = pagination[activeTab].currentPage <= 1
-    local color = topHatBlue
+    local color = mainMenuColor
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
-      color = darken(topHatBlue, 0.75)
+      color = darken(mainMenuColor, 0.75)
       textColor.a = 125
     end
     draw.RoundedBox(0, 0, 0, w, h, color)
@@ -116,10 +118,10 @@ function renderMenu(activeTab)
   pageNextButton:SetWidth(math.max(100, footerPanel:GetWide() / 6))
   pageNextButton.Paint = function (self, w, h)
     local lastPage = pagination[activeTab].currentPage >= pagination[activeTab].totalPages
-    local color = topHatBlue
+    local color = mainMenuColor
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
-      color = darken(topHatBlue, 0.75)
+      color = darken(mainMenuColor, 0.75)
       textColor.a = 125
     end
     draw.RoundedBox(0, 0, 0, w, h, color)
@@ -157,13 +159,21 @@ function renderMenu(activeTab)
   if (activeTab == "inventory") then drawInventory(leftInventoryPanel, playerData.inventory)
   elseif (activeTab == "store") then
     footerPanel:Remove()
+    leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
     drawStore(leftInventoryPanel, storeItems)
   elseif (activeTab == "market") then drawMarket(leftInventoryPanel, marketData.items)
   elseif (activeTab == "leaderboard") then
     rightInventoryPanel:Remove()
     footerPanel:Remove()
+    leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
     leftInventoryPanel:SetWidth(width)
     drawLeaderboard(leftInventoryPanel, leaderboardData)
+  elseif (activeTab == "settings") then
+    rightInventoryPanel:Remove()
+    footerPanel:Remove()
+    leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
+    leftInventoryPanel:SetWidth(width)
+    drawSettings(leftInventoryPanel)
   else renderMenu("inventory") end
 
 end
