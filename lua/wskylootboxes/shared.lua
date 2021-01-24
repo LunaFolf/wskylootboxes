@@ -2,12 +2,20 @@ TryTranslation = LANG and LANG.TryTranslation or nil
 
 if CLIENT then
 
-  CreateClientConVar("wskylootboxes_menucolor_red", 0, true, false)
-  CreateClientConVar("wskylootboxes_menucolor_green", 202, true, false)
-  CreateClientConVar("wskylootboxes_menucolor_blue", 255, true, false)
+  topHatBlue = Color(0, 202, 255)
+
+  CreateClientConVar("wskylootboxes_menucolor_red", topHatBlue.r, true, false)
+  CreateClientConVar("wskylootboxes_menucolor_green", topHatBlue.g, true, false)
+  CreateClientConVar("wskylootboxes_menucolor_blue", topHatBlue.b, true, false)
 
   local fontName = "Segoe UI"
-  mainMenuColor = Color(0, 202, 255, 225)
+  mainMenuColor = table.Copy(topHatBlue)
+
+  globalColors = {
+    ["positive"] = Color(120, 190, 120),
+    ["negative"] = Color(255, 120, 120),
+    ["warning"] = Color(255, 190, 120)
+  }
 
   function updateMenuColor(r, g, b)
     r = r or GetConVar("wskylootboxes_menucolor_red"):GetFloat()
@@ -18,12 +26,6 @@ if CLIENT then
   end
 
   updateMenuColor()
-
-  globalColors = {
-    ["positive"] = mainMenuColor,
-    ["negative"] = Color(255, 120, 120),
-    ["warning"] = Color(255, 190, 120)
-  }
 
   local headerSize, defaultSize, regularSize, smallSize, miniSize, extraSmallSize = 182, 72, 58, 32, 22, 12
 
@@ -132,7 +134,7 @@ if CLIENT then
     confirmBtn:SetFGColor(Color(255, 255, 255, 255))
     confirmBtn:SetText("Confirm")
     confirmBtn.Paint = function (self, w, h)
-      local color = Color(0, 202, 255, 225)
+      local color = mainMenuColor
       draw.RoundedBox(0, 0, 0, w, h, color)
     end
     confirmBtn.DoClick = function ()

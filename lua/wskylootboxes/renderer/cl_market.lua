@@ -43,7 +43,7 @@ function drawMarket(parent, marketItems)
     itemPriceTag:SetHeight(itemHeight)
     itemPriceTag:SetWidth(math.min(parent:GetWide() - (itemHeight * 4), math.max(itemHeight, priceWidth + (padding * 2))))
     itemPriceTag.Paint = function (self, w, h)
-      local color = Color(0, 202, 255, 225)
+      local color = globalColors.positive
       if playerData.scrap < item.value then
         color = globalColors.negative
       end
@@ -128,14 +128,14 @@ function drawMarket(parent, marketItems)
       if !self:IsHovered() then return end
       local text = "Buy Item?"
       local enoughMoneyToBuy = playerData.scrap >= item.value
-      local borderColor = globalColors.positive
+      local borderColor = table.Copy(globalColors.positive)
       if !enoughMoneyToBuy then
         text = "Not enough scrap"
-        borderColor = globalColors.negative
+        borderColor = table.Copy(globalColors.negative)
       end
       if buyerIsOwner then
         text = "Remove item from market"
-        borderColor = globalColors.warning
+        borderColor = table.Copy(globalColors.warning)
       end
       borderColor.a = 120
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 125))

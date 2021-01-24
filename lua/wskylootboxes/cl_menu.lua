@@ -159,18 +159,21 @@ function renderMenu(activeTab)
   if (activeTab == "inventory") then drawInventory(leftInventoryPanel, playerData.inventory)
   elseif (activeTab == "store") then
     footerPanel:Remove()
+    leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
     drawStore(leftInventoryPanel, storeItems)
   elseif (activeTab == "market") then drawMarket(leftInventoryPanel, marketData.items)
   elseif (activeTab == "leaderboard") then
     rightInventoryPanel:Remove()
     footerPanel:Remove()
+    leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
     leftInventoryPanel:SetWidth(width)
     drawLeaderboard(leftInventoryPanel, leaderboardData)
   elseif (activeTab == "settings") then
     rightInventoryPanel:Remove()
     footerPanel:Remove()
+    leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
     leftInventoryPanel:SetWidth(width)
-    drawLeaderboard(leftInventoryPanel, leaderboardData)
+    drawSettings(leftInventoryPanel)
   else renderMenu("inventory") end
 
 end

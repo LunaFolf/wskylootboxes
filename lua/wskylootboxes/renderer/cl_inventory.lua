@@ -1,5 +1,8 @@
 function drawInventory(parent, inventory)
 
+  local quickOpenConvar = GetConVar("wskylootboxes_quick_unbox")
+  if !quickOpenConvar then quickOpenConvar = false else quickOpenConvar = quickOpenConvar:GetBool() end
+
   local itemNum = 0
   for itemIndex, item in pairs(inventory) do
     local itemID = item.itemID
@@ -124,11 +127,11 @@ function drawInventory(parent, inventory)
 
       if !self:IsHovered() then return end
       local text = ""
-      if string.StartWith(item.type, "crate_") then text = "Open Crate?" end
+      if string.StartWith(item.type, "crate_") and quickOpenConvar then text = "Open Crate?" end
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 125))
       draw.SimpleText(text, "WskyFontDefault", w / 2, h / 2, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
 
-      local extraText = "Right click for more options"
+      local extraText = "Right click for options"
       surface.SetFont("WskyFontSmaller")
       local _, textHeight = surface.GetTextSize(extraText)
       draw.SimpleText(extraText, "WskyFontSmaller", w / 2, h - (textHeight + margin), Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
@@ -138,8 +141,6 @@ function drawInventory(parent, inventory)
     itemButtonClickable.DoRightClick = function (self)
       rightClickItem(highestParent, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
     end
-    local quickOpenConvar = GetConVar("wskylootboxes_quick_unbox")
-    if !quickOpenConvar then quickOpenConvar = false else quickOpenConvar = quickOpenConvar:GetBool() end
 
     if (string.StartWith(item.type, "crate_") and quickOpenConvar) then
       itemButtonClickable.DoClick = function ()
