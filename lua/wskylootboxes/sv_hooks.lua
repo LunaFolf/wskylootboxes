@@ -1,10 +1,15 @@
 if CLIENT then return end
 
 util.AddNetworkString("WskyTTTLootboxes_ClientsideUpdateWeaponName")
+util.AddNetworkString("WskyTTTLootboxes_ClientDeathMessage")
+
+local playersInSpectateMode = {}
 
 hook.Add("PlayerSpawn", "WskyTTTLootboxes_GiveActiveWeapons", function (ply)
   local steam64 = ply:SteamID64()
   if (!steam64) then return end
+
+  table.RemoveByValue(playersInSpectateMode, steam64)
 
   local playerData = getPlayerData(steam64)
   local primaryWeapon, secondaryWeapon, meleeWeapon = playerData.activePrimaryWeapon, playerData.activeSecondaryWeapon, playerData.activeMeleeWeapon 
@@ -41,12 +46,20 @@ hook.Add("PlayerSpawn", "WskyTTTLootboxes_GiveActiveWeapons", function (ply)
   end)
 end)
 
+function voidSpectators()
+  for _, ply in pairs(player.GetAll()) do
+    if ply:GetObserverMode() > 0 then table.insert(playersInSpectateMode, ply:SteamID64()) end
+  end
+end
+
 hook.Add("TTTPrepareRound", "WskyTTTLootboxes_TTTPrepareRound", function ()
+  playersInSpectateMode = {}
   timer.Simple(0.2, GetPlayersAndSetModels)
   timer.Create("WskyTTTLootboxes_CheckPlayerModelChange", 2, 0, GetPlayersAndSetModels)
 end)
 
 hook.Add("TTTBeginRound", "WskyTTTLootboxes_TTTBeginRound", function ()
+  voidSpectators()
   timer.Destroy("WskyTTTLootboxes_CheckPlayerModelChange")
   timer.Simple(0.2, GetPlayersAndSetModels)
 end)
@@ -54,18 +67,32 @@ end)
 hook.Add("TTTEndRound", "WskyTTTLootboxes_TTTEndRound", function ()
   timer.Destroy("WskyTTTLootboxes_CheckPlayerModelChange")
   timer.Simple(0.2, GetPlayersAndSetModels)
-  GiveOutFreeCrates()
+  GiveOutFreeCrates(playersInSpectateMode)
 end)
 
--- hook.Add("PlayerSwitchWeapon", "WskyTTTLootboxes_WeaponSwitch", function (ply, oldWeapon, newWeapon)
---   if (oldWeapon == newWeapon) then return end
+hook.Add("PlayerDeath", "WskyTTTLootboxes_PlayerDeathMessage", function (victim, inflictor, attacker)
+  if !victim:IsPlayer() or !attacker:IsPlayer() then return end
 
---   clearParticlesOnPlayer(oldWeapon)
---   clearParticlesOnPlayer(newWeapon)
+  local attackerRole = attacker:GetRole()
+  local wep = attacker:GetActiveWeapon()
+  local weaponName = ""
+  local weaponNameIsClass = false
 
---   local particleEffect = newWeapon:GetNWString("exoticParticleEffect")
---   if (particleEffect ~= "") then spawnParticleOnPlayer("weapon", particleEffect, ply) end
--- end)
+  local fallback = "#NOCUSTOM#"
+
+  if wep:IsValid() then 
+    local customWeaponName = wep:GetNWString("customName", fallback)
+    if customWeaponName == fallback then weaponNameIsClass = true end
+    weaponName = (customWeaponName ~= fallback and customWeaponName or wep:GetClass())
+  end
+
+  net.Start("WskyTTTLootboxes_ClientDeathMessage")
+    net.WriteString(attacker:Nick())
+    net.WriteFloat(attackerRole)
+    net.WriteString(weaponName)
+    net.WriteBool(weaponNameIsClass)
+  net.Send(victim)
+end)
 
 hook.Add("PlayerDroppedWeapon", "WskyTTTLootboxes_WeaponDropped", function (owner, weapon)
   if (!weapon or !weapon:IsValid()) then return end

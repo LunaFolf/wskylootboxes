@@ -80,9 +80,10 @@ function generateACrate(type)
   return crate
 end
 
-function GiveOutFreeCrates()
+function GiveOutFreeCrates(excludedPlayers)
   for _, ply in pairs(player.GetAll()) do
     local steam64 = ply:SteamID64()
+    if excludedPlayers and table.HasValue(excludedPlayers, steam64) then return end
     local playerData = getPlayerData(steam64)
 
     local shouldGetACrate = (math.Rand(0, 1)*100) >= percentageChanceToWinCrate
