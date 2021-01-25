@@ -89,7 +89,7 @@ function GiveOutFreeCrates(excludedPlayers)
     if excludedPlayers and table.HasValue(excludedPlayers, steam64) then return end
     local playerData = getPlayerData(steam64)
 
-    local shouldGetACrate = (math.Rand(0, 1)*100) >= percentageChanceToWinCrate
+    local shouldGetACrate = (math.Rand(0, 1)*100) <= percentageChanceToWinCrate
 
     if !shouldGetACrate then
       messagePlayer(ply, "Ahh bummer, you nearly got a crate! maybe next round?")
