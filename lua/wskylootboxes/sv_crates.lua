@@ -5,7 +5,10 @@ util.AddNetworkString("WskyTTTLootboxes_OpenPlayerInventory")
 util.AddNetworkString("WskyTTTLootboxes_ClientsideWinItem")
 util.AddNetworkString("WskyTTTLootboxes_ClientsideWinChime")
 
-percentageChanceToWinCrate = 30
+CreateConVar("wskylootboxes_percent_crate_win", 30, nil, "Percent chance to win a crate")
+
+percentageChanceToWinCrate = GetConVar("wskylootboxes_percent_crate_win")
+if percentageChanceToWinCrate then percentageChanceToWinCrate = percentageChanceToWinCrate:GetFloat() else percentageChanceToWinCrate = 30 end
 
 crateTypes = {
   "weapon",
