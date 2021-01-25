@@ -1,10 +1,5 @@
 if CLIENT then return end
 
-concommand.Add( "wsky_test_particle", function( ply, cmd, args )
-  local particle = args[1] or "unusual_eldritch_flames_orange"
-  spawnParticleOnPlayer("playerModel", particle, ply)
-end )
-
 function spawnParticleOnPlayer(position, particle, entity)
   if (position == "playerModel") then
     local attachment = entity:LookupAttachment("anim_attachment_head")

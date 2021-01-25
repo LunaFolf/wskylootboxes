@@ -25,7 +25,7 @@ local function autoComplete(cmd, argStr)
 
   local returnTable = {}
 
-  if (string.StartWith(cmd, "wsky_crate_generate")) then
+  if (string.StartWith(cmd, "wskylootboxes_crate")) then
     if curArgIndex == 1 then
       table.insert(returnTable, fullString.."crate_any")
       for k, v in ipairs(crateTypes) do
@@ -41,7 +41,7 @@ local function autoComplete(cmd, argStr)
   return returnTable
 end
 
-concommand.Add("wsky_crate_generate", function (ply, cmd, args, argStr)
+concommand.Add("wskylootboxes_crate", function (ply, cmd, args, argStr)
   local crateType = args[1]
   local playerName = args[2]
   local numberOfCrates = tonumber(args[3]) or 1

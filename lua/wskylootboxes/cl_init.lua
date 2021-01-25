@@ -18,7 +18,7 @@ function getWeaponCategory(weaponClassName)
   end
 end
 
-concommand.Add("wsky_current_weapon", function (ply)
+concommand.Add("wskylootboxes_currentweapon", function (ply)
   local curWeapon = ply:GetActiveWeapon()
   print(curWeapon:IsValid() and ply:GetActiveWeapon():GetClass() or "Can't find currently active weapon!")
 end, nil, "Retieve the class name of the currently active weapon.")

@@ -16,7 +16,7 @@ local function drawNewItemNotification(item, playerWonAFreeCrate)
 
   local notifyPanel = vgui.Create("DPanel", notify)
   notifyPanel:Dock(FILL)
-  local color = Color(topHatBlue.r, topHatBlue.g, topHatBlue.b)
+  local color = Color(mainMenuColor.r, mainMenuColor.g, mainMenuColor.b)
   color = darken(color, 0.25)
   notifyPanel:SetBackgroundColor(color)
 
@@ -27,7 +27,7 @@ local function drawNewItemNotification(item, playerWonAFreeCrate)
     surface.SetFont("WskyFontSmall")
     local text = "New Item" .. (playerWonAFreeCrate and "s" or "") .. "!"
     local textWidth, textHeight = surface.GetTextSize(text)
-    draw.DrawText(text, "WskyFontSmall", w / 2, padding, topHatBlue, TEXT_ALIGN_CENTER)
+    draw.DrawText(text, "WskyFontSmall", w / 2, padding, mainMenuColor, TEXT_ALIGN_CENTER)
 
     if !playerWonAFreeCrate then return end
   end
@@ -157,4 +157,38 @@ net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
   local soundString = net.ReadString()
   if (!ply or !soundString) then return end
   ply:EmitSound(soundString)
+end)
+
+net.Receive("WskyTTTLootboxes_ClientDeathMessage", function ()
+  if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
+
+  local attackerName = net.ReadString()
+  local attackerRole = net.ReadFloat()
+  local weaponName = net.ReadString()
+  local weaponNameIsClass = net.ReadBool()
+
+  print(attackerName, attackerRole, weaponName, weaponNameIsClass)
+
+  local weaponNameSet = (weaponName ~= "")
+
+  if weaponNameIsClass then
+    local weapon = weapons.GetStored(weaponName)
+    local printName = weapon.PrintName or weapon.ClassName
+    local name = (TryTranslation and TryTranslation(printName) or printName)
+    weaponName = name
+  end
+
+  local roleColor = Color(25, 200, 25, 200)
+
+  if attackerRole == 0 then
+    attackerRole = "Innocent"
+  elseif attackerRole == 1 then
+    attackerRole = "Traitor"
+    roleColor = Color(200, 25, 25, 200)
+  elseif attackerRole == 2 then
+    attackerRole = "Detective"
+    roleColor = Color(25, 25, 200, 200)
+  end
+
+  chat.AddText(Color(255, 255, 255), "You were killed by ", roleColor, attackerName, Color(255, 255, 255), (weaponNameSet and " using " or ""), topHatBlue, weaponName, Color(255, 255, 255), ". They were ", roleColor, attackerRole, Color(255, 255, 255), ".")
 end)

@@ -1,8 +1,32 @@
 TryTranslation = LANG and LANG.TryTranslation or nil
 
 if CLIENT then
+
+  topHatBlue = Color(0, 202, 255)
+
+  CreateClientConVar("wskylootboxes_menucolor_red", topHatBlue.r, true, false)
+  CreateClientConVar("wskylootboxes_menucolor_green", topHatBlue.g, true, false)
+  CreateClientConVar("wskylootboxes_menucolor_blue", topHatBlue.b, true, false)
+
   local fontName = "Segoe UI"
-  topHatBlue = Color(0, 202, 255, 225)
+  mainMenuColor = table.Copy(topHatBlue)
+
+  globalColors = {
+    ["positive"] = Color(120, 190, 120),
+    ["negative"] = Color(255, 120, 120),
+    ["warning"] = Color(255, 190, 120)
+  }
+
+  function updateMenuColor(r, g, b)
+    r = r or GetConVar("wskylootboxes_menucolor_red"):GetFloat()
+    g = g or GetConVar("wskylootboxes_menucolor_green"):GetFloat()
+    b = b or GetConVar("wskylootboxes_menucolor_blue"):GetFloat()
+    
+    mainMenuColor = Color(r, g, b, 255)
+  end
+
+  updateMenuColor()
+
   local headerSize, defaultSize, regularSize, smallSize, miniSize, extraSmallSize = 182, 72, 58, 32, 22, 12
 
   surface.CreateFont( "WskyFontHeader", {
@@ -51,12 +75,12 @@ if CLIENT then
     Frame:Center()
     Frame.Paint = function(self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(65, 65, 65, 225))
-      draw.RoundedBox(0, 0, 0, w, 38, topHatBlue)
+      draw.RoundedBox(0, 0, 0, w, 38, mainMenuColor)
       draw.SimpleText(title, "WskyFontSmall", 6, 0)
 
       local scrap = playerData and playerData.scrap or nil
 
-      if title == "Inventory" and scrap then
+      if scrap then
         surface.SetFont("WskyFontSmaller")
         local scrapWidth, scrapHeight = surface.GetTextSize("Scrap: " .. scrap)
         draw.SimpleText("Scrap: " .. scrap, "WskyFontSmaller", (w - 38) - scrapWidth - 6, (36 - scrapHeight) / 2)
@@ -110,7 +134,7 @@ if CLIENT then
     confirmBtn:SetFGColor(Color(255, 255, 255, 255))
     confirmBtn:SetText("Confirm")
     confirmBtn.Paint = function (self, w, h)
-      local color = Color(0, 202, 255, 225)
+      local color = mainMenuColor
       draw.RoundedBox(0, 0, 0, w, h, color)
     end
     confirmBtn.DoClick = function ()
@@ -174,6 +198,14 @@ end
 
 local random = math.random
 
+function formatScrap(scrap)
+  if (!scrap) then return "0" end
+  if type(scrap) == "number" then scrap = tostring(scrap) end
+
+  local left,num,right = string.match(scrap, '^([^%d]*%d)(%d*)(.-)$')
+  return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+end
+
 function uuid()
     local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
     return string.gsub(template, '[xy]', function (c)
@@ -182,10 +214,16 @@ function uuid()
     end)
 end
 
-function messagePlayer(ply, message)
-  if (ply && message) then
-    ply:PrintMessage(HUD_PRINTTALK, "[Lootbox] " .. message)
+function messageAllPlayers(message)
+  if !message then return end
+  for _, player in ipairs(player.GetAll()) do
+    messagePlayer(player, message)
   end
+end
+
+function messagePlayer(ply, message)
+  if (!ply or !message) then return end
+  ply:PrintMessage(HUD_PRINTTALK, "[Lootbox] " .. message)
 end
 
 function getWeaponCategory(weaponClassName)

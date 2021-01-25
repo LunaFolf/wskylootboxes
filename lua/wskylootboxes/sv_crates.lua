@@ -80,9 +80,10 @@ function generateACrate(type)
   return crate
 end
 
-function GiveOutFreeCrates()
+function GiveOutFreeCrates(excludedPlayers)
   for _, ply in pairs(player.GetAll()) do
     local steam64 = ply:SteamID64()
+    if excludedPlayers and table.HasValue(excludedPlayers, steam64) then return end
     local playerData = getPlayerData(steam64)
 
     local shouldGetACrate = (math.Rand(0, 1)*100) >= percentageChanceToWinCrate
@@ -104,7 +105,7 @@ function GiveOutFreeCrates()
         net.WriteBool(false)
       net.Send(ply)
 
-      sendClientFreshPlayerData(ply, playerData)
+      sendClientFreshPlayerData(ply, nil, playerData)
     end
   end
 end
@@ -114,6 +115,7 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)
   local itemID = net.ReadString()
+  local pagination = net.ReadTable()
 
   if (!itemID) then
     givePlayerError(ply)
@@ -193,6 +195,10 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
 
   savePlayerData(steam64, playerData)
 
+  if newItem.tier == "Exotic" then
+    messageAllPlayers(ply:Nick() .. " got a " .. getItemName(newItem))
+  end
+
   -- Let player know of their winnings, and play a little tune.
   net.Start("WskyTTTLootboxes_ClientsideWinItem")
     net.WriteString(newItem.tier == "Exotic" and "wsky_lootboxes/partyblower.mp3" or "wsky_lootboxes/item.ogg")
@@ -200,7 +206,7 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
     net.WriteBool(winAFreeCrate)
   net.Send(ply)
 
-  sendClientFreshPlayerData(ply, playerData)
+  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
 
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
     net.WriteString("inventory")
