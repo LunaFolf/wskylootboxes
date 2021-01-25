@@ -167,8 +167,6 @@ net.Receive("WskyTTTLootboxes_ClientDeathMessage", function ()
   local weaponName = net.ReadString()
   local weaponNameIsClass = net.ReadBool()
 
-  print(attackerName, attackerRole, weaponName, weaponNameIsClass)
-
   local weaponNameSet = (weaponName ~= "")
 
   if weaponNameIsClass then
