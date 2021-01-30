@@ -62,8 +62,10 @@ local functionsToRun = {
   cleanupBadItemData
 }
 
-for i, ply in ipairs(player.GetAll()) do
-  local steam64 = ply:SteamID64()
+local playerFiles, _ = file.Find(dir.."/playerdata/*.json","DATA","nameasc")
+
+for i, file in ipairs(playerFiles) do
+  local steam64 = string.Split(file, ".json")[1]
   local playerData = getPlayerData(steam64)
 
   for i, fnc in ipairs(functionsToRun) do
