@@ -108,17 +108,8 @@ function drawInventory(parent, inventory)
     itemButtonClickable.Paint = function (self, w, h)
       local equipped = false
       
-      if (item.type == 'playerModel' and playerData.activePlayerModel.itemID == itemID) then
-          equipped = true
-      elseif (item.type == 'weapon') then
-        if (playerData.activeMeleeWeapon.itemID == itemID) then
-          equipped = true
-        elseif (playerData.activePrimaryWeapon.itemID == itemID) then
-          equipped = true
-        elseif (playerData.activeSecondaryWeapon.itemID == itemID) then
-          equipped = true
-        end
-      end
+      if table.HasValue(playerData.loadout, itemID) then equipped = true end
+      if playerData.activePlayerModel == itemID then equipped = true end
 
       if (equipped) then
         surface.SetDrawColor(120, 255, 120, 120)

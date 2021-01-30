@@ -242,6 +242,35 @@ function givePlayerError(ply, message)
   error(messageToPrint)
 end
 
+function getPlayerItem(steam64, itemID)
+  if (!steam64 or !itemID) then return end
+
+  local playerData = nil
+
+  if (type(steam64) == "table") then
+    playerData = steam64
+  elseif SERVER then
+    playerData = getPlayerData(steam64)
+  end
+  if !playerData then return nil end
+
+  local item = nil
+  if SERVER then
+    item = playerData.inventory[itemID]
+  elseif CLIENT then
+    local i = 1
+    while (i < table.Count(playerData.inventory)) and item == nil do
+      if playerData.inventory[i].itemID == itemID then
+        item = playerData.inventory[i]
+      end
+      i = i + 1
+    end
+  end
+  if !item then return nil end
+
+  return item
+end
+
 function getItemName(item)
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
   if (!item) then return end

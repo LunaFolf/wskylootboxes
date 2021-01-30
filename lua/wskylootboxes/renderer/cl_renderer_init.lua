@@ -64,7 +64,10 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
   end
   
   
-  local itemIsEquipped = (itemID == playerData.activeMeleeWeapon.itemID) or (itemID == playerData.activePrimaryWeapon.itemID) or (itemID == playerData.activeSecondaryWeapon.itemID) or (itemID == playerData.activePlayerModel.itemID)
+  local itemIsEquipped = false
+
+  if table.HasValue(playerData.loadout, itemID) then itemIsEquipped = true end
+  if playerData.activePlayerModel == itemID then itemIsEquipped = true end
 
   -- Check if Item is a playerModel or weapon
   if (not itemIsEquipped and (item.type == "playerModel" or item.type == "weapon")) then
@@ -73,7 +76,9 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
         net.WriteString(itemID)
         net.WriteTable(pagination.inventory)
       net.SendToServer()
-      if (item.type == "playerModel" and inventoryModelPreview and item.modelName) then  inventoryModelPreview:SetModel(item.modelName) end
+      if (item.type == "playerModel" and inventoryModelPreview and item.modelName) then 
+        inventoryModelPreview:SetModel(item.modelName)
+      end
     end)
     Menu:AddSpacer()
   elseif (itemIsEquipped and (item.type == "playerModel" or item.type == "weapon")) then

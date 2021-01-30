@@ -182,18 +182,6 @@ function getPlayerData(steam64)
   return playerInventoryData
 end
 
-function getPlayerItem(steam64, itemID)
-  if (!steam64 or !itemID) then return end
-
-  local playerData = getPlayerData(steam64)
-  if !playerData then return end
-
-  local item = playerData.inventory[itemID]
-  if !item then return end
-
-  return item
-end
-
 function savePlayerData(steam64, playerData)
   if (!steam64 or !playerData) then return end
 

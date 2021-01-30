@@ -145,8 +145,13 @@ function renderMenu(activeTab)
   viewModelRotationDragger:SetImageVisible(false)
   viewModelRotationDragger.PaintScratchWindow = function () end
 
-  local playerModel = playerData.activePlayerModel.modelName
-  if (string.len(playerModel) < 1) then playerModel = LocalPlayer():GetModel() end
+  local playerModel = LocalPlayer():GetModel()
+  local playerModelItem = getPlayerItem(playerData, playerData.activePlayerModel)
+
+  if playerModelItem && playerModelItem.type == "playerModel" && playerModelItem.modelName then
+    playerModel = playerModelItem.modelName
+  end
+
   inventoryModelPreview:SetModel(playerModel)
   inventoryModelPreview:SetCamPos(Vector(0, 40, 45))
   function inventoryModelPreview.Entity:GetPlayerColor()

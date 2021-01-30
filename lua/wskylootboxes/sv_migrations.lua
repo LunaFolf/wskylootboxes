@@ -35,18 +35,40 @@ local function cleanupActivePlayerModel (playerData)
   local item = playerData.activePlayerModel
   if !item then return playerData end
 
-  item = item.itemID
-  playerData.activePlayerModel = item
+  playerData.activePlayerModel = item.itemID
 
   return playerData
 end
+
+local function cleanupBadItemData (playerData)
+  local inventory = playerData.inventory
+  if !inventory then return end
+
+  local itemIDs = table.GetKeys(inventory)
+
+  for index, itemID in ipairs(itemIDs) do
+    local item = inventory[itemID]
+    if !item then return end
+
+    item.owner = nil
+    item.ownerName = nil
+    item.itemID = nil
+  end
+end
+
+local functionsToRun = {
+  consolidateLoadout,
+  cleanupActivePlayerModel,
+  cleanupBadItemData
+}
 
 for i, ply in ipairs(player.GetAll()) do
   local steam64 = ply:SteamID64()
   local playerData = getPlayerData(steam64)
 
-  playerData = consolidateLoadout(playerData)
-  playerData = cleanupActivePlayerModel(playerData)
+  for i, fnc in ipairs(functionsToRun) do
+    playerData = (fnc(playerData) or playerData)
+  end
 
   savePlayerData(steam64, playerData)
 end
