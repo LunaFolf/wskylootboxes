@@ -19,9 +19,14 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
 
   if (!buyerIsOwner and (!item or (playerData.scrap < item.value))) then return end
 
+  local newItem = table.Copy(item)
+  newItem.owner = nil
+  newItem.ownerName = nil
+  newItem.itemID = nil
+
   local itemID = uuid()
   local itemTable = {
-    [itemID] = item
+    [itemID] = newItem
   }
 
   local tierNum = nil
@@ -30,15 +35,18 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
     if (tier.name == itemTable[itemID].tier) then tierNum = index end
   end
 
+  local baseItem = nil
+
   if (string.StartWith(item.type, "crate_")) then
+    -- overwrite crate values to avoid weird inflation shit
     itemTable[itemID].value = 10
   elseif (item.type == "weapon") then
-    local baseItem = allWeapons[item.className]
-    itemTable[itemID].value = math.Round(valueDepreciationFn() * generateItemValue("weapon", tierNum, baseItem.value))
+    baseItem = allWeapons[item.className]
   elseif (item.type == "playerModel") then
-    local baseItem = playerModels[item.modelName]
-    itemTable[itemID].value = math.Round(valueDepreciationFn() * generateItemValue("playerModel", tierNum, baseItem.value))
+    baseItem = playerModels[item.modelName]
   end
+
+  itemTable[itemID].value = math.Round(valueDepreciationFn() * generateItemValue(item.type, tierNum, baseItem.value))
 
   table.Merge(playerData.inventory, itemTable)
   if (!buyerIsOwner) then playerData.scrap = playerData.scrap - marketItemCost end

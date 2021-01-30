@@ -405,5 +405,7 @@ itemNameOverrides = {
   ["Masterchief2blue"] = "Halo Spartan - Blue",
   ["Spytf2"] = "Spy",
   ["Linktp"] = "Link",
-  ["Fortnite Mandalorian"] = "Mandalorian"
+  ["Fortnite Mandalorian"] = "Mandalorian",
+  ["Shadow_Guard"] = "Shadow Guard",
+  ["Sovereign_Protector"] = "Sovereign Protector"
 }

@@ -106,19 +106,21 @@ concommand.Add("wskylootboxes_debug_allItems", function (ply)
         ["className"] = className,
         ["value"] = weapon.value,
         ["tier"] = "Exotic",
+        ["exoticParticleEffect"] = weaponParticles[math.Round(math.Rand(1, table.Count(weaponParticles)))],
         ["createdAt"] = os.time()
       }
     })
   end
 
   -- Add all playerModels
-  for modelName, model in pairs(playerModels) do
+  for shortName, modelName in pairs(player_manager.AllValidModels()) do
     table.Merge(playerData.inventory, {
       [uuid()] = {
         ["type"] = "playerModel",
         ["modelName"] = modelName,
-        ["value"] = model.value,
+        ["value"] = -1,
         ["tier"] = "Exotic",
+        ["exoticParticleEffect"] = playerModelParticles[math.Round(math.Rand(1, table.Count(playerModelParticles)))],
         ["createdAt"] = os.time()
       }
     })
@@ -126,5 +128,5 @@ concommand.Add("wskylootboxes_debug_allItems", function (ply)
 
   savePlayerData(steam64, playerData)
 
-  PrintTable(playerData)
+  -- PrintTable(playerData)
 end)
