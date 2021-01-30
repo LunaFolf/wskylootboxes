@@ -1,5 +1,7 @@
 if CLIENT then return end
 
+include('sv_migrations.lua')
+
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestPlayerData")
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestMarketData")
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestStoreData")
@@ -178,6 +180,18 @@ function getPlayerData(steam64)
   end
 
   return playerInventoryData
+end
+
+function getPlayerItem(steam64, itemID)
+  if (!steam64 or !itemID) then return end
+
+  local playerData = getPlayerData(steam64)
+  if !playerData then return end
+
+  local item = playerData.inventory[itemID]
+  if !item then return end
+
+  return item
 end
 
 function savePlayerData(steam64, playerData)
