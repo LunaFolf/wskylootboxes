@@ -214,6 +214,19 @@ end
 
 local random = math.random
 
+function byteOfString(string)
+  if !string then return end
+  return string.byte(string, 1, string.len(string))
+end
+
+function sum (...)
+  local args = {...}
+  local sum = 0
+  for i, num in pairs(args) do sum = sum + tonumber(num) end
+
+  return sum
+end
+
 function formatScrap(scrap)
   if (!scrap) then return "0" end
   if type(scrap) == "number" then scrap = tostring(scrap) end

@@ -104,7 +104,7 @@ concommand.Add("wskylootboxes_debug_allItems", function (ply)
       [uuid()] = {
         ["type"] = "weapon",
         ["className"] = className,
-        ["value"] = weapon.value,
+        ["value"] = -1,
         ["tier"] = "Exotic",
         ["exoticParticleEffect"] = weaponParticles[math.Round(math.Rand(1, table.Count(weaponParticles)))],
         ["createdAt"] = os.time()
@@ -113,7 +113,7 @@ concommand.Add("wskylootboxes_debug_allItems", function (ply)
   end
 
   -- Add all playerModels
-  for shortName, modelName in pairs(player_manager.AllValidModels()) do
+  for modelName, model in pairs(playerModels) do
     table.Merge(playerData.inventory, {
       [uuid()] = {
         ["type"] = "playerModel",
@@ -124,6 +124,56 @@ concommand.Add("wskylootboxes_debug_allItems", function (ply)
         ["createdAt"] = os.time()
       }
     })
+  end
+
+
+  savePlayerData(steam64, playerData)
+
+  -- PrintTable(playerData)
+end)
+
+concommand.Add("wskylootboxes_debug_allItemsNotInLootboxes", function (ply)
+  if (!ply) then return end
+  local steam64 = ply:SteamID64()
+  local playerData = getPlayerData(steam64)
+
+  if (table.Count(table.GetKeys(playerData.inventory)) > 0) then
+    playerData.inventory = {}
+  end
+
+  -- Add all weapons
+  local allWeaponsKeys = table.GetKeys(allWeapons)
+  for i, weapon in ipairs(weapons.GetList()) do
+    local weaponIsInTable = table.HasValue(allWeaponsKeys, weapon.ClassName)
+    if !weapon then
+      table.Merge(playerData.inventory, {
+        [uuid()] = {
+          ["type"] = "weapon",
+          ["className"] = weapon.ClassName,
+          ["value"] = -1,
+          ["tier"] = "Exotic",
+          ["exoticParticleEffect"] = weaponParticles[math.Round(math.Rand(1, table.Count(weaponParticles)))],
+          ["createdAt"] = os.time()
+        }
+      })
+    end
+  end
+
+  -- Add all playerModels
+  local playerModelsKeys = table.GetKeys(playerModels)
+  for shortName, modelName in pairs(player_manager.AllValidModels()) do
+    if !table.HasValue(playerModelsKeys, modelName) then
+      table.Merge(playerData.inventory, {
+        [uuid()] = {
+          ["type"] = "playerModel",
+          ["modelName"] = modelName,
+          ["value"] = -1,
+          ["tier"] = "Exotic",
+          ["exoticParticleEffect"] = playerModelParticles[math.Round(math.Rand(1, table.Count(playerModelParticles)))],
+          ["createdAt"] = os.time()
+        }
+      })
+    end
   end
 
   savePlayerData(steam64, playerData)

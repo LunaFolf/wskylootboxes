@@ -40,6 +40,9 @@ function getPaginated(tableData, currentPage, sort, steam64)
           end
 
           if aTierNum == bTierNum then
+            if a.value == b.value then
+              return sum(byteOfString(a.className or a.modelName)) < sum(byteOfString(b.className or b.modelName))
+            end
             return a.value > b.value
           end
         return aTierNum > bTierNum
@@ -79,7 +82,7 @@ end
 
 function getLeaderboardData()
   local playerFiles, _ = file.Find(dir.."/playerdata/*.json","DATA","nameasc")
-  
+
   local mostScrap = nil
 
   for i, file in ipairs(playerFiles) do
@@ -172,7 +175,7 @@ function saveMarketData(marketData)
   if (!marketData) then return end
   local fileName = dir .. "/market.json"
   checkAndCreateDir(dir)
-  
+
   file.Write(fileName, util.TableToJSON(marketData))
 end
 
@@ -199,7 +202,7 @@ function savePlayerData(steam64, playerData)
 
   local fileName = dir .. "/playerdata/" .. steam64 .. ".json"
   checkAndCreateDir(dir .. "/playerdata")
-  
+
   file.Write(fileName, util.TableToJSON(playerData))
 end
 
@@ -249,7 +252,7 @@ function sendPlayerData(ply, currentPage, totalPages, data, openMenu)
   if (!ply or !data) then return end
 
   currentPage, totalPages = currentPage or 1, totalPages or 1
-  if currentPage > totalPages then currentPage = totalPages end 
+  if currentPage > totalPages then currentPage = totalPages end
 
   whichTab = nil
 

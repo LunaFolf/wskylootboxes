@@ -93,10 +93,18 @@ function drawInventory(parent, inventory)
       end
       draw.SimpleText(itemName, "WskyFontSmaller", padding, padding, color)
       if (item.type == "weapon") then
-        draw.SimpleText(getWeaponCategory(item.className) .. " weapon", "WskyFontSmaller", padding, textHeight + padding)
+        local text = "Slot "
+        local category = getWeaponCategory(item.className)
+        if category == "primary" then text = text.."2"
+        elseif category == "secondary" then text = text.."3"
+        elseif category == "melee" then text = text.."1"
+        else text = "Unkown weapon type... if you see this, you should probably tell Whiskee." end
+        draw.SimpleText(text, "WskyFontSmaller", padding, textHeight + padding)
       end
       if (item.tier == "Exotic") then
-        draw.SimpleText(item.exoticParticleEffect, "WskyFontSmaller", textWidth + (padding * 2), padding)
+        local text = effectsNameNice[item.exoticParticleEffect]
+        local textWidth, textHeight = surface.GetTextSize(text)
+        draw.SimpleText(text, "WskyFontSmaller", itemInfoPanel:GetWide() - (textWidth + padding), padding, Color(255, 255, 255, 125))
       end
     end
 
@@ -107,7 +115,7 @@ function drawInventory(parent, inventory)
     itemButtonClickable:SetMouseInputEnabled(true)
     itemButtonClickable.Paint = function (self, w, h)
       local equipped = false
-      
+
       if table.HasValue(playerData.loadout, itemID) then equipped = true end
       if playerData.activePlayerModel == itemID then equipped = true end
 
