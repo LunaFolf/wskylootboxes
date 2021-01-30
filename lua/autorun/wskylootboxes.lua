@@ -22,6 +22,19 @@ weaponParticles = {
   "unusual_nether_sparkles_pink"
 }
 
+effectsNameNice = {
+  ["unusual_mystery_parent"] = "Mysterious",
+  ["unusual_mystery_parent_green"] = "Mysterious",
+  ["unusual_invasion_abduction"] = "Abduction",
+  ["unusual_invasion_codex"] = "Matrix",
+  ["unusual_invasion_codex_2"] = "Matrix",
+  ["unusual_eldritch_flames_orange"] = "Eldritch Beast",
+  ["unusual_eldritch_flames_purple"] = "Eldritch Beast",
+  ["unusual_hw_deathbydisco_parent"] = "Death by Disco",
+  ["unusual_nether_sparkles_blue"] = "Blue Sparkles",
+  ["unusual_nether_sparkles_pink"] = "Pink Sparkles",
+}
+
 particles = {}
 table.Merge(particles, playerModelParticles)
 table.Merge(particles, weaponParticles)

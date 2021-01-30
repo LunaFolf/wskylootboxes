@@ -12,36 +12,22 @@ hook.Add("PlayerSpawn", "WskyTTTLootboxes_GiveActiveWeapons", function (ply)
   table.RemoveByValue(playersInSpectateMode, steam64)
 
   local playerData = getPlayerData(steam64)
-  local primaryWeapon, secondaryWeapon, meleeWeapon = playerData.activePrimaryWeapon, playerData.activeSecondaryWeapon, playerData.activeMeleeWeapon 
 
-  if (primaryWeapon and primaryWeapon.className ~= "") then
-    local weapon = ply:Give(primaryWeapon.className)
-    weapon:SetNWString("exoticParticleEffect", primaryWeapon.exoticParticleEffect)
+  for i, itemID in ipairs(playerData.loadout) do
+    local item = getPlayerItem(playerData, itemID)
+    if !item then return end
+
+    local itemCategory = getWeaponCategory(item.className)
+
+    local weapon = ply:Give(item.className)
+    weapon:SetNWString("exoticParticleEffect", item.exoticParticleEffect)
     net.Start("WskyTTTLootboxes_ClientsideUpdateWeaponName")
-      net.WriteTable(primaryWeapon)
-      net.WriteString(weapon.ClassName)
-    net.Send(ply)
-  end
-  
-  if (secondaryWeapon and secondaryWeapon.className ~= "") then
-    local weapon = ply:Give(secondaryWeapon.className)
-    weapon:SetNWString("exoticParticleEffect", secondaryWeapon.exoticParticleEffect)
-    net.Start("WskyTTTLootboxes_ClientsideUpdateWeaponName")
-      net.WriteTable(secondaryWeapon)
-      net.WriteString(weapon.ClassName)
-    net.Send(ply)
-  end
-  
-  if (meleeWeapon and meleeWeapon.className ~= "") then
-    local weapon = ply:Give(meleeWeapon.className)
-    weapon:SetNWString("exoticParticleEffect", meleeWeapon.exoticParticleEffect)
-    net.Start("WskyTTTLootboxes_ClientsideUpdateWeaponName")
-      net.WriteTable(meleeWeapon)
-      net.WriteString(weapon.ClassName)
+      net.WriteTable(item)
+      net.WriteString(item.className)
     net.Send(ply)
   end
 
-  timer.Simple(2, function ()
+  timer.Simple(0.2, function ()
     SetPlayerModel(ply)
   end)
 end)
@@ -80,7 +66,7 @@ hook.Add("PlayerDeath", "WskyTTTLootboxes_PlayerDeathMessage", function (victim,
 
   local fallback = "#NOCUSTOM#"
 
-  if wep:IsValid() then 
+  if wep:IsValid() then
     local customWeaponName = wep:GetNWString("customName", fallback)
     if customWeaponName == fallback then weaponNameIsClass = true end
     weaponName = (customWeaponName ~= fallback and customWeaponName or wep:GetClass())

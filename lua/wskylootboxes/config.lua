@@ -155,6 +155,48 @@ playerModels = {
   ["models/player/genshin_impact_albedo.mdl"] = {
     ["value"] = 115
   },
+  ["models/player/genshin_impact_tartaglia.mdl"] = {
+    ["value"] = 115
+  },
+  ["models/player/genshin_impact_chongyun.mdl"] = {
+    ["value"] = 105
+  },
+  ["models/player/genshin_impact_ningguang.mdl"] = {
+    ["value"] = 100
+  },
+  ["models/player/genshin_impact_xinyan.mdl"] = {
+    ["value"] = 102
+  },
+  ["models/player/security_suit.mdl"] = {
+    ["value"] = 125
+  },
+  ["models/player/genshin_impact_sucrose.mdl"] = {
+    ["value"] = 98
+  },
+  ["models/rosaria/genshin_impact/rstar/rosaria/rosaria.mdl"] = {
+    ["value"] = 102
+  },
+  ["models/player/genshin_impact_xiao.mdl"] = {
+    ["value"] = 104
+  },
+  ["models/player/subzero.mdl"] = {
+    ["value"] = 80
+  },
+  ["models/player/sono/starwars/clean_trooper.mdl"] = {
+    ["value"] = 122
+  },
+  ["models/player/sono/starwars/commander_clone.mdl"] = {
+    ["value"] = 132
+  },
+  ["models/player/anon/anon.mdl"] = {
+    ["value"] = 100
+  },
+  ["models/player/scorpion.mdl"] = {
+    ["value"] = 111
+  },
+  ["models/player/faith.mdl"] = {
+    ["value"] = 90
+  },
   ["models/player/drpyspy/spy.mdl"] = {
     ["value"] = 115
   },
@@ -195,6 +237,9 @@ playerModels = {
     ["value"] = 150
   },
   ["models/player/genshin_impact_aether.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/genshin_impact_ganyu.mdl"] = {
     ["value"] = 150
   },
   ["models/Barbara/genshin_impact/rstar/Barbara/Barbara.mdl"] = {
@@ -405,5 +450,7 @@ itemNameOverrides = {
   ["Masterchief2blue"] = "Halo Spartan - Blue",
   ["Spytf2"] = "Spy",
   ["Linktp"] = "Link",
-  ["Fortnite Mandalorian"] = "Mandalorian"
+  ["Fortnite Mandalorian"] = "Mandalorian",
+  ["Shadow_Guard"] = "Shadow Guard",
+  ["Sovereign_Protector"] = "Sovereign Protector"
 }

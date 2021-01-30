@@ -21,7 +21,7 @@ if CLIENT then
     r = r or GetConVar("wskylootboxes_menucolor_red"):GetFloat()
     g = g or GetConVar("wskylootboxes_menucolor_green"):GetFloat()
     b = b or GetConVar("wskylootboxes_menucolor_blue"):GetFloat()
-    
+
     mainMenuColor = Color(r, g, b, 255)
   end
 
@@ -82,8 +82,9 @@ if CLIENT then
 
       if scrap then
         surface.SetFont("WskyFontSmaller")
-        local scrapWidth, scrapHeight = surface.GetTextSize("Scrap: " .. scrap)
-        draw.SimpleText("Scrap: " .. scrap, "WskyFontSmaller", (w - 38) - scrapWidth - 6, (36 - scrapHeight) / 2)
+        local scrapText = ("Scrap: " .. formatScrap(scrap))
+        local scrapWidth, scrapHeight = surface.GetTextSize(scrapText)
+        draw.SimpleText(scrapText, "WskyFontSmaller", (w - 38) - scrapWidth - 6, (36 - scrapHeight) / 2)
       end
     end
     Frame:MakePopup()
@@ -165,15 +166,30 @@ if SERVER then
     local steam64 = ply:SteamID64()
     local playerData = getPlayerData(steam64)
 
-    local playerModel = playerData.activePlayerModel.modelName
-    local exoticEffect = playerData.activePlayerModel.exoticParticleEffect
+    local playerModel = ""
+    local exoticEffect = nil
+    if playerModel then
+      local playerModelItem = getPlayerItem(playerData, playerData.activePlayerModel)
+      if playerModelItem and playerModelItem.modelName then
+        playerModel = playerModelItem.modelName
+        exoticEffect = playerModelItem.exoticParticleEffect
+      end
+    end
     local hasCustomModel = string.len(playerModel) > 0
 
     if (ply:IsBot() and not hasCustomModel) then
       local modelKeys = table.GetKeys(playerModels)
       local modelCount = table.Count(playerModels)
       local modelNum = math.Round(math.Rand(1, modelCount))
-      playerData.activePlayerModel.modelName = modelKeys[modelNum]
+      local newItemID = uuid()
+      playerData.activePlayerModel = newItemID
+
+      table.Merge(playerData.inventory, {
+        [newItemID] = {
+          ["modelName"] = modelKeys[modelNum],
+          ["createdAt"] = os.time()
+        }
+      })
 
       savePlayerData(steam64, playerData)
       needToUpdateModel = true
@@ -181,7 +197,7 @@ if SERVER then
 
     local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
     local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
-    
+
     if (needToUpdateModel) then
       ply:SetModel(playerModel)
       clearParticlesOnPlayer(ply)
@@ -197,6 +213,19 @@ if SERVER then
 end
 
 local random = math.random
+
+function byteOfString(string)
+  if !string then return end
+  return string.byte(string, 1, string.len(string))
+end
+
+function sum (...)
+  local args = {...}
+  local sum = 0
+  for i, num in pairs(args) do sum = sum + tonumber(num) end
+
+  return sum
+end
 
 function formatScrap(scrap)
   if (!scrap) then return "0" end
@@ -242,10 +271,39 @@ function givePlayerError(ply, message)
   error(messageToPrint)
 end
 
+function getPlayerItem(steam64, itemID)
+  if (!steam64 or !itemID) then return end
+
+  local playerData = nil
+
+  if (type(steam64) == "table") then
+    playerData = steam64
+  elseif SERVER then
+    playerData = getPlayerData(steam64)
+  end
+  if !playerData then return nil end
+
+  local item = nil
+  if SERVER then
+    item = playerData.inventory[itemID]
+  elseif CLIENT then
+    local i = 1
+    while (i <= table.Count(playerData.inventory)) and item == nil do
+      if playerData.inventory[i].itemID == itemID then
+        item = playerData.inventory[i]
+      end
+      i = i + 1
+    end
+  end
+  if !item then return nil end
+
+  return item
+end
+
 function getItemName(item)
   if (!TryTranslation) then TryTranslation = LANG and LANG.TryTranslation or nil end
   if (!item) then return end
-  
+
   if (item.customName) then return item.customName end
 
   local chosenName = nil

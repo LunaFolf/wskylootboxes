@@ -13,30 +13,15 @@ function unEquipItem(playerData, itemID)
 
   if (!item) then 
     givePlayerError(ply)
+    return
   end
 
   if (item.type == "weapon") then
-    local weaponCategory = getWeaponCategory(item.className)
-    local unsetWeaponTable = {
-      ["itemID"] = "",
-      ["className"] = ""
-    }
-
-    if (weaponCategory == "primary" and playerData.activePrimaryWeapon.itemID == itemID) then
-      playerData.activePrimaryWeapon = unsetWeaponTable
-    elseif (weaponCategory == "secondary" and playerData.activeSecondaryWeapon.itemID == itemID) then
-      playerData.activeSecondaryWeapon = unsetWeaponTable
-    elseif (weaponCategory == "melee" and playerData.activeMeleeWeapon.itemID == itemID) then
-      playerData.activeMeleeWeapon = unsetWeaponTable
-    end
+    table.RemoveByValue(playerData.loadout, itemID)
   end
 
-  if (item.type == "playerModel" and playerData.activePlayerModel.itemID == itemID) then
-    local unsetPlayerModelTable = {
-      ["itemID"] = "",
-      ["modelName"] = GAMEMODE.playermodel or "models/player/phoenix.mdl"
-    }
-    playerData.activePlayerModel = unsetPlayerModelTable
+  if (item.type == "playerModel" and playerData.activePlayerModel == itemID) then
+    playerData.activePlayerModel = ""
   end
 
   return playerData
@@ -180,8 +165,7 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
       return
     end
 
-    playerData.activePlayerModel = item
-    playerData.activePlayerModel.itemID = itemID
+    playerData.activePlayerModel = itemID
   end
 
   if (item.type == "weapon") then
@@ -190,18 +174,18 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
       return
     end
 
-    local weaponCategory = getWeaponCategory(item.className)
+    local newItemCat = getWeaponCategory(item.className)
+    local loadout = playerData.loadout
 
-    if(weaponCategory == "primary") then
-      playerData.activePrimaryWeapon = item
-      playerData.activePrimaryWeapon.itemID = itemID
-    elseif(weaponCategory == "secondary") then
-      playerData.activeSecondaryWeapon = item
-      playerData.activeSecondaryWeapon.itemID = itemID
-    elseif(weaponCategory == "melee") then
-      playerData.activeMeleeWeapon = item
-      playerData.activeMeleeWeapon.itemID = itemID
+    for i, equippedItemID in ipairs(loadout) do
+      local equippedItem = getPlayerItem(playerData, equippedItemID)
+      local equippedItemCat = getWeaponCategory(equippedItem.className)
+      if equippedItemCat == newItemCat then table.remove(loadout, i) end
     end
+
+    table.insert(loadout, itemID)
+    playerData.loadout = loadout
+
   end
 
   savePlayerData(steam64, playerData)
