@@ -11,7 +11,7 @@ util.AddNetworkString("WskyTTTLootboxes_SetEntityCustomName")
 function unEquipItem(playerData, itemID)
   local item = playerData.inventory[itemID]
 
-  if (!item) then 
+  if (!item) then
     givePlayerError(ply)
     return
   end
@@ -89,7 +89,7 @@ net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
 
   unEquipItem(playerData, itemID)
 
-  playerData.scrap = playerData.scrap + playerData.inventory[itemID].value
+  playerData = updatePlayerScrap(steam64, playerData.scrap + playerData.inventory[itemID].value)
   playerData.inventory[itemID] = nil
 
   savePlayerData(steam64, playerData)

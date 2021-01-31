@@ -407,3 +407,21 @@ function darken (color, multiplier)
 end
 
 lighten = darken
+
+function generateWeaponTier()
+  local tierCounts = table.Count(weaponTiers)
+  local min, max = 0, weaponTiers[tierCounts].multiplier
+  local tierNum = math.Round(math.Rand(min, max), 4)
+  local chosenTier = "Common"
+  local chosenTierNum = 1
+
+  for i, tier in ipairs(table.Reverse(weaponTiers)) do
+    print(tier.name, (i - (tierCounts + 1)) * -1)
+    if tierNum <= tier.multiplier then
+      chosenTier = tier.name
+      chosenTierNum = (i - (tierCounts + 1)) * -1
+    end
+  end
+
+  return chosenTier, chosenTierNum
+end

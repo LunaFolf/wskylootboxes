@@ -124,6 +124,6 @@ concommand.Add("wskylootboxes_scrap", function (ply, cmd, args, argStr)
 
     print(action.." "..player:Nick().."'s scrap to "..formatScrap(playerData.scrap))
 
-    savePlayerData(steam64, playerData)
+    updatePlayerScrap(steam64, playerData.scrap)
   end
 end, autoComplete)

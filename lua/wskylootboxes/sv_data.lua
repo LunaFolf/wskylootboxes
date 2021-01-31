@@ -8,6 +8,8 @@ util.AddNetworkString("WskyTTTLootboxes_ClientRequestStoreData")
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestLeaderboardData")
 util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
 
+util.AddNetworkString("WskyTTTLootboxes_ClientsideNotifyScrap")
+
 dir = "wsky/Lootboxes"
 
 local paginationPerPageLimit = 9
@@ -204,6 +206,29 @@ function savePlayerData(steam64, playerData)
   checkAndCreateDir(dir .. "/playerdata")
 
   file.Write(fileName, util.TableToJSON(playerData))
+end
+
+function updatePlayerScrap(steam64, newScrapValue)
+  if !steam64 and !newScrapValue then return end
+
+  local playerData = getPlayerData(steam64)
+  local oldScrapValue = table.Copy(playerData).scrap
+
+  if type(newScrapValue) == "string" then newScrapValue = tonumber(newScrapValue) end
+
+  playerData.scrap = newScrapValue
+
+  savePlayerData(steam64, playerData)
+
+  local ply = player.GetBySteamID64(steam64)
+  if !ply then return end
+
+  net.Start("WskyTTTLootboxes_ClientsideNotifyScrap")
+    net.WriteFloat(oldScrapValue)
+    net.WriteFloat(newScrapValue)
+  net.Send(ply)
+
+  return playerData
 end
 
 function sendClientFreshPlayerData(player, currentPage, playerData, openMenu)

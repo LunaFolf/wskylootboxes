@@ -49,14 +49,18 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
   itemTable[itemID].value = math.Round(valueDepreciationFn() * generateItemValue(item.type, tierNum, baseItem.value))
 
   table.Merge(playerData.inventory, itemTable)
-  if (!buyerIsOwner) then playerData.scrap = playerData.scrap - marketItemCost end
+  if (!buyerIsOwner) then
+    playerData = updatePlayerScrap(steam64, playerData.scrap - marketItemCost)
+  end
   table.remove(marketData.items, marketItemID)
   savePlayerData(steam64, playerData)
   saveMarketData(marketData)
 
   local owner = player.GetBySteamID64(item.owner)
   local ownerPlayerData = getPlayerData(item.owner)
-  if (!buyerIsOwner) then ownerPlayerData.scrap = ownerPlayerData.scrap + marketItemCost end
+  if (!buyerIsOwner) then
+    ownerPlayerData = updatePlayerScrap(item.owner, ownerPlayerData.scrap + marketItemCost)
+  end
   savePlayerData(item.owner, ownerPlayerData)
 
   sendClientFreshPlayerData(ply, nil, playerData)
@@ -73,7 +77,7 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_ClientsideWinItem")
-    net.WriteString(itemTable[itemID].tier == "Exotic" and "wsky_lootboxes/partyblower.mp3" or "wsky_lootboxes/item.ogg")
+    net.WriteString(itemTable[itemID].tier == "Exotic" and "wsky_lootboxes/confetti.wav" or "wsky_lootboxes/purchase.wav")
     net.WriteTable(itemTable[itemID])
     net.WriteBool(false)
   net.Send(ply)

@@ -358,23 +358,23 @@ table.Merge(allWeapons, secondaryWeapons)
 table.Merge(allWeapons, meleeWeapons)
 
 weaponTiers = {
-  [1] = {
+  {
     ["name"] = "Common",
-    ["multiplier"] = 1
+    ["multiplier"] = 0.65
   },
-  [2] = {
+  {
     ["name"] = "Uncommon",
     ["multiplier"] = 1.25
   },
-  [3] = {
+  {
     ["name"] = "Rare",
     ["multiplier"] = 1.5
   },
-  [4] = {
+  {
     ["name"] = "Legendary",
     ["multiplier"] = 1.75
   },
-  [5] = {
+  {
     ["name"] = "Exotic",
     ["multiplier"] = 2
   }

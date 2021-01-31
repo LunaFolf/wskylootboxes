@@ -22,7 +22,8 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
   local itemTable = {
     [itemID] = item
   }
-  playerData.scrap = playerData.scrap - item.value
+
+  playerData = updatePlayerScrap(steam64, playerData.scrap - item.value)
 
   itemTable[itemID].value = math.floor(itemTable[itemID].value * 0.75)
 
@@ -37,6 +38,6 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
   net.Send(ply)
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
-    net.WriteString("wsky_lootboxes/item.ogg")
+    net.WriteString("wsky_lootboxes/purchase.wav")
   net.Send(ply)
 end)
