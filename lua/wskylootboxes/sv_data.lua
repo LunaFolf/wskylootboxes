@@ -1,7 +1,5 @@
 if CLIENT then return end
 
-include('sv_migrations.lua')
-
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestPlayerData")
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestMarketData")
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestStoreData")
@@ -110,6 +108,7 @@ end
 
 function getStarterPlayerData(steam64)
   local defaultPlayerData = {
+    ["role"] = "player",
     ["activePlayerModel"] = "",
     ["loadout"] = {},
     ["scrap"] = 100,

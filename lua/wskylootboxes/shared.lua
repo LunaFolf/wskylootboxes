@@ -316,6 +316,7 @@ function getItemName(item)
     if (crateType == "weapon") then chosenName = "Weapon Crate"
     elseif (crateType == "playerModel") then chosenName = "Player Model Crate"
     elseif (crateType == "any") then chosenName = "Random Crate"
+    elseif (crateType == "vip") then chosenName = "V.I.P Crate"
     else chosenName = "Unknown Crate" end
   end
 
@@ -360,6 +361,8 @@ function getItemPreview(item)
       crateIcon = "vgui/ttt/wsky/icon_crate_weapon.png"
     elseif (crateType == "playerModel") then
       crateIcon = "vgui/ttt/wsky/icon_crate_playerModel.png"
+    elseif (crateType == "vip") then
+      crateIcon = "vgui/ttt/wsky/icon_crate_vip.png"
     end
 
     return {
@@ -416,7 +419,6 @@ function generateWeaponTier()
   local chosenTierNum = 1
 
   for i, tier in ipairs(table.Reverse(weaponTiers)) do
-    print(tier.name, (i - (tierCounts + 1)) * -1)
     if tierNum <= tier.multiplier then
       chosenTier = tier.name
       chosenTierNum = (i - (tierCounts + 1)) * -1
@@ -424,4 +426,11 @@ function generateWeaponTier()
   end
 
   return chosenTier, chosenTierNum
+end
+
+function checkPlayerRole (playerRole, requiredRole)
+  local playerRoleIndex = table.KeyFromValue(roles, playerRole)
+  local requiredRoleIndex = table.KeyFromValue(roles, requiredRole)
+
+  return playerRoleIndex >= requiredRoleIndex
 end

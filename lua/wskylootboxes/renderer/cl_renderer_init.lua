@@ -62,8 +62,8 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     end)
     Menu:AddSpacer()
   end
-  
-  
+
+
   local itemIsEquipped = false
 
   if table.HasValue(playerData.loadout, itemID) then itemIsEquipped = true end

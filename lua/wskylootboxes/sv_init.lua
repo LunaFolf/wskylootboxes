@@ -22,6 +22,9 @@ include('shared.lua')
 
 include('sv_downloads.lua')
 
+include('sv_migrations.lua')
+include('sv_cron.lua')
+
 include('sv_data.lua')
 include('sv_crates.lua')
 include('sv_commands.lua')

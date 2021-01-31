@@ -54,12 +54,22 @@ local function cleanupBadItemData (playerData)
     item.ownerName = nil
     item.itemID = nil
   end
+
+  return playerData
+end
+
+local function giveRoleIfMissingOrInvalid (playerData)
+  if !playerData.role then playerData.role = roles[1] end
+  if !table.HasValue(roles, playerData.role) then playerData.role = roles[1] end
+
+  return playerData
 end
 
 local functionsToRun = {
   consolidateLoadout,
   cleanupActivePlayerModel,
-  cleanupBadItemData
+  cleanupBadItemData,
+  giveRoleIfMissingOrInvalid
 }
 
 local playerFiles, _ = file.Find(dir.."/playerdata/*.json","DATA","nameasc")
@@ -69,7 +79,7 @@ for i, file in ipairs(playerFiles) do
   local playerData = getPlayerData(steam64)
 
   for i, fnc in ipairs(functionsToRun) do
-    playerData = (fnc(playerData) or playerData)
+    playerData = (fnc(table.Copy(playerData)) or playerData)
   end
 
   savePlayerData(steam64, playerData)

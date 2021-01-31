@@ -51,6 +51,18 @@ local function autoComplete(cmd, argStr)
     end
   end
 
+  if (string.StartWith(cmd, "wskylootboxes_role")) then
+    if curArgIndex == 1 then
+      for k, v in ipairs(findPlayers(curArgValue)) do
+        table.insert(returnTable, fullString .. ("\"" .. v:Nick() .. "\""))
+      end
+    elseif curArgIndex == 2 then
+      for k, v in ipairs(roles) do
+        table.insert(returnTable, fullString..v)
+      end
+    end
+  end
+
   return returnTable
 end
 
@@ -126,4 +138,61 @@ concommand.Add("wskylootboxes_scrap", function (ply, cmd, args, argStr)
 
     updatePlayerScrap(steam64, playerData.scrap)
   end
+end, autoComplete)
+
+concommand.Add("wskylootboxes_role", function (ply, cmd, args, argStr)
+  local playerName = args[1]
+  local roleName = args[2]
+
+  if !roleName or !playerName then
+    print("Role or Player missing.")
+    return
+  end
+  if !table.HasValue(roles, roleName) then
+    print("The role \""..roleName.."\" doesn't exist.")
+    return
+  end
+
+  local players = findPlayers(playerName)
+  local playerCount = table.Count(players)
+
+  if playerCount > 1 then
+    print("More than 1 player found! Refusing command.")
+  elseif playerCount < 1 then
+    print("No user found.")
+  end
+
+  for k, player in ipairs(players) do
+    local steam64 = player:SteamID64()
+    local playerData = getPlayerData(steam64)
+
+    print("Setting "..ply:Nick().."'s role to: "..roleName)
+
+    playerData.role = roleName
+
+    savePlayerData(steam64, playerData)
+  end
+end, autoComplete)
+
+concommand.Add("wskylootboxes_roleSteam64", function (ply, cmd, args, argStr)
+  local steam64 = args[1]
+  local roleName = args[2]
+
+  if !roleName or !steam64 then
+    print("Steam64 or Player missing.")
+    return
+  end
+  if !table.HasValue(roles, roleName) then
+    print("The role \""..roleName.."\" doesn't exist.")
+    return
+  end
+
+  local playerData = getPlayerData(steam64)
+  if !playerData then
+    print("Unable to find playerData for that steam64.")
+    return
+  end
+  playerData.role = roleName
+
+  savePlayerData(steam64, playerData)
 end, autoComplete)
