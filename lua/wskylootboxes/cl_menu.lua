@@ -93,10 +93,34 @@ function renderMenu(activeTab)
     draw.SimpleText(currentPage, "WskyFontSmaller", w / 2, h / 2, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
   end
 
+  local paginationButtonWidth = math.max(100, footerPanel:GetWide() / 6)
+
+  local pageFirstButton = vgui.Create("DButton", footerPanel)
+  pageFirstButton:Dock(LEFT)
+  pageFirstButton:SetText("")
+  pageFirstButton:SetWidth(footerSize)
+  pageFirstButton.Paint = function (self, w, h)
+    local lastPage = pagination[activeTab].currentPage <= 1
+    local color = mainMenuColor
+    local textColor = Color(255, 255, 255, 255)
+    if lastPage then
+      color = darken(mainMenuColor, 0.75)
+      textColor.a = 125
+    end
+    draw.RoundedBox(0, 0, 0, w, h, color)
+    draw.SimpleText("<<", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+  end
+  pageFirstButton.DoClick = function ()
+    if (pagination[activeTab].currentPage <= 1) then return end
+    pagination[activeTab].currentPage = 1
+    paginationRequestData(activeTab)
+  end
+
   local pageBackButton = vgui.Create("DButton", footerPanel)
   pageBackButton:Dock(LEFT)
+  pageBackButton:DockMargin(padding, 0, 0, 0)
   pageBackButton:SetText("")
-  pageBackButton:SetWidth(math.max(100, footerPanel:GetWide() / 6))
+  pageBackButton:SetWidth(paginationButtonWidth * 0.75)
   pageBackButton.Paint = function (self, w, h)
     local lastPage = pagination[activeTab].currentPage <= 1
     local color = mainMenuColor
@@ -114,10 +138,32 @@ function renderMenu(activeTab)
     paginationRequestData(activeTab)
   end
 
+  local pageLastButton = vgui.Create("DButton", footerPanel)
+  pageLastButton:Dock(RIGHT)
+  pageLastButton:SetText("")
+  pageLastButton:SetWidth(footerSize)
+  pageLastButton.Paint = function (self, w, h)
+    local lastPage = pagination[activeTab].currentPage >= pagination[activeTab].totalPages
+    local color = mainMenuColor
+    local textColor = Color(255, 255, 255, 255)
+    if lastPage then
+      color = darken(mainMenuColor, 0.75)
+      textColor.a = 125
+    end
+    draw.RoundedBox(0, 0, 0, w, h, color)
+    draw.SimpleText(">>", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+  end
+  pageLastButton.DoClick = function ()
+    if (pagination[activeTab].currentPage >= pagination[activeTab].totalPages) then return end
+    pagination[activeTab].currentPage = pagination[activeTab].totalPages
+    paginationRequestData(activeTab)
+  end
+
   local pageNextButton = vgui.Create("DButton", footerPanel)
   pageNextButton:Dock(RIGHT)
   pageNextButton:SetText("")
-  pageNextButton:SetWidth(math.max(100, footerPanel:GetWide() / 6))
+  pageNextButton:DockMargin(0, 0, padding, 0)
+  pageNextButton:SetWidth(paginationButtonWidth * 0.75)
   pageNextButton.Paint = function (self, w, h)
     local lastPage = pagination[activeTab].currentPage >= pagination[activeTab].totalPages
     local color = mainMenuColor

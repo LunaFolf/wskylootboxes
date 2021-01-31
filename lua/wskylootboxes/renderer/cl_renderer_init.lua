@@ -93,14 +93,13 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
   end
 
   if (item.type == "weapon") then
-    local name = nil
     Menu:AddOption("Rename Weapon (200 scrap)", function ()
         local questionPanel = vgui.Create("DFrame")
         questionPanel:MakePopup()
         questionPanel:SetSize( 400, 200 )
         questionPanel:Center()
 
-        function renameItem()
+        function renameItem(name)
           if (name and string.len(name) > 0 and string.len(name) < 50) then
             net.Start("WskyTTTLootboxes_RenameItem")
               net.WriteString(itemID)
@@ -114,20 +113,16 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
         valueEntry:Dock(TOP)
         valueEntry:SetPlaceholderText("Enter your weapon's new name!")
         valueEntry.OnEnter = function( self )
-          name = self:GetValue()
+          renameItem(self:GetValue())
           questionPanel:Close()
-
-          renameItem()
         end
 
         local continueBtn = vgui.Create("DButton", questionPanel)
         continueBtn:Dock(BOTTOM)
         continueBtn:SetText("Continue")
         continueBtn.DoClick = function ()
-          name = valueEntry:GetValue()
+          renameItem(valueEntry:GetValue())
           questionPanel:Close()
-
-          renameItem()
         end
       end)
       Menu:AddSpacer()

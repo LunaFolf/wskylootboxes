@@ -195,7 +195,7 @@ function getPlayerData(steam64)
     playerInventoryData = util.JSONToTable(fileOutput)
   end
 
-  return playerInventoryData
+  return table.Copy(playerInventoryData)
 end
 
 function savePlayerData(steam64, playerData)

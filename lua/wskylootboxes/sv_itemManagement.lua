@@ -117,14 +117,18 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
     return
   end
 
+  PrintTable(playerData.inventory)
+  print(itemID, playerData.inventory[itemID])
+
   if (playerData.scrap < 200) then return end
 
-  playerData.inventory[itemID].customName = newItemName
-  playerData.scrap = playerData.scrap - 200
+  playerData = updatePlayerScrap(steam64, playerData.scrap - 200)
 
+  playerData.inventory[itemID].customName = newItemName
   savePlayerData(steam64, playerData)
 
-  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
+
+  sendClientFreshPlayerData(ply, pagination.currentPage, table.Copy(playerData))
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/content_downloaded.wav")
@@ -133,6 +137,9 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
     net.WriteString("inventory")
   net.Send(ply)
+
+  PrintTable(playerData.inventory)
+  print(itemID, playerData.inventory[itemID])
 
   net.Start("WskyTTTLootboxes_ClientsideUpdateWeaponName")
     net.WriteTable(playerData.inventory[itemID])

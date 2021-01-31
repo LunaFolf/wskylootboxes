@@ -50,6 +50,7 @@ function drawSettings(parent)
 
   local UIColorMixer = vgui.Create("DColorMixer", settingsPanel)
   UIColorMixer:DockMargin(padding * 4, margin, padding * 4, margin)
+  UIColorMixer:SetSize(150, 150)
   UIColorMixer:Dock(TOP)
   UIColorMixer:SetPalette(true)
   UIColorMixer:SetAlphaBar(false)
@@ -76,5 +77,30 @@ function drawSettings(parent)
   end
   colorResetBtn.DoClick = function ()
     UIColorMixer:SetColor(topHatBlue)
+  end
+
+  drawTitle("Notification Settings", settingsPanel)
+
+  local notificationVolumeLabel = vgui.Create("DLabel", settingsPanel)
+  local labelText = "Notification volume"
+  surface.SetFont("WskyFontSmaller")
+  local _, textHeight = surface.GetTextSize(labelText)
+  notificationVolumeLabel:Dock(TOP)
+  notificationVolumeLabel:SetHeight(textHeight)
+  notificationVolumeLabel:DockMargin(0, margin, 0, margin)
+  notificationVolumeLabel:SetFont("WskyFontSmaller")
+  notificationVolumeLabel:SetText(labelText)
+
+  local notificationVolume = GetConVar("wskylootboxes_volume")
+  local notificationVolumeSlider = vgui.Create("DNumSlider", settingsPanel)
+  notificationVolumeSlider:DockMargin(padding * 4, margin, padding * 4, margin)
+  notificationVolumeSlider:Dock(TOP)
+  notificationVolumeSlider:SetMin(0)
+  notificationVolumeSlider:SetMax(100)
+  notificationVolumeSlider:SetDecimals(0)
+  notificationVolumeSlider:SetValue((notificationVolume:GetFloat() * 100) or 25)
+
+  notificationVolumeSlider.OnValueChanged = function (self, value)
+    notificationVolume:SetFloat(value / 100)
   end
 end
