@@ -78,9 +78,13 @@ for i, file in ipairs(playerFiles) do
   local steam64 = string.Split(file, ".json")[1]
   local playerData = getPlayerData(steam64)
 
+  print("Starting migration for "..steam64)
+
   for i, fnc in ipairs(functionsToRun) do
     playerData = (fnc(table.Copy(playerData)) or playerData)
   end
 
   savePlayerData(steam64, playerData)
+
+  print("Finished and saved migration for "..steam64)
 end
