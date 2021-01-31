@@ -117,9 +117,6 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
     return
   end
 
-  PrintTable(playerData.inventory)
-  print(itemID, playerData.inventory[itemID])
-
   if (playerData.scrap < 200) then return end
 
   playerData = updatePlayerScrap(steam64, playerData.scrap - 200)
@@ -137,9 +134,6 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
   net.Start("WskyTTTLootboxes_OpenPlayerInventory")
     net.WriteString("inventory")
   net.Send(ply)
-
-  PrintTable(playerData.inventory)
-  print(itemID, playerData.inventory[itemID])
 
   net.Start("WskyTTTLootboxes_ClientsideUpdateWeaponName")
     net.WriteTable(playerData.inventory[itemID])

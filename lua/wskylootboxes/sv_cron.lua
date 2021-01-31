@@ -29,9 +29,6 @@ function generateDailyStore()
   storeItems = {}
   table.Add(storeItems, fixedStoreItems)
   table.Add(storeItems, dailyStoreItems)
-
-  PrintTable(storeItems)
-
 end
 
 if table.Count(dailyStoreItems) < 1 then

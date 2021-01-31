@@ -128,8 +128,6 @@ concommand.Add("wskylootboxes_debug_allItems", function (ply)
 
 
   savePlayerData(steam64, playerData)
-
-  -- PrintTable(playerData)
 end)
 
 concommand.Add("wskylootboxes_debug_allItemsVip", function (ply)
@@ -157,8 +155,6 @@ concommand.Add("wskylootboxes_debug_allItemsVip", function (ply)
 
 
   savePlayerData(steam64, playerData)
-
-  -- PrintTable(playerData)
 end)
 
 concommand.Add("wskylootboxes_debug_allItemsNotInLootboxes", function (ply)
@@ -206,6 +202,4 @@ concommand.Add("wskylootboxes_debug_allItemsNotInLootboxes", function (ply)
   end
 
   savePlayerData(steam64, playerData)
-
-  -- PrintTable(playerData)
 end)
