@@ -10,6 +10,8 @@ function generateDailyStore()
   playerModelItem.type = "playerModel"
   vipPlayerModelItem.type = "playerModel"
 
+  vipPlayerModelItem.role = "vip"
+
   weaponItem.className, weaponItem.tier, weaponItem.value = wskyLootboxesUnboxWeapon()
   playerModelItem.modelName, playerModelItem.tier, playerModelItem.value = wskyLootboxesUnboxPlayerModel()
   vipPlayerModelItem.modelName, vipPlayerModelItem.tier, vipPlayerModelItem.value = wskyLootboxesUnboxPlayerModel(true)
