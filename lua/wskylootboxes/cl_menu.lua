@@ -105,7 +105,7 @@ function renderMenu(activeTab)
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
       color = darken(mainMenuColor, 0.75)
-      textColor.a = 125
+      textColor.a = 60
     end
     draw.RoundedBox(0, 0, 0, w, h, color)
     draw.SimpleText("<<", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -120,14 +120,14 @@ function renderMenu(activeTab)
   pageBackButton:Dock(LEFT)
   pageBackButton:DockMargin(padding, 0, 0, 0)
   pageBackButton:SetText("")
-  pageBackButton:SetWidth(paginationButtonWidth * 0.75)
+  pageBackButton:SetWidth(paginationButtonWidth - footerSize)
   pageBackButton.Paint = function (self, w, h)
     local lastPage = pagination[activeTab].currentPage <= 1
     local color = mainMenuColor
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
       color = darken(mainMenuColor, 0.75)
-      textColor.a = 125
+      textColor.a = 60
     end
     draw.RoundedBox(0, 0, 0, w, h, color)
     draw.SimpleText("Back", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -148,7 +148,7 @@ function renderMenu(activeTab)
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
       color = darken(mainMenuColor, 0.75)
-      textColor.a = 125
+      textColor.a = 60
     end
     draw.RoundedBox(0, 0, 0, w, h, color)
     draw.SimpleText(">>", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -163,14 +163,14 @@ function renderMenu(activeTab)
   pageNextButton:Dock(RIGHT)
   pageNextButton:SetText("")
   pageNextButton:DockMargin(0, 0, padding, 0)
-  pageNextButton:SetWidth(paginationButtonWidth * 0.75)
+  pageNextButton:SetWidth(paginationButtonWidth - footerSize)
   pageNextButton.Paint = function (self, w, h)
     local lastPage = pagination[activeTab].currentPage >= pagination[activeTab].totalPages
     local color = mainMenuColor
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
       color = darken(mainMenuColor, 0.75)
-      textColor.a = 125
+      textColor.a = 60
     end
     draw.RoundedBox(0, 0, 0, w, h, color)
     draw.SimpleText("Next Page", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
