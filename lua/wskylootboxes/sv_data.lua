@@ -8,8 +8,6 @@ util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
 
 util.AddNetworkString("WskyTTTLootboxes_ClientsideNotifyScrap")
 
-dir = "wsky/Lootboxes"
-
 local paginationPerPageLimit = 9
 
 function getPaginated(tableData, currentPage, sort, steam64)

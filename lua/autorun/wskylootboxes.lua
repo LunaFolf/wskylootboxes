@@ -47,6 +47,8 @@ for i, particle in ipairs(particles) do
   PrecacheParticleSystem( particle )
 end
 
+dir = "wsky/Lootboxes"
+
 if SERVER then include('wskylootboxes/sv_init.lua') end
 if CLIENT then include('wskylootboxes/cl_init.lua') end
 
