@@ -62,9 +62,12 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
     end)
     Menu:AddSpacer()
   end
-  
-  
-  local itemIsEquipped = (itemID == playerData.activeMeleeWeapon.itemID) or (itemID == playerData.activePrimaryWeapon.itemID) or (itemID == playerData.activeSecondaryWeapon.itemID) or (itemID == playerData.activePlayerModel.itemID)
+
+
+  local itemIsEquipped = false
+
+  if table.HasValue(playerData.loadout, itemID) then itemIsEquipped = true end
+  if playerData.activePlayerModel == itemID then itemIsEquipped = true end
 
   -- Check if Item is a playerModel or weapon
   if (not itemIsEquipped and (item.type == "playerModel" or item.type == "weapon")) then
@@ -73,7 +76,10 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
         net.WriteString(itemID)
         net.WriteTable(pagination.inventory)
       net.SendToServer()
-      if (item.type == "playerModel" and inventoryModelPreview and item.modelName) then  inventoryModelPreview:SetModel(item.modelName) end
+      if (item.type == "playerModel" and inventoryModelPreview and item.modelName) then
+        currentPlayerModel = item.modelName
+        inventoryModelPreview:SetModel(item.modelName)
+      end
     end)
     Menu:AddSpacer()
   elseif (itemIsEquipped and (item.type == "playerModel" or item.type == "weapon")) then
@@ -87,14 +93,13 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
   end
 
   if (item.type == "weapon") then
-    local name = nil
     Menu:AddOption("Rename Weapon (200 scrap)", function ()
         local questionPanel = vgui.Create("DFrame")
         questionPanel:MakePopup()
         questionPanel:SetSize( 400, 200 )
         questionPanel:Center()
 
-        function renameItem()
+        function renameItem(name)
           if (name and string.len(name) > 0 and string.len(name) < 50) then
             net.Start("WskyTTTLootboxes_RenameItem")
               net.WriteString(itemID)
@@ -108,20 +113,16 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
         valueEntry:Dock(TOP)
         valueEntry:SetPlaceholderText("Enter your weapon's new name!")
         valueEntry.OnEnter = function( self )
-          name = self:GetValue()
+          renameItem(self:GetValue())
           questionPanel:Close()
-
-          renameItem()
         end
 
         local continueBtn = vgui.Create("DButton", questionPanel)
         continueBtn:Dock(BOTTOM)
         continueBtn:SetText("Continue")
         continueBtn.DoClick = function ()
-          name = valueEntry:GetValue()
+          renameItem(valueEntry:GetValue())
           questionPanel:Close()
-
-          renameItem()
         end
       end)
       Menu:AddSpacer()
@@ -130,31 +131,29 @@ function rightClickItem(frame, item, itemID, itemName, itemPreviewData, inventor
   -- Give option to scrap/delete, if allowed.
   local scrapText = "Scrap Item (" .. item.value .. ")"
   if (item.value < 1) then scrapText = "Delete item" end
-  if (item.value > -1) then
-    Menu:AddOption(scrapText, function ()
-      local width, height = width / 4, height / 4
-      width = math.max(350, width)
-      height = math.max(100, height)
+  Menu:AddOption(scrapText, function ()
+    local width, height = width / 4, height / 4
+    width = math.max(350, width)
+    height = math.max(100, height)
 
-      local submitScrapRequest = function ()
-        net.Start("WskyTTTLootboxes_ScrapItem")
-          net.WriteString(itemID)
-          net.WriteTable(pagination.inventory)
-        net.SendToServer()
-      end
+    local submitScrapRequest = function ()
+      net.Start("WskyTTTLootboxes_ScrapItem")
+        net.WriteString(itemID)
+        net.WriteTable(pagination.inventory)
+      net.SendToServer()
+    end
 
-      local showDialog = GetConVar("wskylootboxes_confirm_scrap")
-      if !showDialog then showDialog = true else showDialog = showDialog:GetBool() end
+    local showDialog = GetConVar("wskylootboxes_confirm_scrap")
+    if !showDialog then showDialog = true else showDialog = showDialog:GetBool() end
 
-      if showDialog then
-        createDialog(width, height, "Are you sure you want to scrap this item?" , function ()
-          submitScrapRequest()
-        end)
-      else submitScrapRequest() end
+    if showDialog then
+      createDialog(width, height, "Are you sure you want to scrap this item?" , function ()
+        submitScrapRequest()
+      end)
+    else submitScrapRequest() end
 
-    end)
-    Menu:AddSpacer()
-  end
+  end)
+  Menu:AddSpacer()
 
   -- Give option to put on market, if allowed.
   local marketText = "Put item on market"

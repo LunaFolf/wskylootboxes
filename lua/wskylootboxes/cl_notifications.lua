@@ -1,8 +1,77 @@
 if SERVER then return end
 
+CreateClientConVar("wskylootboxes_volume", 0.25, true, false, "The volume of lootbox notifications")
+
 local padding = 8
 local width, height = math.max(400, ScrW() / 5), 72 + (32 + (padding * 2))
 local newItemNotification = nil
+local newScrapNotification = nil
+
+local lastNewItemIndex = 1
+local lastNewItemTime = 0
+local spanBetweenItems = 2
+
+local newScrapLifetime = 3
+
+local function drawNewScrapNotification(oldScrapValue, newScrapValue)
+
+  local difference = (newScrapValue - oldScrapValue)
+
+  local width, height = width, height
+
+  surface.SetFont("WskyFontDefault")
+  local textWidth, textHeight = surface.GetTextSize(formatScrap(newScrapValue))
+  local oldTextWidth, oldTextHeight = surface.GetTextSize(formatScrap(oldScrapValue))
+  width = math.max(83, textWidth, oldTextWidth) + (padding * 2)
+  height = (textHeight * 2) + (padding * 3)
+
+  if (newScrapNotification) then
+    newScrapNotification:Remove()
+  end
+
+  if difference == 0 then return end
+
+  local startTime = SysTime() + (newScrapLifetime / 2)
+
+  local notify = vgui.Create("DNotify")
+  notify:SetLife(newScrapLifetime)
+  notify:SetPos((ScrW() - width )/ 4, padding)
+  notify:SetSize(width, height)
+
+  local notifyPanel = vgui.Create("DPanel", notify)
+  notifyPanel:Dock(FILL)
+  notifyPanel.Paint = function (self, w, h)
+    local animLerp = Lerp( (SysTime() - startTime) / (newScrapLifetime * 0.25), 0, 1)
+    draw.RoundedBox(4, 0, 0, w, h - (textHeight * animLerp), Color(0, 0, 0, 125))
+  end
+
+  local balance = vgui.Create("DPanel", notifyPanel)
+  balance:Dock(TOP)
+  balance:SetHeight(textHeight + padding)
+  balance.Paint = function (self, w, h)
+    local animLerp = Lerp( (SysTime() - startTime) / (newScrapLifetime * 0.25), 0, difference)
+    surface.SetFont("WskyFontDefault")
+    local text = formatScrap(math.Round(oldScrapValue + animLerp))
+    local textWidth, textHeight = surface.GetTextSize(text)
+    draw.DrawText(text, "WskyFontDefault", w / 2, padding, mainMenuColor, TEXT_ALIGN_CENTER)
+
+  end
+
+  local scrapDifference = vgui.Create("DPanel", notifyPanel)
+  scrapDifference:Dock(TOP)
+  scrapDifference:SetHeight(textHeight + padding)
+  scrapDifference.Paint = function (self, w, h)
+    local animLerp = Lerp( (SysTime() - startTime) / (newScrapLifetime * 0.25), 1, 0)
+    surface.SetFont("WskyFontDefault")
+    local text = (difference > 0 and "+" or "")..formatScrap(difference)
+    local textWidth, textHeight = surface.GetTextSize(text)
+    draw.DrawText(text, "WskyFontDefault", w / 2, padding * animLerp, Color(255, 255, 255, 255 * animLerp), TEXT_ALIGN_CENTER)
+  end
+
+  notify:AddItem(notifyPanel)
+
+  newScrapNotification = notify
+end
 
 local function drawNewItemNotification(item, playerWonAFreeCrate)
 
@@ -145,18 +214,37 @@ net.Receive("WskyTTTLootboxes_ClientsideWinItem", function ()
   local item = net.ReadTable()
   local winAFreeCrate = net.ReadBool()
 
+  local notificationVolume = GetConVar("wskylootboxes_volume")
+  notificationVolume = notificationVolume:GetFloat() or 0.25
+  notificationVolume = notificationVolume * 100
+
+  if (SysTime() - lastNewItemTime <= spanBetweenItems) then
+    lastNewItemIndex = lastNewItemIndex + 1
+    if lastNewItemIndex > 8 then lastNewItemIndex = 1 end
+  else lastNewItemIndex = 0 end
+
+  if lastNewItemIndex <= 0 then lastNewItemIndex = 1 end
+
+  if item.tier == "Exotic" then
+    ply:EmitSound("wsky_lootboxes/partyblower.mp3", notificationVolume)
+  else ply:EmitSound("wsky_lootboxes/bracket"..lastNewItemIndex..".wav", notificationVolume) end
+
   drawNewItemNotification(item, winAFreeCrate)
 
   messagePlayer(ply, "New item" .. (winAFreeCrate and "s" or "") .. ": " .. getItemName(item) .. (winAFreeCrate and ", and a free crate" or "") .. "!")
 
-  ply:EmitSound(soundString)
+  lastNewItemTime = SysTime()
 end)
 
 net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
   local ply = LocalPlayer()
   local soundString = net.ReadString()
+
+  local notificationVolume = GetConVar("wskylootboxes_volume")
+  notificationVolume = notificationVolume:GetFloat() or 0.25
+  notificationVolume = notificationVolume * 100
   if (!ply or !soundString) then return end
-  ply:EmitSound(soundString)
+  ply:EmitSound(soundString, notificationVolume)
 end)
 
 net.Receive("WskyTTTLootboxes_ClientDeathMessage", function ()
@@ -189,4 +277,22 @@ net.Receive("WskyTTTLootboxes_ClientDeathMessage", function ()
   end
 
   chat.AddText(Color(255, 255, 255), "You were killed by ", roleColor, attackerName, Color(255, 255, 255), (weaponNameSet and " using " or ""), topHatBlue, weaponName, Color(255, 255, 255), ". They were ", roleColor, attackerRole, Color(255, 255, 255), ".")
+end)
+
+net.Receive("WskyTTTLootboxes_ClientsideNotifyScrap", function ()
+  local oldScrapValue = net.ReadFloat()
+  local newScrapValue = net.ReadFloat()
+  local difference = (newScrapValue - oldScrapValue)
+
+  local notificationVolume = GetConVar("wskylootboxes_volume")
+  notificationVolume = notificationVolume:GetFloat() or 0.25
+  notificationVolume = notificationVolume * 100
+
+  if difference > 0 then
+    LocalPlayer():EmitSound("wsky_lootboxes/gmc_earn.wav", notificationVolume)
+  elseif difference < 0 then
+    LocalPlayer():EmitSound("wsky_lootboxes/gmc_lose.wav", notificationVolume)
+  end
+
+  drawNewScrapNotification(oldScrapValue, newScrapValue)
 end)

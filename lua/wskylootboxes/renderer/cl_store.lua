@@ -2,6 +2,30 @@ function drawStore(parent, storeItems)
 
   local itemNum = 0
   for itemIndex, item in pairs(storeItems) do
+
+    if itemIndex == table.Count(storeItems) - 2 then
+    surface.SetFont("WskyFontSmaller")
+      local endOfDay = os.time({
+        ["day"] = tonumber(os.date("%d")) + 1,
+        ["month"] = tonumber(os.date("%m")),
+        ["year"] = tonumber(os.date("%Y")),
+        ["hour"] = 0,
+        ["min"] = 0,
+        ["sec"] = 0
+      })
+
+      local title = vgui.Create("DPanel", parent)
+      title:Dock(TOP)
+      title:SetHeight(32 + padding)
+      title.Paint = function (self, w, h)
+        local allSecondsLeft = endOfDay - os.time()
+        local timestamp = os.date("%X", allSecondsLeft)
+
+        text = "Limited Time Exclusives! Expires in: " .. timestamp
+        draw.SimpleText(text, "WskyFontSmaller", w / 2, h / 2, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+      end
+    end
+
     local itemID = item.itemID
     itemNum = itemNum + 1
     local itemName = getItemName(item)
@@ -43,9 +67,13 @@ function drawStore(parent, storeItems)
     itemPriceTag:SetWidth(math.min(parent:GetWide() - (itemHeight * 4), math.max(itemHeight, priceWidth + (padding * 2))))
     itemPriceTag.Paint = function (self, w, h)
       local color = globalColors.positive
-      if playerData.scrap < item.value then
+      local hasCorrectRole = true
+      if item.role then hasCorrectRole = checkPlayerRole(playerData.role, item.role) end
+
+      if playerData.scrap < item.value or !hasCorrectRole then
         color = globalColors.negative
       end
+
       draw.RoundedBox(0, 0, 0, w, h, color)
 
       surface.SetFont("WskyFontSmaller")
@@ -97,7 +125,32 @@ function drawStore(parent, storeItems)
     itemInfoPanel.Paint = function (self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 0))
       surface.SetFont("WskyFontSmaller")
-      draw.SimpleText(itemName, "WskyFontSmaller", margin, margin)
+      local textWidth, textHeight = surface.GetTextSize(itemName)
+      local color = Color(255, 255, 255, 255)
+      if (item.tier == "Exotic") then
+        color = Color(240, 190, 15, 255)
+      elseif (item.tier == "Legendary") then
+        color = Color(170, 115, 235, 255)
+      elseif (item.tier == "Rare") then
+        color = Color(40, 140, 195, 255)
+      elseif (item.tier == "Uncommon") then
+        color = Color(40, 155, 115, 255)
+      end
+      draw.SimpleText(itemName, "WskyFontSmaller", padding, padding, color)
+      if (item.type == "weapon") then
+        local text = "Slot "
+        local category = getWeaponCategory(item.className)
+        if category == "primary" then text = text.."2"
+        elseif category == "secondary" then text = text.."3"
+        elseif category == "melee" then text = text.."1"
+        else text = "Unkown weapon type... if you see this, you should probably tell Whiskee." end
+        draw.SimpleText(text, "WskyFontSmaller", padding, textHeight + padding)
+      end
+      if (item.tier == "Exotic") then
+        local text = effectsNameNice[item.exoticParticleEffect] or ""
+        local textWidth, textHeight = surface.GetTextSize(text)
+        draw.SimpleText(text, "WskyFontSmaller", itemInfoPanel:GetWide() - (textWidth + padding), padding, Color(255, 255, 255, 125))
+      end
     end
 
     local itemButtonClickable = vgui.Create("DButton", itemPanel)
@@ -109,9 +162,15 @@ function drawStore(parent, storeItems)
       if !self:IsHovered() then return end
       local text = "Buy Item?"
       local enoughMoneyToBuy = playerData.scrap >= item.value
+      local hasCorrectRole = true
+      if item.role then hasCorrectRole = checkPlayerRole(playerData.role, item.role) end
       local borderColor = table.Copy(globalColors.positive)
       if !enoughMoneyToBuy then
         text = "Not enough scrap"
+        borderColor = table.Copy(globalColors.negative)
+      end
+      if !hasCorrectRole then
+        text = "Missing required role: "..item.role
         borderColor = table.Copy(globalColors.negative)
       end
       borderColor.a = 120
@@ -120,7 +179,7 @@ function drawStore(parent, storeItems)
       surface.SetDrawColor(borderColor.r, borderColor.g, borderColor.b, borderColor.a)
       surface.DrawOutlinedRect(0, 0, w, h, 1)
     end
-    itemButtonClickable.DoClick = function () 
+    itemButtonClickable.DoClick = function ()
       net.Start("WskyTTTLootboxes_BuyFromStore")
         net.WriteFloat(itemIndex)
       net.SendToServer()

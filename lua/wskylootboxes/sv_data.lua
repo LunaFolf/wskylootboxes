@@ -6,11 +6,13 @@ util.AddNetworkString("WskyTTTLootboxes_ClientRequestStoreData")
 util.AddNetworkString("WskyTTTLootboxes_ClientRequestLeaderboardData")
 util.AddNetworkString("WskyTTTLootboxes_ClientReceiveData")
 
+util.AddNetworkString("WskyTTTLootboxes_ClientsideNotifyScrap")
+
 dir = "wsky/Lootboxes"
 
 local paginationPerPageLimit = 9
 
-function getPaginated(tableData, currentPage, sort)
+function getPaginated(tableData, currentPage, sort, steam64)
   if sort == nil then sort = true end
   if (!tableData or type(tableData) ~= "table") then return end
 
@@ -28,8 +30,37 @@ function getPaginated(tableData, currentPage, sort)
 
   if sort then
     table.sort(tableData, function (a, b)
+      if a.createdAt == b.createdAt then
+          local aTierNum = 0
+          local bTierNum = 0
+
+          for index, tier in ipairs(weaponTiers) do
+            if (tier.name == a.tier) then aTierNum = index end
+            if (tier.name == b.tier) then bTierNum = index end
+          end
+
+          if aTierNum == bTierNum then
+            if a.value == b.value then
+              return sum(byteOfString(a.className or a.modelName)) < sum(byteOfString(b.className or b.modelName))
+            end
+            return a.value > b.value
+          end
+        return aTierNum > bTierNum
+      end
       return a.createdAt < b.createdAt
     end)
+
+    if steam64 then
+      local itemsRemoved = 0
+      local playerData = getPlayerData(steam64)
+      for i, item in ipairs(tableData) do
+        local itemIsEquipped = (( table.HasValue(playerData.loadout, item.itemID) ) or ( playerData.activePlayerModel == item.itemID ))
+        if itemIsEquipped then
+          local itemToPushToFront = table.remove(tableData, i)
+          table.insert(tableData, 1, itemToPushToFront)
+        end
+      end
+    end
   end
 
   local output = {}
@@ -51,7 +82,7 @@ end
 
 function getLeaderboardData()
   local playerFiles, _ = file.Find(dir.."/playerdata/*.json","DATA","nameasc")
-  
+
   local mostScrap = nil
 
   for i, file in ipairs(playerFiles) do
@@ -77,22 +108,9 @@ end
 
 function getStarterPlayerData(steam64)
   local defaultPlayerData = {
-    ["activePlayerModel"] = {
-      ["itemID"] = "",
-      ["modelName"] = ""
-    },
-    ["activeMeleeWeapon"] = {
-      ["itemID"] = "",
-      ["className"] = ""
-    },
-    ["activePrimaryWeapon"] = {
-      ["itemID"] = "",
-      ["className"] = ""
-    },
-    ["activeSecondaryWeapon"] = {
-      ["itemID"] = "",
-      ["className"] = ""
-    },
+    ["role"] = "player",
+    ["activePlayerModel"] = "",
+    ["loadout"] = {},
     ["scrap"] = 100,
     ["inventory"] = {
       [uuid()] = {
@@ -158,7 +176,7 @@ function saveMarketData(marketData)
   if (!marketData) then return end
   local fileName = dir .. "/market.json"
   checkAndCreateDir(dir)
-  
+
   file.Write(fileName, util.TableToJSON(marketData))
 end
 
@@ -177,7 +195,7 @@ function getPlayerData(steam64)
     playerInventoryData = util.JSONToTable(fileOutput)
   end
 
-  return playerInventoryData
+  return table.Copy(playerInventoryData)
 end
 
 function savePlayerData(steam64, playerData)
@@ -185,17 +203,41 @@ function savePlayerData(steam64, playerData)
 
   local fileName = dir .. "/playerdata/" .. steam64 .. ".json"
   checkAndCreateDir(dir .. "/playerdata")
-  
+
   file.Write(fileName, util.TableToJSON(playerData))
+end
+
+function updatePlayerScrap(steam64, newScrapValue)
+  if !steam64 and !newScrapValue then return end
+
+  local playerData = getPlayerData(steam64)
+  local oldScrapValue = table.Copy(playerData).scrap
+
+  if type(newScrapValue) == "string" then newScrapValue = tonumber(newScrapValue) end
+
+  playerData.scrap = newScrapValue
+
+  savePlayerData(steam64, playerData)
+
+  local ply = player.GetBySteamID64(steam64)
+  if !ply then return end
+
+  net.Start("WskyTTTLootboxes_ClientsideNotifyScrap")
+    net.WriteFloat(oldScrapValue)
+    net.WriteFloat(newScrapValue)
+  net.Send(ply)
+
+  return playerData
 end
 
 function sendClientFreshPlayerData(player, currentPage, playerData, openMenu)
   local totalPages = 1
-  playerData = playerData or getPlayerData(player:SteamID64())
+  local steam64 = player:SteamID64()
+  playerData = playerData or getPlayerData(steam64)
   currentPage = (currentPage or (math.ceil(math.max(1, table.Count(playerData.inventory)) / paginationPerPageLimit)))
-  playerData.inventory, totalPages = getPaginated(playerData.inventory, currentPage)
+  playerData.inventory, totalPages = getPaginated(playerData.inventory, currentPage, true, steam64)
   sendPlayerData(player, currentPage, totalPages, {
-    ["player"] = playerData or getPlayerData(player:SteamID64())
+    ["player"] = playerData or getPlayerData(steam64)
   }, openMenu and "inventory" or nil)
 end
 
@@ -233,6 +275,9 @@ end
 function sendPlayerData(ply, currentPage, totalPages, data, openMenu)
   if (!ply or !data) then return end
 
+  currentPage, totalPages = currentPage or 1, totalPages or 1
+  if currentPage > totalPages then currentPage = totalPages end
+
   whichTab = nil
 
   if data.player then whichTab = "inventory"
@@ -240,8 +285,8 @@ function sendPlayerData(ply, currentPage, totalPages, data, openMenu)
 
   data.pagination = {
     ["tab"] = whichTab,
-    ["currentPage"] = (currentPage or 1),
-    ["totalPages"] = (totalPages or 1)
+    ["currentPage"] = currentPage,
+    ["totalPages"] = totalPages
   }
 
   net.Start("WskyTTTLootboxes_ClientReceiveData")

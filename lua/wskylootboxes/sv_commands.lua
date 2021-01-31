@@ -17,7 +17,7 @@ end
 local function autoComplete(cmd, argStr)
 
   argStr = string.Trim(argStr) -- Trim any whitespace from the arguments
-  
+
   local argTable = string.Split(argStr, " ") -- Get arguments in table format for easier access
   local curArgIndex, curArgValue = table.Count(argTable), argTable[table.Count(argTable)] -- Get current argument for autofill, It should just be the last one.
 
@@ -34,6 +34,31 @@ local function autoComplete(cmd, argStr)
     elseif curArgIndex == 2 then
       for k, v in ipairs(findPlayers(curArgValue)) do
         table.insert(returnTable, fullString .. ("\"" .. v:Nick() .. "\""))
+      end
+    end
+  end
+
+  if (string.StartWith(cmd, "wskylootboxes_scrap")) then
+    if curArgIndex == 1 then
+      local args = {"add", "set", "clear", "reset"}
+      for k, v in ipairs(args) do
+        table.insert(returnTable, fullString..v)
+      end
+    elseif curArgIndex == 2 then
+      for k, v in ipairs(findPlayers(curArgValue)) do
+        table.insert(returnTable, fullString .. ("\"" .. v:Nick() .. "\""))
+      end
+    end
+  end
+
+  if (string.StartWith(cmd, "wskylootboxes_role")) then
+    if curArgIndex == 1 then
+      for k, v in ipairs(findPlayers(curArgValue)) do
+        table.insert(returnTable, fullString .. ("\"" .. v:Nick() .. "\""))
+      end
+    elseif curArgIndex == 2 then
+      for k, v in ipairs(roles) do
+        table.insert(returnTable, fullString..v)
       end
     end
   end
@@ -55,7 +80,7 @@ concommand.Add("wskylootboxes_crate", function (ply, cmd, args, argStr)
       local steam64 = v:SteamID64()
       local playerData = getPlayerData(steam64)
       local crate = generateACrate(crateType)
-      
+
       table.Merge(playerData.inventory, {
         [uuid()] = crate
       })
@@ -70,4 +95,104 @@ concommand.Add("wskylootboxes_crate", function (ply, cmd, args, argStr)
       net.Send(v)
     end
   end
+end, autoComplete)
+
+concommand.Add("wskylootboxes_scrap", function (ply, cmd, args, argStr)
+  local action = args[1]
+  local playerName = args[2]
+  local scrapAmount = args[3]
+
+  if !action or !playerName then
+    print("Action or Player missing.")
+    return
+  end
+  if ((action ~= 'reset') and (action ~= 'clear')) and not scrapAmount then
+    print("Scrap amount missing.")
+    return
+  end
+
+  local players = findPlayers(playerName)
+  local playerCount = table.Count(players)
+
+  if playerCount > 1 then
+    print("More than 1 player found! Refusing command.")
+  elseif playerCount < 1 then
+    print("No user found.")
+  end
+
+  for k, player in ipairs(players) do
+    local steam64 = player:SteamID64()
+    local playerData = getPlayerData(steam64)
+
+    if action == "add" then
+      playerData.scrap = playerData.scrap + tonumber(scrapAmount)
+    elseif action == "set" then
+      playerData.scrap = tonumber(scrapAmount)
+    elseif action == "clear" then
+      playerData.scrap = 0
+    elseif action == "reset" then
+      playerData.scrap = 100
+    end
+
+    print(action.." "..player:Nick().."'s scrap to "..formatScrap(playerData.scrap))
+
+    updatePlayerScrap(steam64, playerData.scrap)
+  end
+end, autoComplete)
+
+concommand.Add("wskylootboxes_role", function (ply, cmd, args, argStr)
+  local playerName = args[1]
+  local roleName = args[2]
+
+  if !roleName or !playerName then
+    print("Role or Player missing.")
+    return
+  end
+  if !table.HasValue(roles, roleName) then
+    print("The role \""..roleName.."\" doesn't exist.")
+    return
+  end
+
+  local players = findPlayers(playerName)
+  local playerCount = table.Count(players)
+
+  if playerCount > 1 then
+    print("More than 1 player found! Refusing command.")
+  elseif playerCount < 1 then
+    print("No user found.")
+  end
+
+  for k, player in ipairs(players) do
+    local steam64 = player:SteamID64()
+    local playerData = getPlayerData(steam64)
+
+    print("Setting "..ply:Nick().."'s role to: "..roleName)
+
+    playerData.role = roleName
+
+    savePlayerData(steam64, playerData)
+  end
+end, autoComplete)
+
+concommand.Add("wskylootboxes_roleSteam64", function (ply, cmd, args, argStr)
+  local steam64 = args[1]
+  local roleName = args[2]
+
+  if !roleName or !steam64 then
+    print("Steam64 or Player missing.")
+    return
+  end
+  if !table.HasValue(roles, roleName) then
+    print("The role \""..roleName.."\" doesn't exist.")
+    return
+  end
+
+  local playerData = getPlayerData(steam64)
+  if !playerData then
+    print("Unable to find playerData for that steam64.")
+    return
+  end
+  playerData.role = roleName
+
+  savePlayerData(steam64, playerData)
 end, autoComplete)

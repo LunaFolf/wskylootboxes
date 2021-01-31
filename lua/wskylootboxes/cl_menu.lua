@@ -6,6 +6,7 @@ CreateClientConVar("wskylootboxes_confirm_scrap", 1, true, false, "Show confirma
 CreateClientConVar("wskylootboxes_quick_unbox", 0, true, false, "Left click a crate to unbox it instantly.")
 
 local minWidth, minHeight = 1200, 675
+currentPlayerModel = nil
 
 function updateMenuSize ()
   local w, h = ScrW() / 2, ScrH() / 2
@@ -25,6 +26,7 @@ tabsSize = 32
 footerSize = 42
 stockItemHeight = 65
 lastTab = nil
+forcedRefreshForPM = false
 
 updateMenuSize()
 
@@ -91,17 +93,41 @@ function renderMenu(activeTab)
     draw.SimpleText(currentPage, "WskyFontSmaller", w / 2, h / 2, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
   end
 
+  local paginationButtonWidth = math.max(100, footerPanel:GetWide() / 6)
+
+  local pageFirstButton = vgui.Create("DButton", footerPanel)
+  pageFirstButton:Dock(LEFT)
+  pageFirstButton:SetText("")
+  pageFirstButton:SetWidth(footerSize)
+  pageFirstButton.Paint = function (self, w, h)
+    local lastPage = pagination[activeTab].currentPage <= 1
+    local color = mainMenuColor
+    local textColor = Color(255, 255, 255, 255)
+    if lastPage then
+      color = darken(mainMenuColor, 0.75)
+      textColor.a = 60
+    end
+    draw.RoundedBox(0, 0, 0, w, h, color)
+    draw.SimpleText("<<", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+  end
+  pageFirstButton.DoClick = function ()
+    if (pagination[activeTab].currentPage <= 1) then return end
+    pagination[activeTab].currentPage = 1
+    paginationRequestData(activeTab)
+  end
+
   local pageBackButton = vgui.Create("DButton", footerPanel)
   pageBackButton:Dock(LEFT)
+  pageBackButton:DockMargin(padding, 0, 0, 0)
   pageBackButton:SetText("")
-  pageBackButton:SetWidth(math.max(100, footerPanel:GetWide() / 6))
+  pageBackButton:SetWidth(paginationButtonWidth - footerSize)
   pageBackButton.Paint = function (self, w, h)
     local lastPage = pagination[activeTab].currentPage <= 1
     local color = mainMenuColor
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
       color = darken(mainMenuColor, 0.75)
-      textColor.a = 125
+      textColor.a = 60
     end
     draw.RoundedBox(0, 0, 0, w, h, color)
     draw.SimpleText("Back", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -112,17 +138,39 @@ function renderMenu(activeTab)
     paginationRequestData(activeTab)
   end
 
+  local pageLastButton = vgui.Create("DButton", footerPanel)
+  pageLastButton:Dock(RIGHT)
+  pageLastButton:SetText("")
+  pageLastButton:SetWidth(footerSize)
+  pageLastButton.Paint = function (self, w, h)
+    local lastPage = pagination[activeTab].currentPage >= pagination[activeTab].totalPages
+    local color = mainMenuColor
+    local textColor = Color(255, 255, 255, 255)
+    if lastPage then
+      color = darken(mainMenuColor, 0.75)
+      textColor.a = 60
+    end
+    draw.RoundedBox(0, 0, 0, w, h, color)
+    draw.SimpleText(">>", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+  end
+  pageLastButton.DoClick = function ()
+    if (pagination[activeTab].currentPage >= pagination[activeTab].totalPages) then return end
+    pagination[activeTab].currentPage = pagination[activeTab].totalPages
+    paginationRequestData(activeTab)
+  end
+
   local pageNextButton = vgui.Create("DButton", footerPanel)
   pageNextButton:Dock(RIGHT)
   pageNextButton:SetText("")
-  pageNextButton:SetWidth(math.max(100, footerPanel:GetWide() / 6))
+  pageNextButton:DockMargin(0, 0, padding, 0)
+  pageNextButton:SetWidth(paginationButtonWidth - footerSize)
   pageNextButton.Paint = function (self, w, h)
     local lastPage = pagination[activeTab].currentPage >= pagination[activeTab].totalPages
     local color = mainMenuColor
     local textColor = Color(255, 255, 255, 255)
     if lastPage then
       color = darken(mainMenuColor, 0.75)
-      textColor.a = 125
+      textColor.a = 60
     end
     draw.RoundedBox(0, 0, 0, w, h, color)
     draw.SimpleText("Next Page", "WskyFontSmaller", w / 2, h / 2, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -133,27 +181,54 @@ function renderMenu(activeTab)
     paginationRequestData(activeTab)
   end
 
-  local inventoryModelPreview = vgui.Create("DModelPanel", rightInventoryPanel, "playerModelPreview")
-  inventoryModelPreview:Dock(FILL)
+  local playerModelID = playerData.activePlayerModel
+  local playerModelItem = getPlayerItem(playerData, playerModelID)
 
-  local viewModelRotationDragger = vgui.Create("DNumberScratch", rightInventoryPanel)
-  viewModelRotationDragger:Dock(FILL)
-  viewModelRotationDragger:SetHeight(32)
-  viewModelRotationDragger:SetValue(180)
-  viewModelRotationDragger:SetMin(0)
-  viewModelRotationDragger:SetMax(360)
-  viewModelRotationDragger:SetImageVisible(false)
-  viewModelRotationDragger.PaintScratchWindow = function () end
-
-  local playerModel = playerData.activePlayerModel.modelName
-  if (string.len(playerModel) < 1) then playerModel = LocalPlayer():GetModel() end
-  inventoryModelPreview:SetModel(playerModel)
-  inventoryModelPreview:SetCamPos(Vector(0, 40, 45))
-  function inventoryModelPreview.Entity:GetPlayerColor()
-    return LocalPlayer():GetPlayerColor():ToColor() or Vector(1, 1, 1)
+  if !playerModelItem and not currentPlayerModel and not forcedRefreshForPM then
+    forcedRefreshForPM = true
+    local currentPage = table.Copy(pagination.inventory).currentPage
+    pagination.inventory.currentPage = 1
+    paginationRequestData('inventory')
+    timer.Simple(0.1, function ()
+      pagination.inventory.currentPage = currentPage
+      paginationRequestData(activeTab)
+    end)
   end
-  function inventoryModelPreview:LayoutEntity(ent)
-    ent:SetAngles(Angle(0, viewModelRotationDragger:GetFloatValue() - 90,  0))
+
+  if playerModelItem && playerModelItem.type == "playerModel" && playerModelItem.modelName then
+    currentPlayerModel = playerModelItem.modelName
+  end
+
+  if !currentPlayerModel then currentPlayerModel = LocalPlayer():GetModel() end
+  if currentPlayerModel == "models/player.mdl" then
+    currentPlayerModel = nil
+  end
+
+  if currentPlayerModel then
+    local inventoryModelPreview = vgui.Create("DModelPanel", rightInventoryPanel, "playerModelPreview")
+    inventoryModelPreview:Dock(FILL)
+
+    local viewModelRotationDragger = vgui.Create("DNumberScratch", rightInventoryPanel)
+    viewModelRotationDragger:Dock(FILL)
+    viewModelRotationDragger:SetHeight(32)
+    viewModelRotationDragger:SetValue(180)
+    viewModelRotationDragger:SetMin(0)
+    viewModelRotationDragger:SetMax(360)
+    viewModelRotationDragger:SetImageVisible(false)
+    viewModelRotationDragger.PaintScratchWindow = function () end
+
+    inventoryModelPreview:SetModel(currentPlayerModel)
+    inventoryModelPreview:SetCamPos(Vector(0, 40, 45))
+    function inventoryModelPreview.Entity:GetPlayerColor()
+      return LocalPlayer():GetPlayerColor():ToColor() or Vector(1, 1, 1)
+    end
+    function inventoryModelPreview:LayoutEntity(ent)
+      ent:SetAngles(Angle(0, viewModelRotationDragger:GetFloatValue() - 90,  0))
+    end
+  else
+    rightInventoryPanel:Remove()
+    leftInventoryPanel:SetWidth(width)
+    footerPanel:SetWidth(width)
   end
 
   if (activeTab == "inventory") then drawInventory(leftInventoryPanel, playerData.inventory)
