@@ -143,6 +143,11 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   local value = 0
   local weaponClass, modelName, modelTier = "", "", ""
 
+  while crateType == "any" do
+    local numOfCrateTypes = table.Count(crateTypes)
+    crateType = crateTypes[math.Round(math.Rand(1, numOfCrateTypes))]
+  end
+
   -- Create item table for new item.
   local newItem = {}
 
