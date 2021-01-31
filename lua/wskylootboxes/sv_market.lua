@@ -49,11 +49,12 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
   itemTable[itemID].value = math.Round(valueDepreciationFn() * generateItemValue(item.type, tierNum, baseItem.value))
 
   table.Merge(playerData.inventory, itemTable)
+  savePlayerData(steam64, playerData)
+
   if (!buyerIsOwner) then
     playerData = updatePlayerScrap(steam64, playerData.scrap - marketItemCost)
   end
   table.remove(marketData.items, marketItemID)
-  savePlayerData(steam64, playerData)
   saveMarketData(marketData)
 
   local owner = player.GetBySteamID64(item.owner)
