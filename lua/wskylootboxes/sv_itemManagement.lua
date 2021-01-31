@@ -119,12 +119,13 @@ net.Receive("WskyTTTLootboxes_RenameItem", function (len, ply)
 
   if (playerData.scrap < 200) then return end
 
-  playerData.inventory[itemID].customName = newItemName
-  playerData.scrap = playerData.scrap - 200
+  playerData = updatePlayerScrap(steam64, playerData.scrap - 200)
 
+  playerData.inventory[itemID].customName = newItemName
   savePlayerData(steam64, playerData)
 
-  sendClientFreshPlayerData(ply, pagination.currentPage, playerData)
+
+  sendClientFreshPlayerData(ply, pagination.currentPage, table.Copy(playerData))
 
   net.Start("WskyTTTLootboxes_ClientsideWinChime")
     net.WriteString("garrysmod/content_downloaded.wav")

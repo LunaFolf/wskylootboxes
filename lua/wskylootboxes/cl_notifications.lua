@@ -1,5 +1,7 @@
 if SERVER then return end
 
+CreateClientConVar("wskylootboxes_volume", 0.25, true, false, "The volume of lootbox notifications")
+
 local padding = 8
 local width, height = math.max(400, ScrW() / 5), 72 + (32 + (padding * 2))
 local newItemNotification = nil
@@ -212,6 +214,10 @@ net.Receive("WskyTTTLootboxes_ClientsideWinItem", function ()
   local item = net.ReadTable()
   local winAFreeCrate = net.ReadBool()
 
+  local notificationVolume = GetConVar("wskylootboxes_volume")
+  notificationVolume = notificationVolume:GetFloat() or 0.25
+  notificationVolume = notificationVolume * 100
+
   if (SysTime() - lastNewItemTime <= spanBetweenItems) then
     lastNewItemIndex = lastNewItemIndex + 1
     if lastNewItemIndex > 8 then lastNewItemIndex = 1 end
@@ -220,8 +226,8 @@ net.Receive("WskyTTTLootboxes_ClientsideWinItem", function ()
   if lastNewItemIndex <= 0 then lastNewItemIndex = 1 end
 
   if item.tier == "Exotic" then
-    ply:EmitSound("wsky_lootboxes/partyblower.mp3", 25)
-  else ply:EmitSound("wsky_lootboxes/bracket"..lastNewItemIndex..".wav", 25) end
+    ply:EmitSound("wsky_lootboxes/partyblower.mp3", notificationVolume)
+  else ply:EmitSound("wsky_lootboxes/bracket"..lastNewItemIndex..".wav", notificationVolume) end
 
   drawNewItemNotification(item, winAFreeCrate)
 
@@ -233,8 +239,12 @@ end)
 net.Receive("WskyTTTLootboxes_ClientsideWinChime", function ()
   local ply = LocalPlayer()
   local soundString = net.ReadString()
+
+  local notificationVolume = GetConVar("wskylootboxes_volume")
+  notificationVolume = notificationVolume:GetFloat() or 0.25
+  notificationVolume = notificationVolume * 100
   if (!ply or !soundString) then return end
-  ply:EmitSound(soundString, 25)
+  ply:EmitSound(soundString, notificationVolume)
 end)
 
 net.Receive("WskyTTTLootboxes_ClientDeathMessage", function ()
@@ -274,10 +284,14 @@ net.Receive("WskyTTTLootboxes_ClientsideNotifyScrap", function ()
   local newScrapValue = net.ReadFloat()
   local difference = (newScrapValue - oldScrapValue)
 
+  local notificationVolume = GetConVar("wskylootboxes_volume")
+  notificationVolume = notificationVolume:GetFloat() or 0.25
+  notificationVolume = notificationVolume * 100
+
   if difference > 0 then
-    LocalPlayer():EmitSound("wsky_lootboxes/gmc_earn.wav", 25)
+    LocalPlayer():EmitSound("wsky_lootboxes/gmc_earn.wav", notificationVolume)
   elseif difference < 0 then
-    LocalPlayer():EmitSound("wsky_lootboxes/gmc_lose.wav", 25)
+    LocalPlayer():EmitSound("wsky_lootboxes/gmc_lose.wav", notificationVolume)
   end
 
   drawNewScrapNotification(oldScrapValue, newScrapValue)

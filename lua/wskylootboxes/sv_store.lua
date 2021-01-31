@@ -14,6 +14,8 @@ net.Receive("WskyTTTLootboxes_BuyFromStore", function (len, ply)
 
   local item = table.Copy(storeItems[storeItemID])
 
+  if item.role and !checkPlayerRole(playerData.role, item.role) then return end
+
   if (playerData.scrap < item.value) then return end
 
   item.createdAt = os.time()

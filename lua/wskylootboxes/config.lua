@@ -167,15 +167,6 @@ playerModels = {
   ["models/player/genshin_impact_xinyan.mdl"] = {
     ["value"] = 102
   },
-  ["models/player/security_suit.mdl"] = {
-    ["value"] = 125
-  },
-  ["models/player/genshin_impact_sucrose.mdl"] = {
-    ["value"] = 98
-  },
-  ["models/rosaria/genshin_impact/rstar/rosaria/rosaria.mdl"] = {
-    ["value"] = 102
-  },
   ["models/player/genshin_impact_xiao.mdl"] = {
     ["value"] = 104
   },
@@ -319,11 +310,47 @@ playerModels = {
   }
 }
 
+vipPlayerModels = {
+  ["models/player/mcsteve.mdl"] = {
+    ["value"] = 150
+  },
+  ["models/player/nuggets.mdl"] = {
+    ["value"] = 120
+  },
+  ["models/player/chewbacca.mdl"] = {
+    ["value"] = 100
+  },
+  ["models/player/teslapower.mdl"] = {
+    ["value"] = 165
+  },
+  ["models/player/foohysaurusrex.mdl"] = {
+    ["value"] = 135
+  },
+  ["models/player/genshin_impact_diona.mdl"] = {
+    ["value"] = 125
+  },
+  ["models/player/fortnite/mandalorian.mdl"] = {
+    ["value"] = 134
+  },
+  ["models/player/scarecrow.mdl"] = {
+    ["value"] = 100
+  },
+  ["models/player/security_suit.mdl"] = {
+    ["value"] = 125
+  },
+  ["models/player/genshin_impact_sucrose.mdl"] = {
+    ["value"] = 98
+  },
+  ["models/rosaria/genshin_impact/rstar/rosaria/rosaria.mdl"] = {
+    ["value"] = 102
+  }
+}
+
 exclusiveModels = {
   ["76561198037289710"] = {
     {
       ["type"] = "playerModel",
-      ["modelName"] = "models/11thDoctor/thedoctor.mdl"
+      ["modelName"] = "models/player/big_boss.mdl"
     }
   },
   ["76561198332078167"] = {
@@ -351,6 +378,17 @@ exclusiveModels = {
     }
   }
 }
+
+roles = {
+  "admin",
+  "moderator",
+  "vip",
+  "player"
+}
+
+-- Flip the table so that the indexes go up (player = 1, admin = 4, etc)
+-- Becuase it makes more sense for higher roles to have higher indexes
+roles = table.Reverse(roles)
 
 allWeapons = {}
 table.Merge(allWeapons, primaryWeapons)
@@ -392,7 +430,13 @@ for i, key in pairs(table.GetKeys(playerModels)) do
 end
 local playersModelAveragePrice = math.ceil(playerModelsSum / table.Count(playerModels) * 1.75)
 
-storeItems = {
+local vipPlayerModelsSum = 0
+for i, key in pairs(table.GetKeys(vipPlayerModels)) do
+  vipPlayerModelsSum = vipPlayerModelsSum + vipPlayerModels[key].value
+end
+local vipPlayersModelAveragePrice = math.ceil(vipPlayerModelsSum / table.Count(vipPlayerModels) * 1.75)
+
+fixedStoreItems = {
   {
     ["type"] = "crate_any",
     ["value"] = math.ceil(((playersModelAveragePrice + weaponsAveragePrice) / 2) * 1)
@@ -406,16 +450,14 @@ storeItems = {
     ["value"] = math.ceil(playersModelAveragePrice * 1.5)
   },
   {
-    ["type"] = "playerModel",
-    ["modelName"] = "models/player/fortnite/mandalorian.mdl",
-    ["value"] = 6000
-  },
-  {
-    ["type"] = "playerModel",
-    ["modelName"] = "models/player/teslapower.mdl",
-    ["value"] = 8000
-  },
+    ["type"] = "crate_vip",
+    ["value"] = math.ceil(vipPlayersModelAveragePrice * 2),
+    ["role"] = "vip"
+  }
 }
+
+storeItems = {}
+table.Add(storeItems, fixedStoreItems)
 
 itemNameOverrides = {
   ["Codyregimental2"] = "Commander Cody",

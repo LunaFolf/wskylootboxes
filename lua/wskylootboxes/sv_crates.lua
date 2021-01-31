@@ -52,16 +52,19 @@ function wskyLootboxesUnboxWeapon()
   return winningWeapon, weaponTier, value
 end
 
-function wskyLootboxesUnboxPlayerModel()
+function wskyLootboxesUnboxPlayerModel(vip)
   -- Randomly Select the model.
-  local modelKeys = table.GetKeys(playerModels)
-  local modelCount = table.Count(playerModels)
+  local listToUse = table.Copy(playerModels)
+  if vip then listToUse = table.Copy(vipPlayerModels) end
+
+  local modelKeys = table.GetKeys(listToUse)
+  local modelCount = table.Count(listToUse)
   local modelNum = math.Round(math.Rand(1, modelCount))
   local winningModel = modelKeys[modelNum]
 
   local exotic = math.Rand(0, 1) >= 0.95
 
-  local value = generateItemValue("playerModel", exotic and 5 or 1, playerModels[winningModel].value)
+  local value = generateItemValue("playerModel", exotic and 5 or 1, listToUse[winningModel].value)
 
   return winningModel, (exotic and "Exotic" or "Common"), value
 end
@@ -135,38 +138,29 @@ net.Receive("WskyTTTLootboxes_RequestCrateOpening", function (len, ply)
   -- Calculate whether you win a free crate.
   local winAFreeCrate = crate.value ~= -2 and ((math.Rand(0, 1)*100) <= percentageChanceToWinCrate)
 
-  -- Catch out erroneous crateType.
-  if (crateType ~= "any" and table.HasValue(crateTypes, crateType) == false) then
-    givePlayerError(ply)
-    return
-  end
-
   local winningItem = ""
   local weaponTier = null
   local value = 0
-
-  while (table.HasValue(crateTypes, crateType) == false) do
-    local numOfCrateTypes = table.Count(crateTypes)
-    crateType = crateTypes[math.Round(math.Rand(1, numOfCrateTypes))]
-  end
+  local weaponClass, modelName, modelTier = "", "", ""
 
   -- Create item table for new item.
   local newItem = {}
-  newItem.type = crateType
 
   -- Find crate type and unbox it.
   if (crateType == "weapon") then
+    newItem.type = "weapon"
     weaponClass, weaponTier, value = wskyLootboxesUnboxWeapon()
     newItem.className = weaponClass
     newItem.tier = weaponTier
-  elseif (crateType == "playerModel") then
-    modelName, modelTier, value = wskyLootboxesUnboxPlayerModel()
+  elseif (crateType == "playerModel" or crateType == "vip") then
+    newItem.type = "playerModel"
+    modelName, modelTier, value = wskyLootboxesUnboxPlayerModel(crateType == "vip")
     newItem.modelName = modelName
     newItem.tier = modelTier
   end
 
   if (newItem.tier == "Exotic") then
-    newItem.exoticParticleEffect = generateExoticParticleEffect(crateType)
+    newItem.exoticParticleEffect = generateExoticParticleEffect(newItem.type)
   end
 
   value = math.Round(valueDepreciationFn() * value)

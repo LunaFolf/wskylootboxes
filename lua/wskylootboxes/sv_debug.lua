@@ -128,8 +128,33 @@ concommand.Add("wskylootboxes_debug_allItems", function (ply)
 
 
   savePlayerData(steam64, playerData)
+end)
 
-  -- PrintTable(playerData)
+concommand.Add("wskylootboxes_debug_allItemsVip", function (ply)
+  if (!ply) then return end
+  local steam64 = ply:SteamID64()
+  local playerData = getPlayerData(steam64)
+
+  if (table.Count(table.GetKeys(playerData.inventory)) > 0) then
+    playerData.inventory = {}
+  end
+
+  -- Add all playerModels
+  for modelName, model in pairs(vipPlayerModels) do
+    table.Merge(playerData.inventory, {
+      [uuid()] = {
+        ["type"] = "playerModel",
+        ["modelName"] = modelName,
+        ["value"] = -1,
+        ["tier"] = "Exotic",
+        ["exoticParticleEffect"] = playerModelParticles[math.Round(math.Rand(1, table.Count(playerModelParticles)))],
+        ["createdAt"] = os.time()
+      }
+    })
+  end
+
+
+  savePlayerData(steam64, playerData)
 end)
 
 concommand.Add("wskylootboxes_debug_allItemsNotInLootboxes", function (ply)
@@ -177,6 +202,4 @@ concommand.Add("wskylootboxes_debug_allItemsNotInLootboxes", function (ply)
   end
 
   savePlayerData(steam64, playerData)
-
-  -- PrintTable(playerData)
 end)
