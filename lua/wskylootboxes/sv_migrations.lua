@@ -33,7 +33,7 @@ end
 
 local function cleanupActivePlayerModel (playerData)
   local item = playerData.activePlayerModel
-  if !item then return playerData end
+  if !item or type(item) == "string" then return playerData end
 
   playerData.activePlayerModel = item.itemID
 
