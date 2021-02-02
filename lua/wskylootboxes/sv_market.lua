@@ -46,7 +46,7 @@ net.Receive("WskyTTTLootboxes_BuyFromMarket", function (len, ply)
     baseItem = playerModels[item.modelName]
   end
 
-  itemTable[itemID].value = math.Round(valueDepreciationFn() * generateItemValue(item.type, tierNum, baseItem.value))
+  itemTable[itemID].value = math.Round(valueDepreciationFn() * generateItemValue(item.type, tierNum, baseItem and baseItem.value or 0))
 
   table.Merge(playerData.inventory, itemTable)
   savePlayerData(steam64, playerData)
