@@ -1,8 +1,40 @@
 if CLIENT then return end
 
-dailyStoreItems = {}
+function getDailyStoreData()
+  local dailyStoreItems = {}
+
+  local fileName = dir.."/dailyStore.json"
+  checkAndCreateDir(dir)
+  local fileOutput = file.Read(fileName)
+  if not fileOutput or string.len(fileOutput) <= 0 then
+    local starterData = {}
+    file.Write(fileName, util.TableToJSON(starterData))
+    dailyStoreItems = starterData
+  else
+    dailyStoreItems = util.JSONToTable(fileOutput)
+  end
+
+  return table.Copy(dailyStoreItems)
+end
+
+function saveDailyStoreData(storeData)
+  if (!storeData) then return end
+
+  local fileName = dir.."/dailyStore.json"
+  checkAndCreateDir(dir)
+
+  file.Write(fileName, util.TableToJSON(storeData))
+end
+
+function refreshStoreWithDailys()
+  storeItems = {}
+  table.Add(storeItems, fixedStoreItems)
+  table.Add(storeItems, getDailyStoreData())
+end
 
 function generateDailyStore()
+
+  saveDailyStoreData({})
 
   local weaponItem, playerModelItem, vipPlayerModelItem = {}, {}, {}
 
@@ -26,15 +58,10 @@ function generateDailyStore()
     item.value = math.min(2000, math.Round(item.value * ( item.type == "weapon" and 2.5 or 7 )))
   end
 
-  dailyStoreItems = table.Copy(items)
-
-  storeItems = {}
-  table.Add(storeItems, fixedStoreItems)
-  table.Add(storeItems, dailyStoreItems)
+  saveDailyStoreData(items)
+  refreshStoreWithDailys()
 end
 
-if table.Count(dailyStoreItems) < 1 then
-  generateDailyStore()
-end
+refreshStoreWithDailys()
 
 concommand.Add("wskylootboxes_generateDaily", generateDailyStore)
