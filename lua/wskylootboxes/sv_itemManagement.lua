@@ -8,7 +8,7 @@ util.AddNetworkString("WskyTTTLootboxes_RenameItem")
 
 util.AddNetworkString("WskyTTTLootboxes_SetEntityCustomName")
 
-function unEquipItem(playerData, itemID)
+function unEquipItem(steam64, playerData, itemID)
   local item = playerData.inventory[itemID]
 
   if (!item) then
@@ -23,6 +23,8 @@ function unEquipItem(playerData, itemID)
   if (item.type == "playerModel" and playerData.activePlayerModel == itemID) then
     playerData.activePlayerModel = ""
   end
+
+  savePlayerData(steam64, playerData)
 
   return playerData
 end
@@ -40,7 +42,7 @@ net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
     return
   end
 
-  unEquipItem(playerData, itemID)
+  unEquipItem(steam64, playerData, itemID)
 
   local item = table.Copy(playerData.inventory[itemID])
   if (!item) then return end
@@ -87,7 +89,7 @@ net.Receive("WskyTTTLootboxes_ScrapItem", function (len, ply)
     return
   end
 
-  unEquipItem(playerData, itemID)
+  unEquipItem(steam64, playerData, itemID)
 
   playerData = updatePlayerScrap(steam64, playerData.scrap + playerData.inventory[itemID].value)
   playerData.inventory[itemID] = nil
@@ -180,6 +182,10 @@ net.Receive("WskyTTTLootboxes_EquipItem", function (len, ply)
 
     for i, equippedItemID in ipairs(loadout) do
       local equippedItem = getPlayerItem(playerData, equippedItemID)
+      if !equippedItem then
+        loadout[i] = nil
+        break
+      end
       local equippedItemCat = getWeaponCategory(equippedItem.className)
       if equippedItemCat == newItemCat then table.remove(loadout, i) end
     end
@@ -210,7 +216,7 @@ net.Receive("WskyTTTLootboxes_UnequipItem", function (len, ply)
     return
   end
 
-  unEquipItem(playerData, itemID)
+  unEquipItem(steam64, playerData, itemID)
 
   savePlayerData(steam64, playerData)
 
