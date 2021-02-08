@@ -7,6 +7,8 @@ CreateClientConVar("wskylootboxes_quick_unbox", 0, true, false, "Left click a cr
 
 local minWidth, minHeight = 1200, 675
 currentPlayerModel = nil
+currentPlayerModelID = nil
+currentPlayerModelBodyGroups = {}
 
 function updateMenuSize ()
   local w, h = ScrW() / 2, ScrH() / 2
@@ -197,11 +199,15 @@ function renderMenu(activeTab)
 
   if playerModelItem && playerModelItem.type == "playerModel" && playerModelItem.modelName then
     currentPlayerModel = playerModelItem.modelName
+    currentPlayerModelID = playerModelID
+    currentPlayerModelBodyGroups = playerModelItem.bodyGroups or {}
   end
 
   if !currentPlayerModel then currentPlayerModel = LocalPlayer():GetModel() end
   if currentPlayerModel == "models/player.mdl" then
     currentPlayerModel = nil
+    currentPlayerModelID = nil
+    currentPlayerModelBodyGroups = nil
   end
 
   if currentPlayerModel then
@@ -224,6 +230,27 @@ function renderMenu(activeTab)
     end
     function inventoryModelPreview:LayoutEntity(ent)
       ent:SetAngles(Angle(0, viewModelRotationDragger:GetFloatValue() - 90,  0))
+    end
+
+    for groupID, groupValue in pairs(currentPlayerModelBodyGroups) do
+      inventoryModelPreview.Entity:SetBodygroup(tonumber(groupID), groupValue)
+    end
+
+    local bodyGroups = inventoryModelPreview.Entity:GetBodyGroups()
+
+    if currentPlayerModelID and (table.Count(bodyGroups) > 1 or table.Count(bodyGroups[1].submodels) > 1) then
+      local playerModelCustomizeButton = vgui.Create("DButton", rightInventoryPanel)
+      playerModelCustomizeButton:SetText("")
+      playerModelCustomizeButton:Dock(BOTTOM)
+      playerModelCustomizeButton:SetHeight(footerSize)
+      playerModelCustomizeButton:DockMargin(margin * 3, margin * 3, margin * 3, 0)
+      playerModelCustomizeButton.Paint = function (self, w, h)
+        draw.RoundedBox(0, 0, 0, w, h, mainMenuColor)
+        draw.SimpleText("Customize PlayerModel", "WskyFontSmaller", w / 2, h / 2, COLOR_WHITE, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+      end
+      playerModelCustomizeButton.DoClick = function ()
+        renderMenu("playerModel_settings")
+      end
     end
   else
     rightInventoryPanel:Remove()
@@ -249,6 +276,12 @@ function renderMenu(activeTab)
     leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
     leftInventoryPanel:SetWidth(width)
     drawSettings(leftInventoryPanel)
+  elseif (activeTab == "playerModel_settings") then
+    rightInventoryPanel:Remove()
+    footerPanel:Remove()
+    leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
+    leftInventoryPanel:SetWidth(width)
+    drawPlayerModelSettings(leftInventoryPanel)
   else renderMenu("inventory") end
 
 end

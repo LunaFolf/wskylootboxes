@@ -4,7 +4,8 @@ include('cl_inventory.lua')
 include('cl_market.lua')
 include('cl_store.lua')
 include('cl_leaderboard.lua')
-include('cl_settings.lua')
+include('settings/cl_settings.lua')
+include('settings/cl_playerModelSettings.lua')
 
 local tabs = {
   {

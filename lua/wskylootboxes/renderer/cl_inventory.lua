@@ -45,6 +45,11 @@ function drawInventory(parent, inventory)
       local itemPreview = vgui.Create("DModelPanel", itemPreviewContainer)
       itemPreview:Dock(FILL)
       itemPreview:SetModel(itemPreviewData.data)
+      if itemPreviewData.bodyGroups then
+        for groupID, groupValue in ipairs(itemPreviewData.bodyGroups) do
+          itemPreview.Entity:SetBodygroup(groupID, groupValue)
+        end
+      end
       itemPreview:SetMouseInputEnabled(false)
       itemPreview:SetMouseInputEnabled(true)
 

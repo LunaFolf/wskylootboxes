@@ -168,11 +168,13 @@ if SERVER then
 
     local playerModel = ""
     local exoticEffect = nil
+    local bodyGroups = {}
     if playerModel then
       local playerModelItem = getPlayerItem(playerData, playerData.activePlayerModel)
       if playerModelItem and playerModelItem.modelName then
         playerModel = playerModelItem.modelName
         exoticEffect = playerModelItem.exoticParticleEffect
+        if playerModelItem.bodyGroups then bodyGroups = playerModelItem.bodyGroups end
       end
     end
     local hasCustomModel = string.len(playerModel) > 0
@@ -196,12 +198,23 @@ if SERVER then
     end
 
     local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
-    local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
+    local bodyGroupsHaveChanged = false
+    for groupID, groupValue in pairs(bodyGroups) do
+      if ply:GetBodygroup(tonumber(groupID)) != groupValue then bodyGroupsHaveChanged = true end
+    end
+    local needToUpdateModel = (hasCustomModel and (modelIsDifferentFromCurrent or bodyGroupsHaveChanged))
 
     if (needToUpdateModel) then
       ply:SetModel(playerModel)
       clearParticlesOnPlayer(ply)
       if (exoticEffect) then spawnParticleOnPlayer("playerModel", exoticEffect, ply) end
+
+
+      for i, group in ipairs(ply:GetBodyGroups()) do
+        local value = bodyGroups[group.id]
+        if value == nil then value = 0 end
+        ply:SetBodygroup(group.id, value)
+      end
     end
   end
 
@@ -393,7 +406,8 @@ function getItemPreview(item)
   if (item.type == "playerModel") then
     return {
       ["type"] = "playerModel",
-      ["data"] = item.modelName
+      ["data"] = item.modelName,
+      ["bodyGroups"] = item.bodyGroups or {}
     }
   end
 

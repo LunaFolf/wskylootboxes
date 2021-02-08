@@ -10,6 +10,7 @@ local function drawTitle(text, parent)
   label:DockMargin(0, 0, 0, margin)
   label:SetFont("WskyFontRegular")
   label:SetText(text)
+  label:SetColor(Color(40,40,40,255))
 end
 
 function drawSettings(parent)
@@ -17,7 +18,7 @@ function drawSettings(parent)
   settingsPanel:Dock(FILL)
   settingsPanel:DockPadding(padding * 4, padding * 4, padding * 4, padding * 4)
   settingsPanel.Paint = function (self, w, h)
-    draw.RoundedBox(0, 0, 0, w, h, Color(75, 75, 75, 255))
+    draw.RoundedBox(0, 0, 0, w, h, Color(125, 125, 125, 125))
   end
 
   drawTitle("Inventory Settings", settingsPanel)
@@ -90,6 +91,7 @@ function drawSettings(parent)
   notificationVolumeLabel:DockMargin(0, margin, 0, margin)
   notificationVolumeLabel:SetFont("WskyFontSmaller")
   notificationVolumeLabel:SetText(labelText)
+  notificationVolumeLabel:SetColor(Color(40,40,40,255))
 
   local notificationVolume = GetConVar("wskylootboxes_volume")
   local notificationVolumeSlider = vgui.Create("DNumSlider", settingsPanel)
