@@ -40,7 +40,6 @@ function drawPlayerModelSettings(parent)
   end
 
   for groupID, groupValue in pairs(currentPlayerModelBodyGroups) do
-    print(groupID, groupValue)
     inventoryModelPreview.Entity:SetBodygroup(tonumber(groupID), groupValue)
   end
 
