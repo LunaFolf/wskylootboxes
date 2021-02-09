@@ -72,6 +72,7 @@ if CLIENT then
     Frame:SetVisible(true)
     Frame:SetDraggable(draggable)
     Frame:ShowCloseButton(false)
+    Frame:SetScreenLock(true)
     Frame:Center()
     Frame.Paint = function(self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(65, 65, 65, 225))
@@ -88,9 +89,6 @@ if CLIENT then
       end
     end
     Frame:MakePopup()
-    Frame.OnKeyCodePressed = function (_, key)
-      if (key == KEY_ESCAPE or key == KEY_FIRST or key == KEY_BACKSPACE or key == KEY_TAB) then Frame:Close() end
-    end
 
     local CloseBtn = vgui.Create("DButton", Frame)
     CloseBtn:SetText( "X" )
@@ -103,6 +101,9 @@ if CLIENT then
     CloseBtn.DoClick = function()
       Frame:Close()
     end
+
+    Frame:SetMouseInputEnabled(true)
+    Frame:SetKeyboardInputEnabled(false)
 
     return Frame
   end
@@ -188,6 +189,7 @@ if SERVER then
 
       table.Merge(playerData.inventory, {
         [newItemID] = {
+          ["type"] = "playerModel",
           ["modelName"] = modelKeys[modelNum],
           ["createdAt"] = os.time()
         }

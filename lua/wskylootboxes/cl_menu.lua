@@ -3,6 +3,7 @@ if SERVER then return end
 include('renderer/cl_renderer_init.lua')
 
 CreateClientConVar("wskylootboxes_confirm_scrap", 1, true, false, "Show confirmation popup when scrapping an item.")
+CreateClientConVar("wskylootboxes_quick_scrap", 0, true, false, "Use ALT + Right Click to quickly scrap items.")
 CreateClientConVar("wskylootboxes_quick_unbox", 0, true, false, "Left click a crate to unbox it instantly.")
 
 local minWidth, minHeight = 1200, 675
@@ -17,6 +18,7 @@ function updateMenuSize ()
   stockItemHeight = ((renderingHeight - (margin * 9)) / 9)
 end
 
+timeLastPress = SysTime()
 menuOpen = false
 menuRef = nil
 width, height = ScrW() / 2, ScrH() / 2
@@ -40,9 +42,19 @@ concommand.Add("wskylootboxes_menu", function ()
 end)
 
 hook.Add("PlayerButtonUp", "WskyTTTLootboxes_RequestInventoryData", function (ply, key)
-  if (menuOpen or (key ~= KEY_F3 and key ~= KEY_I)) then return end
-  menuOpen = true
-  requestFreshPlayerData(true)
+  local keyIsValid = (key == KEY_F3 or key == KEY_I)
+  if !keyIsValid then return end
+
+  if (SysTime() - 0.5) < timeLastPress then return end
+  timeLastPress = SysTime()
+
+  if (!menuRef) then
+    menuOpen = true
+    requestFreshPlayerData(true)
+  elseif (menuRef) then
+    menuRef:Close()
+    menuOpen = false
+  end
 end)
 
 function paginationRequestData(activeTab)

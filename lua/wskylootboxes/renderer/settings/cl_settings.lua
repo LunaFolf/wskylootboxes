@@ -10,16 +10,13 @@ local function drawTitle(text, parent)
   label:DockMargin(0, 0, 0, margin)
   label:SetFont("WskyFontRegular")
   label:SetText(text)
-  label:SetColor(Color(40,40,40,255))
 end
 
 function drawSettings(parent)
   local settingsPanel = vgui.Create("DPanel", parent)
   settingsPanel:Dock(FILL)
   settingsPanel:DockPadding(padding * 4, padding * 4, padding * 4, padding * 4)
-  settingsPanel.Paint = function (self, w, h)
-    draw.RoundedBox(0, 0, 0, w, h, Color(125, 125, 125, 125))
-  end
+  settingsPanel.Paint = function () end
 
   drawTitle("Inventory Settings", settingsPanel)
 
@@ -36,6 +33,18 @@ function drawSettings(parent)
   confirmScrapSetting:SetText("Show confirmation before scrapping items")
   confirmScrapSetting:SetConVar("wskylootboxes_confirm_scrap")
   confirmScrapSetting:SizeToContents()
+
+  local quickScrapSetting = settingsPanel:Add("DCheckBoxLabel")
+  quickScrapSetting:SetDisabled(confirmScrapSetting:GetValue())
+  quickScrapSetting:DockMargin(padding * 4, margin, 0, margin)
+  quickScrapSetting:Dock(TOP)
+  quickScrapSetting:SetText("Use ALT + Right Click to quickly scrap items")
+  quickScrapSetting:SetConVar("wskylootboxes_quick_scrap")
+  quickScrapSetting:SizeToContents()
+
+  confirmScrapSetting.OnChange = function (self, value)
+    quickScrapSetting:SetDisabled(value)
+  end
 
   drawTitle("UI Settings", settingsPanel)
 

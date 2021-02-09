@@ -38,6 +38,9 @@ net.Receive("WskyTTTLootboxes_PlayerModelBodyGroup", function (len, ply)
   local groupValue = net.ReadFloat()
 
   local item = getPlayerItem(playerData, itemID)
+
+  if !item then return end
+
   if !item.bodyGroups then
     table.Merge(item, {
       ["bodyGroups"] = {}

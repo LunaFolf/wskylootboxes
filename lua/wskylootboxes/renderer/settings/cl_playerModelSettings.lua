@@ -2,9 +2,7 @@ function drawPlayerModelSettings(parent)
   local settingsPanel = vgui.Create("DPanel", parent)
   settingsPanel:Dock(FILL)
   settingsPanel:DockPadding(padding * 4, padding * 4, padding * 4, padding * 4)
-  settingsPanel.Paint = function (self, w, h)
-    draw.RoundedBox(0, 0, 0, w, h, Color(125, 125, 125, 125))
-  end
+  settingsPanel.Paint = function () end
 
   local leftInventoryPanel = vgui.Create("DPanel", settingsPanel)
   leftInventoryPanel:Dock(LEFT)
@@ -64,15 +62,14 @@ function drawPlayerModelSettings(parent)
       bodyGroupLabel:SetWidth(textWidth)
       bodyGroupLabel:SetFont("WskyFontSmaller")
       bodyGroupLabel:SetText(group.name)
-      bodyGroupLabel:SetColor(Color(40,40,40,255))
 
       local bodyGroupSlider = vgui.Create("DNumSlider", sliderContainer)
       bodyGroupSlider:Dock(RIGHT)
       bodyGroupSlider:SetWidth(width)
       bodyGroupSlider:SetMin(0)
-      bodyGroupSlider:SetValue(curBodyGroupValue)
       bodyGroupSlider:SetMax(table.Count(group.submodels) - 1)
       bodyGroupSlider:SetDecimals(0)
+      bodyGroupSlider:SetValue(curBodyGroupValue)
 
       bodyGroupSlider.OnValueChanged = function (self, value)
         value = math.Round(value)

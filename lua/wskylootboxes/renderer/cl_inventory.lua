@@ -3,6 +3,9 @@ function drawInventory(parent, inventory)
   local quickOpenConvar = GetConVar("wskylootboxes_quick_unbox")
   if !quickOpenConvar then quickOpenConvar = false else quickOpenConvar = quickOpenConvar:GetBool() end
 
+  local quickScrapConvar = GetConVar("wskylootboxes_quick_scrap")
+  if !quickScrapConvar then quickScrapConvar = false else quickScrapConvar = quickScrapConvar:GetBool() end
+
   local itemNum = 0
   for itemIndex, item in pairs(inventory) do
     local itemID = item.itemID
@@ -46,7 +49,7 @@ function drawInventory(parent, inventory)
       itemPreview:Dock(FILL)
       itemPreview:SetModel(itemPreviewData.data)
       if itemPreviewData.bodyGroups then
-        for groupID, groupValue in ipairs(itemPreviewData.bodyGroups) do
+        for groupID, groupValue in pairs(itemPreviewData.bodyGroups) do
           itemPreview.Entity:SetBodygroup(groupID, groupValue)
         end
       end
@@ -120,22 +123,28 @@ function drawInventory(parent, inventory)
     itemButtonClickable:SetMouseInputEnabled(true)
     itemButtonClickable.Paint = function (self, w, h)
       local equipped = false
+      local quickScrap = quickScrapConvar and LocalPlayer():KeyDown(IN_ALT1)
 
       if table.HasValue(playerData.loadout, itemID) then equipped = true end
       if playerData.activePlayerModel == itemID then equipped = true end
 
-      if (equipped) then
-        surface.SetDrawColor(120, 255, 120, 120)
+      if quickScrap and self:IsHovered() then
+        surface.SetDrawColor(globalColors.warning)
+        surface.DrawOutlinedRect(0, 0, w, h, 2)
+      elseif equipped then
+        surface.SetDrawColor(globalColors.positive)
         surface.DrawOutlinedRect(0, 0, w, h, 1)
       end
 
       if !self:IsHovered() then return end
       local text = ""
       if string.StartWith(item.type, "crate_") and quickOpenConvar then text = "Open Crate?" end
+      if quickScrap then text = "Right click to quick-scrap for "..formatScrap(item.value) end
       draw.RoundedBox(0, 0, 0, w, h, Color(0, 0, 0, 125))
       draw.SimpleText(text, "WskyFontDefault", w / 2, h / 2, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
 
       local extraText = "Right click for options"
+      if quickScrap then extraText = "" end
       surface.SetFont("WskyFontSmaller")
       local _, textHeight = surface.GetTextSize(extraText)
       draw.SimpleText(extraText, "WskyFontSmaller", w / 2, h - (textHeight + margin), Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
@@ -143,7 +152,14 @@ function drawInventory(parent, inventory)
     local highestParent = getHighestParent(parent)
     local inventoryModelPreview = highestParent:Find("playerModelPreview")
     itemButtonClickable.DoRightClick = function (self)
-      rightClickItem(highestParent, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
+      if quickScrapConvar and LocalPlayer():KeyDown(IN_ALT1) then
+        net.Start("WskyTTTLootboxes_ScrapItem")
+          net.WriteString(itemID)
+          net.WriteTable(pagination.inventory)
+        net.SendToServer()
+      else
+        rightClickItem(highestParent, item, itemID, itemName, itemPreviewData, inventoryModelPreview)
+      end
     end
 
     if (string.StartWith(item.type, "crate_") and quickOpenConvar) then

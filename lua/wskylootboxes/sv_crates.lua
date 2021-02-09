@@ -86,6 +86,7 @@ end
 
 function GiveOutFreeCrates(excludedPlayers)
   for _, ply in pairs(player.GetAll()) do
+    if ply:IsBot() then return end
     local steam64 = ply:SteamID64()
     if excludedPlayers and table.HasValue(excludedPlayers, steam64) then return end
     local playerData = getPlayerData(steam64)
