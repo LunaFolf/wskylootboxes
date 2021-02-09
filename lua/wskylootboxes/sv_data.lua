@@ -62,14 +62,15 @@ function getPaginated(tableData, currentPage, sort, steam64)
   end
 
   local output = {}
-  local startPos, endPos = ((currentPage - 1) * paginationPerPageLimit) + 1, currentPage * paginationPerPageLimit
   local totalNumberOfPages = math.ceil(table.Count(tableData) / paginationPerPageLimit)
+  if currentPage > totalNumberOfPages then currentPage = totalNumberOfPages end
+  local startPos, endPos = ((currentPage - 1) * paginationPerPageLimit) + 1, currentPage * paginationPerPageLimit
 
   for i=startPos,endPos do
     table.insert(output, tableData[i])
   end
 
-  return output, totalNumberOfPages
+  return output, totalNumberOfPages, currentPage
 end
 
 function getStarterMarketData()
@@ -233,7 +234,7 @@ function sendClientFreshPlayerData(player, currentPage, playerData, openMenu)
   local steam64 = player:SteamID64()
   playerData = playerData or getPlayerData(steam64)
   currentPage = (currentPage or (math.ceil(math.max(1, table.Count(playerData.inventory)) / paginationPerPageLimit)))
-  playerData.inventory, totalPages = getPaginated(playerData.inventory, currentPage, true, steam64)
+  playerData.inventory, totalPages, currentPage = getPaginated(playerData.inventory, currentPage, true, steam64)
   sendPlayerData(player, currentPage, totalPages, {
     ["player"] = playerData or getPlayerData(steam64)
   }, openMenu and "inventory" or nil)
@@ -247,7 +248,7 @@ function sendClientFreshMarketData(players, currentPage, marketData, openMenu)
 
   marketData = marketData or getMarketData()
   currentPage = (currentPage or (math.ceil(math.max(1, table.Count(marketData.items)) / paginationPerPageLimit)))
-  marketData.items, totalPages = getPaginated(marketData.items, currentPage, false)
+  marketData.items, totalPages, currentPage = getPaginated(marketData.items, currentPage, false)
 
   for i, player in ipairs(players) do
     sendPlayerData(player, currentPage, totalPages, {
@@ -274,7 +275,6 @@ function sendPlayerData(ply, currentPage, totalPages, data, openMenu)
   if (!ply or !data) then return end
 
   currentPage, totalPages = currentPage or 1, totalPages or 1
-  if currentPage > totalPages then currentPage = totalPages end
 
   whichTab = nil
 

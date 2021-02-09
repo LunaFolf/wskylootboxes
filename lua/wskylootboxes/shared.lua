@@ -72,6 +72,7 @@ if CLIENT then
     Frame:SetVisible(true)
     Frame:SetDraggable(draggable)
     Frame:ShowCloseButton(false)
+    Frame:SetScreenLock(true)
     Frame:Center()
     Frame.Paint = function(self, w, h)
       draw.RoundedBox(0, 0, 0, w, h, Color(65, 65, 65, 225))
@@ -88,9 +89,6 @@ if CLIENT then
       end
     end
     Frame:MakePopup()
-    Frame.OnKeyCodePressed = function (_, key)
-      if (key == KEY_ESCAPE or key == KEY_FIRST or key == KEY_BACKSPACE or key == KEY_TAB) then Frame:Close() end
-    end
 
     local CloseBtn = vgui.Create("DButton", Frame)
     CloseBtn:SetText( "X" )
@@ -103,6 +101,9 @@ if CLIENT then
     CloseBtn.DoClick = function()
       Frame:Close()
     end
+
+    Frame:SetMouseInputEnabled(true)
+    Frame:SetKeyboardInputEnabled(false)
 
     return Frame
   end
@@ -168,11 +169,13 @@ if SERVER then
 
     local playerModel = ""
     local exoticEffect = nil
+    local bodyGroups = {}
     if playerModel then
       local playerModelItem = getPlayerItem(playerData, playerData.activePlayerModel)
       if playerModelItem and playerModelItem.modelName then
         playerModel = playerModelItem.modelName
         exoticEffect = playerModelItem.exoticParticleEffect
+        if playerModelItem.bodyGroups then bodyGroups = playerModelItem.bodyGroups end
       end
     end
     local hasCustomModel = string.len(playerModel) > 0
@@ -186,6 +189,7 @@ if SERVER then
 
       table.Merge(playerData.inventory, {
         [newItemID] = {
+          ["type"] = "playerModel",
           ["modelName"] = modelKeys[modelNum],
           ["createdAt"] = os.time()
         }
@@ -196,12 +200,23 @@ if SERVER then
     end
 
     local modelIsDifferentFromCurrent = ( string.lower(playerModel) ~= string.lower(ply:GetModel()) )
-    local needToUpdateModel = (hasCustomModel and modelIsDifferentFromCurrent)
+    local bodyGroupsHaveChanged = false
+    for groupID, groupValue in pairs(bodyGroups) do
+      if ply:GetBodygroup(tonumber(groupID)) != groupValue then bodyGroupsHaveChanged = true end
+    end
+    local needToUpdateModel = (hasCustomModel and (modelIsDifferentFromCurrent or bodyGroupsHaveChanged))
 
     if (needToUpdateModel) then
       ply:SetModel(playerModel)
       clearParticlesOnPlayer(ply)
       if (exoticEffect) then spawnParticleOnPlayer("playerModel", exoticEffect, ply) end
+
+
+      for i, group in ipairs(ply:GetBodyGroups()) do
+        local value = bodyGroups[group.id]
+        if value == nil then value = 0 end
+        ply:SetBodygroup(group.id, value)
+      end
     end
   end
 
@@ -393,7 +408,8 @@ function getItemPreview(item)
   if (item.type == "playerModel") then
     return {
       ["type"] = "playerModel",
-      ["data"] = item.modelName
+      ["data"] = item.modelName,
+      ["bodyGroups"] = item.bodyGroups or {}
     }
   end
 

@@ -3,10 +3,13 @@ if SERVER then return end
 include('renderer/cl_renderer_init.lua')
 
 CreateClientConVar("wskylootboxes_confirm_scrap", 1, true, false, "Show confirmation popup when scrapping an item.")
+CreateClientConVar("wskylootboxes_quick_scrap", 0, true, false, "Use ALT + Right Click to quickly scrap items.")
 CreateClientConVar("wskylootboxes_quick_unbox", 0, true, false, "Left click a crate to unbox it instantly.")
 
 local minWidth, minHeight = 1200, 675
 currentPlayerModel = nil
+currentPlayerModelID = nil
+currentPlayerModelBodyGroups = {}
 
 function updateMenuSize ()
   local w, h = ScrW() / 2, ScrH() / 2
@@ -15,6 +18,7 @@ function updateMenuSize ()
   stockItemHeight = ((renderingHeight - (margin * 9)) / 9)
 end
 
+timeLastPress = SysTime()
 menuOpen = false
 menuRef = nil
 width, height = ScrW() / 2, ScrH() / 2
@@ -38,9 +42,19 @@ concommand.Add("wskylootboxes_menu", function ()
 end)
 
 hook.Add("PlayerButtonUp", "WskyTTTLootboxes_RequestInventoryData", function (ply, key)
-  if (menuOpen or (key ~= KEY_F3 and key ~= KEY_I)) then return end
-  menuOpen = true
-  requestFreshPlayerData(true)
+  local keyIsValid = (key == KEY_F3 or key == KEY_I)
+  if !keyIsValid then return end
+
+  if (SysTime() - 0.5) < timeLastPress then return end
+  timeLastPress = SysTime()
+
+  if (!menuRef) then
+    menuOpen = true
+    requestFreshPlayerData(true)
+  elseif (menuRef) then
+    menuRef:Close()
+    menuOpen = false
+  end
 end)
 
 function paginationRequestData(activeTab)
@@ -197,11 +211,15 @@ function renderMenu(activeTab)
 
   if playerModelItem && playerModelItem.type == "playerModel" && playerModelItem.modelName then
     currentPlayerModel = playerModelItem.modelName
+    currentPlayerModelID = playerModelID
+    currentPlayerModelBodyGroups = playerModelItem.bodyGroups or {}
   end
 
   if !currentPlayerModel then currentPlayerModel = LocalPlayer():GetModel() end
   if currentPlayerModel == "models/player.mdl" then
     currentPlayerModel = nil
+    currentPlayerModelID = nil
+    currentPlayerModelBodyGroups = nil
   end
 
   if currentPlayerModel then
@@ -224,6 +242,27 @@ function renderMenu(activeTab)
     end
     function inventoryModelPreview:LayoutEntity(ent)
       ent:SetAngles(Angle(0, viewModelRotationDragger:GetFloatValue() - 90,  0))
+    end
+
+    for groupID, groupValue in pairs(currentPlayerModelBodyGroups) do
+      inventoryModelPreview.Entity:SetBodygroup(tonumber(groupID), groupValue)
+    end
+
+    local bodyGroups = inventoryModelPreview.Entity:GetBodyGroups()
+
+    if currentPlayerModelID and (table.Count(bodyGroups) > 1 or table.Count(bodyGroups[1].submodels) > 1) then
+      local playerModelCustomizeButton = vgui.Create("DButton", rightInventoryPanel)
+      playerModelCustomizeButton:SetText("")
+      playerModelCustomizeButton:Dock(BOTTOM)
+      playerModelCustomizeButton:SetHeight(footerSize)
+      playerModelCustomizeButton:DockMargin(margin * 3, margin * 3, margin * 3, 0)
+      playerModelCustomizeButton.Paint = function (self, w, h)
+        draw.RoundedBox(0, 0, 0, w, h, mainMenuColor)
+        draw.SimpleText("Customize PlayerModel", "WskyFontSmaller", w / 2, h / 2, COLOR_WHITE, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+      end
+      playerModelCustomizeButton.DoClick = function ()
+        renderMenu("playerModel_settings")
+      end
     end
   else
     rightInventoryPanel:Remove()
@@ -249,6 +288,12 @@ function renderMenu(activeTab)
     leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
     leftInventoryPanel:SetWidth(width)
     drawSettings(leftInventoryPanel)
+  elseif (activeTab == "playerModel_settings") then
+    rightInventoryPanel:Remove()
+    footerPanel:Remove()
+    leftInventoryPanel:SetHeight(height - (titleBarHeight + tabsSize))
+    leftInventoryPanel:SetWidth(width)
+    drawPlayerModelSettings(leftInventoryPanel)
   else renderMenu("inventory") end
 
 end

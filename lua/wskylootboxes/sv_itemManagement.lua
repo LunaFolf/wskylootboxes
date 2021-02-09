@@ -5,6 +5,7 @@ util.AddNetworkString("WskyTTTLootboxes_ScrapItem")
 util.AddNetworkString("WskyTTTLootboxes_EquipItem")
 util.AddNetworkString("WskyTTTLootboxes_UnequipItem")
 util.AddNetworkString("WskyTTTLootboxes_RenameItem")
+util.AddNetworkString("WskyTTTLootboxes_PlayerModelBodyGroup")
 
 util.AddNetworkString("WskyTTTLootboxes_SetEntityCustomName")
 
@@ -28,6 +29,27 @@ function unEquipItem(steam64, playerData, itemID)
 
   return playerData
 end
+
+net.Receive("WskyTTTLootboxes_PlayerModelBodyGroup", function (len, ply)
+  local steam64 = ply:SteamID64()
+  local playerData = getPlayerData(steam64)
+  local itemID = net.ReadString()
+  local groupID = net.ReadFloat()
+  local groupValue = net.ReadFloat()
+
+  local item = getPlayerItem(playerData, itemID)
+
+  if !item then return end
+
+  if !item.bodyGroups then
+    table.Merge(item, {
+      ["bodyGroups"] = {}
+    })
+  end
+  item.bodyGroups[groupID] = groupValue
+
+  savePlayerData(steam64, playerData)
+end)
 
 net.Receive("WskyTTTLootboxes_SellItem", function (len, ply)
   local steam64 = ply:SteamID64()
