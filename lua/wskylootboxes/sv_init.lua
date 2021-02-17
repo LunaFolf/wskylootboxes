@@ -34,6 +34,8 @@ include('sv_store.lua')
 include('sv_debug.lua')
 include('sv_exoticParticles.lua')
 
+include('sv_jaxbot.lua')
+
 include('sv_cron.lua')
 
 include('sv_hooks.lua')

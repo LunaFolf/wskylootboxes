@@ -1,5 +1,12 @@
 if SERVER then return end
 
+local suicideTaunts = {
+  "How'd you manage that then?",
+  "*facepalm*",
+  "can't blame that one on the dog...",
+  "did you do a flip?"
+}
+
 CreateClientConVar("wskylootboxes_volume", 0.25, true, false, "The volume of lootbox notifications")
 
 local padding = 8
@@ -254,6 +261,7 @@ net.Receive("WskyTTTLootboxes_ClientDeathMessage", function ()
   local attackerRole = net.ReadFloat()
   local weaponName = net.ReadString()
   local weaponNameIsClass = net.ReadBool()
+  local suicide = net.ReadBool()
 
   local weaponNameSet = (weaponName ~= "")
 
@@ -274,6 +282,11 @@ net.Receive("WskyTTTLootboxes_ClientDeathMessage", function ()
   elseif attackerRole == 2 then
     attackerRole = "Detective"
     roleColor = Color(25, 25, 200, 200)
+  end
+
+  if suicide then
+    chat.AddText(Color(255, 255, 255), "You were killed by ", roleColor, "Yourself", Color(255, 255, 255), ", ", suicideTaunts[ math.Round( math.Rand(1, table.Count(suicideTaunts)) ) ] )
+    return
   end
 
   chat.AddText(Color(255, 255, 255), "You were killed by ", roleColor, attackerName, Color(255, 255, 255), (weaponNameSet and " using " or ""), topHatBlue, weaponName, Color(255, 255, 255), ". They were ", roleColor, attackerRole, Color(255, 255, 255), ".")

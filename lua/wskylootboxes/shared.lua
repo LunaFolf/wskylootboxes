@@ -225,6 +225,12 @@ if SERVER then
       SetPlayerModel(ply)
     end
   end
+
+  function postToJaxbot(url, body, onSuccess, onFailure)
+    http.Post("https://api.jaxbot.co.uk/"..url, body, onSuccess or nil, onFailure or nil, {
+      ["jax-client-token"] = "ce8614e9-1635-486c-9a86-a25ef62955d6"
+    })
+  end
 end
 
 local random = math.random
