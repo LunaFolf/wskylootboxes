@@ -30,15 +30,6 @@ hook.Add("PlayerSpawn", "WskyTTTLootboxes_GiveActiveWeapons", function (ply)
   timer.Simple(0.2, function ()
     SetPlayerModel(ply)
   end)
-
-  postToJaxbot("gameEvent",
-
-  -- BodyData crap
-  {
-    ["gamemode"] = engine.ActiveGamemode(),
-    ["event_type"] = "respawn",
-    ["steamid"] = steam64
-  })
 end)
 
 function voidSpectators()
@@ -63,16 +54,6 @@ hook.Add("TTTEndRound", "WskyTTTLootboxes_TTTEndRound", function ()
   timer.Destroy("WskyTTTLootboxes_CheckPlayerModelChange")
   timer.Simple(0.2, GetPlayersAndSetModels)
   GiveOutFreeCrates(playersInSpectateMode)
-
-  timer.Simple(0.2, function ()
-    postToJaxbot("gameEvent",
-
-    -- BodyData crap
-    {
-      ["gamemode"] = engine.ActiveGamemode(),
-      ["event_type"] = "round_end"
-    })
-  end)
 end)
 
 hook.Add("PlayerDeath", "WskyTTTLootboxes_PlayerDeathMessage", function (victim, inflictor, attacker)
@@ -85,10 +66,12 @@ hook.Add("PlayerDeath", "WskyTTTLootboxes_PlayerDeathMessage", function (victim,
 
   local deathByExplosion = false
 
-  if (inflictor.GetClass and inflictor:GetClass() == "env_explosion") then
-    deathByExplosion = true
-    wep = nil
-    weaponName = "Explosion"
+  if (inflictor.GetClass and IsValid(inflictor)) then
+    if (inflictor:GetClass() == "env_explosion") then
+      deathByExplosion = true
+      wep = nil
+      weaponName = "Explosion"
+    end
   end
 
   local fallback = "#NOCUSTOM#"
@@ -109,19 +92,6 @@ hook.Add("PlayerDeath", "WskyTTTLootboxes_PlayerDeathMessage", function (victim,
     net.WriteBool(weaponNameIsClass)
     net.WriteBool(suicide)
   net.Send(victim)
-
-  postToJaxbot("gameEvent",
-
-  -- BodyData crap
-  {
-    ["gamemode"] = engine.ActiveGamemode(),
-    ["event_type"] = "death",
-    ["attacker_nickname"] = attacker:Nick(),
-    ["attacker_steamid"] = attacker:SteamID64(),
-    ["victim_nickname"] = victim:Nick(),
-    ["victim_steamid"] = victim:SteamID64(),
-    ["cause_of_death"] = suicide and "Suicide" or weaponName
-  })
 end)
 
 hook.Add("PlayerDroppedWeapon", "WskyTTTLootboxes_WeaponDropped", function (owner, weapon)

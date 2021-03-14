@@ -47,6 +47,9 @@ primaryWeapons = {
   ["weapon_ttt_m16"] = {
     ["value"] = 205
   },
+  ["weapon_ap_hbadger"] = {
+    ["value"] = 215
+  },
   ["weapon_ttt_galil"] = {
     ["value"] = 225
   },
@@ -323,6 +326,12 @@ vipPlayerModels = {
   ["models/player/teslapower.mdl"] = {
     ["value"] = 165
   },
+  ["models/half-dead/Gopniks/extra/playermodelonly.mdl"] = {
+    ["value"] = 107
+  },
+  ["models/humans/hev_mark2.mdl"] = {
+    ["value"] = 87
+  },
   ["models/player/foohysaurusrex.mdl"] = {
     ["value"] = 135
   },
@@ -343,6 +352,9 @@ vipPlayerModels = {
   },
   ["models/rosaria/genshin_impact/rstar/rosaria/rosaria.mdl"] = {
     ["value"] = 102
+  },
+  ["models/player/darky_m/rust/hazmat.mdl"] = {
+    ["value"] = 122
   }
 }
 
@@ -368,7 +380,7 @@ exclusiveModels = {
   ["76561198412400073"] = {
     {
       ["type"] = "playerModel",
-      ["modelName"] = "models/konnie/isa/detroit/connor.mdl"
+      ["modelName"] = "models/hlvr/characters/combine/grunt/combine_grunt_hlvr_player.mdl"
     }
   },
   ["76561198891822681"] = {

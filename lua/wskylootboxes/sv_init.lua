@@ -15,11 +15,9 @@ AddCSLuaFile('wskylootboxes/renderer/cl_inventory.lua')
 AddCSLuaFile('wskylootboxes/cl_notifications.lua')
 AddCSLuaFile('wskylootboxes/cl_weaponNaming.lua')
 
-AddCSLuaFile('shared.lua')
 AddCSLuaFile('config.lua')
 
 include('config.lua')
-include('shared.lua')
 
 include('sv_downloads.lua')
 
