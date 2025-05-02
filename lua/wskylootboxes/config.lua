@@ -14,9 +14,6 @@ primaryWeapons = {
   ["weapon_sp_winchester"] = {
     ["value"] = 310
   },
-  ["weapon_752_bowcaster"] = {
-    ["value"] = 310
-  },
   ["weapon_zm_rifle"] = {
     ["value"] = 310
   },
@@ -26,23 +23,11 @@ primaryWeapons = {
   ["weapon_ttt_aug"] = {
     ["value"] = 187
   },
-  ["weapon_752_ihr"] = {
-    ["value"] = 180
-  },
-  ["weapon_752_dc15s"] = {
-    ["value"] = 220
-  },
   ["weapon_ttt_sg550"] = {
     ["value"] = 210
   },
   ["weapon_ap_mrca1"] = {
     ["value"] = 190
-  },
-  ["weapon_752_e5"] = {
-    ["value"] = 210
-  },
-  ["weapon_752_dc15a"] = {
-    ["value"] = 250
   },
   ["weapon_ttt_m16"] = {
     ["value"] = 205
@@ -89,9 +74,6 @@ primaryWeapons = {
   ["weapon_sp_dbarrel"] = {
     ["value"] = 200
   },
-  ["weapon_752_e11"] = {
-    ["value"] = 160
-  },
 }
 
 secondaryWeapons = {
@@ -110,12 +92,6 @@ secondaryWeapons = {
   ["weapon_zm_pistol"] = {
     ["value"] = 120
   },
-  ["weapon_752_elg3a"] = {
-    ["value"] = 150
-  },
-  ["weapon_752_dc17"] = {
-    ["value"] = 150
-  },
   ["weapon_ttt_dual_elites"] = {
     ["value"] = 135
   },
@@ -128,59 +104,20 @@ playerModels = {
   ["models/player/niko.mdl"] = {
     ["value"] = 65
   },
-  ["models/player/sono/starwars/442nd_trooper.mdl"] = {
-    ["value"] = 225
-  },
   ["models/player/smith.mdl"] = {
     ["value"] = 70
-  },
-  ["models/player/genshin_impact_amber.mdl"] = {
-    ["value"] = 85
   },
   ["models/player/spacesuit.mdl"] = {
     ["value"] = 87
   },
-  ["models/player/genshin_impact_xiangling.mdl"] = {
-    ["value"] = 95
-  },
   ["models/player/p2_chell.mdl"] = {
     ["value"] = 100
-  },
-  ["models/player/puggamaximus.mdl"] = {
-    ["value"] = 100
-  },
-  ["models/player/genshin_impact_razor.mdl"] = {
-    ["value"] = 115
   },
   ["models/player/linktp.mdl"] = {
     ["value"] = 115
   },
-  ["models/player/genshin_impact_albedo.mdl"] = {
-    ["value"] = 115
-  },
-  ["models/player/genshin_impact_tartaglia.mdl"] = {
-    ["value"] = 115
-  },
-  ["models/player/genshin_impact_chongyun.mdl"] = {
-    ["value"] = 105
-  },
-  ["models/player/genshin_impact_ningguang.mdl"] = {
-    ["value"] = 100
-  },
-  ["models/player/genshin_impact_xinyan.mdl"] = {
-    ["value"] = 102
-  },
-  ["models/player/genshin_impact_xiao.mdl"] = {
-    ["value"] = 104
-  },
   ["models/player/subzero.mdl"] = {
     ["value"] = 80
-  },
-  ["models/player/sono/starwars/clean_trooper.mdl"] = {
-    ["value"] = 122
-  },
-  ["models/player/sono/starwars/commander_clone.mdl"] = {
-    ["value"] = 132
   },
   ["models/player/anon/anon.mdl"] = {
     ["value"] = 100
@@ -194,65 +131,14 @@ playerModels = {
   ["models/player/drpyspy/spy.mdl"] = {
     ["value"] = 115
   },
-  ["models/player/putin.mdl"] = {
-    ["value"] = 125
-  },
-  ["models/player/genshin_impact_diluc.mdl"] = {
-    ["value"] = 135
-  },
-  ["models/player/sono/starwars/187th_trooper.mdl"] = {
-    ["value"] = 225
-  },
   ["models/ex-mo/quake3/players/doom.mdl"] = {
     ["value"] = 140
-  },
-  ["models/player/genshin_impact_zhongli.mdl"] = {
-    ["value"] = 145
-  },
-  ["models/player/uk_police/uk_police_01.mdl"] = {
-    ["value"] = 150
   },
   ["models/player/gman_high.mdl"] = {
     ["value"] = 150
   },
-  ["models/player/uk_police/uk_police_02.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/sono/starwars/green_company_trooper.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/uk_police/uk_police_03.mdl"] = {
-    ["value"] = 150
-  },
   ["models/player/breen.mdl"] = {
     ["value"] = 150
-  },
-  ["models/player/uk_police/uk_police_04.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/genshin_impact_aether.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/genshin_impact_ganyu.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/Barbara/genshin_impact/rstar/Barbara/Barbara.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/player/genshin_impact_ayaka.mdl"] = {
-    ["value"] = 150
-  },
-  ["models/fbi_pack/fbi_01.mdl"] = {
-    ["value"] = 170
-  },
-  ["models/fbi_pack/fbi_02.mdl"] = {
-    ["value"] = 170
-  },
-  ["models/fbi_pack/fbi_03.mdl"] = {
-    ["value"] = 170
-  },
-  ["models/fbi_pack/fbi_04.mdl"] = {
-    ["value"] = 170
   },
   ["models/player/MasterChiefH2_red.mdl"] = {
     ["value"] = 170
@@ -262,9 +148,6 @@ playerModels = {
   },
   ["models/player/MasterChiefH3.mdl"] = {
     ["value"] = 200
-  },
-  ["models/player/sono/starwars/501st_trooper.mdl"] = {
-    ["value"] = 185
   },
   ["models/norpo/ArkhamOrigins/Assassins/Deathstroke_ValveBiped.mdl"] = {
     ["value"] = 175
@@ -290,27 +173,6 @@ playerModels = {
   ["models/Avengers/Iron Man/mark7_player.mdl"] = {
     ["value"] = 160
   },
-  ["models/pechenko_121/Deadpool/chr_deadpool2.mdl"] = {
-    ["value"] = 160
-  },
-  ["models/defcon/loudmantis/shadows/vale.mdl"] = {
-    ["value"] = 180
-  },
-  ["models/defcon/loudmantis/shadows/riggs.mdl"] = {
-    ["value"] = 180
-  },
-  ["models/defcon/loudmantis/shadows/plank.mdl"] = {
-    ["value"] = 180
-  },
-  ["models/defcon/loudmantis/shadows/witt.mdl"] = {
-    ["value"] = 180
-  },
-  ["models/epangelmatikes/RoyalGuard/Sovereign_Protector.mdl"] = {
-    ["value"] = 175
-  },
-  ["models/epangelmatikes/RoyalGuard/Shawod_Guard.mdl"] = {
-    ["value"] = 175
-  }
 }
 
 vipPlayerModels = {
@@ -329,29 +191,14 @@ vipPlayerModels = {
   ["models/half-dead/Gopniks/extra/playermodelonly.mdl"] = {
     ["value"] = 107
   },
-  ["models/humans/hev_mark2.mdl"] = {
-    ["value"] = 87
-  },
   ["models/player/foohysaurusrex.mdl"] = {
     ["value"] = 135
-  },
-  ["models/player/genshin_impact_diona.mdl"] = {
-    ["value"] = 125
-  },
-  ["models/player/fortnite/mandalorian.mdl"] = {
-    ["value"] = 134
   },
   ["models/player/scarecrow.mdl"] = {
     ["value"] = 100
   },
   ["models/player/security_suit.mdl"] = {
     ["value"] = 125
-  },
-  ["models/player/genshin_impact_sucrose.mdl"] = {
-    ["value"] = 98
-  },
-  ["models/rosaria/genshin_impact/rstar/rosaria/rosaria.mdl"] = {
-    ["value"] = 102
   },
   ["models/player/darky_m/rust/hazmat.mdl"] = {
     ["value"] = 122
@@ -363,24 +210,6 @@ exclusiveModels = {
     {
       ["type"] = "playerModel",
       ["modelName"] = "models/player/big_boss.mdl"
-    }
-  },
-  ["76561198332078167"] = {
-    {
-      ["type"] = "playerModel",
-      ["modelName"] = "models/sansplayer/sansplayer.mdl"
-    }
-  },
-  ["76561198080812606"] = {
-    {
-      ["type"] = "playerModel",
-      ["modelName"] = "models/player/sono/starwars/commander_bly.mdl"
-    }
-  },
-  ["76561198412400073"] = {
-    {
-      ["type"] = "playerModel",
-      ["modelName"] = "models/hlvr/characters/combine/grunt/combine_grunt_hlvr_player.mdl"
     }
   },
   ["76561198891822681"] = {
@@ -403,9 +232,45 @@ roles = {
 roles = table.Reverse(roles)
 
 allWeapons = {}
-table.Merge(allWeapons, primaryWeapons)
-table.Merge(allWeapons, secondaryWeapons)
-table.Merge(allWeapons, meleeWeapons)
+
+local function FilterWeaponsAndAddToIndex(weaponsTable)
+  for key, value in pairs(weaponsTable) do
+    if weapons.Get(key) ~= nil then
+      allWeapons[key] = value
+    else
+      print("[Lootbox] WARNING: Weapon removed from loottable! " .. key)
+    end
+  end
+end
+
+FilterWeaponsAndAddToIndex(primaryWeapons)
+FilterWeaponsAndAddToIndex(secondaryWeapons)
+FilterWeaponsAndAddToIndex(meleeWeapons)
+
+local function FilterPlayerModelsTable(playerModelsTable)
+  for key, value in pairs(playerModelsTable) do
+    if not file.Exists(key, "GAME") and not util.IsValidModel(key) then
+      playerModelsTable[key] = nil
+      print("[Lootbox] WARNING: PlayerModel removed from loottable! " .. key)
+    end
+  end
+end
+
+FilterPlayerModelsTable(playerModels)
+FilterPlayerModelsTable(vipPlayerModels)
+
+local function ValidateExclusiveItems()
+  for steam64, items in pairs(exclusiveModels) do
+    for itemIndex, item in ipairs(items) do
+      if item.type == "playerModel" and not file.Exists(item.modelName, "GAME") and not util.IsValidModel(item.modelName) then
+        exclusiveModels[steam64][itemIndex] = nil
+        print("[Lootbox] WARNING: PlayerModel removed from exclusives! " .. steam64 .. " " .. item.modelName)
+      end
+    end
+  end
+end
+
+ValidateExclusiveItems()
 
 weaponTiers = {
   {
